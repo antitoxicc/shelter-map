@@ -9,9 +9,17 @@ create table if not exists public.shelters (
   status text not null default 'pending' check (status in ('pending', 'approved')),
   submitter_name text,
   submitter_contact text,
+  media_url text,
+  media_type text,
+  media_name text,
   created_at timestamptz not null default now(),
   approved_at timestamptz
 );
+
+alter table public.shelters
+  add column if not exists media_url text,
+  add column if not exists media_type text,
+  add column if not exists media_name text;
 
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -67,6 +75,32 @@ on public.admin_users
 for select
 to authenticated
 using (public.is_admin());
+
+insert into storage.buckets (id, name, public)
+values ('shelter-media', 'shelter-media', true)
+on conflict (id) do nothing;
+
+drop policy if exists "public can read shelter media" on storage.objects;
+create policy "public can read shelter media"
+on storage.objects
+for select
+to public
+using (bucket_id = 'shelter-media');
+
+drop policy if exists "anyone can upload shelter media" on storage.objects;
+create policy "anyone can upload shelter media"
+on storage.objects
+for insert
+to public
+with check (bucket_id = 'shelter-media');
+
+drop policy if exists "admins can manage shelter media" on storage.objects;
+create policy "admins can manage shelter media"
+on storage.objects
+for all
+to authenticated
+using (bucket_id = 'shelter-media' and public.is_admin())
+with check (bucket_id = 'shelter-media' and public.is_admin());
 
 insert into public.shelters (id, title, description, latitude, longitude, status)
 values
