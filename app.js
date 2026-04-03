@@ -14,13 +14,14 @@ const NON_DESCRIPTIVE_PATTERNS = [
 
 const SHELTER_TYPE_LABELS = {
   school: "Школа",
-  mamad: "МАМАД",
-  mamadit: "МАМАДИТ",
+  hospital: "Больница",
+  synagogue: "Синагога",
+  kindergarten: "Детский сад",
+  shopping_center: "Торговый центр",
+  public_shelter: "Обычный миклат общественный",
   migunit: "Мигунит",
-  public_shelter: "Общественное убежище",
-  parking: "Подземная парковка",
-  building_shelter: "Укрытие в здании",
-  other: "Другое"
+  building_shelter: "Миклат в доме",
+  public_mamad: "МАМАД общественный"
 };
 
 const statusMessage = document.getElementById("statusMessage");
