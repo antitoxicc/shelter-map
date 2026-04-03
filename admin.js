@@ -14,6 +14,8 @@ const passwordInput = document.getElementById("passwordInput");
 
 const supabase = hasSupabaseConfig() ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
+let editingShelterId = null;
+
 function setAuthMessage(message, isError = false) {
   authMessage.textContent = message;
   authMessage.style.color = isError ? "var(--danger)" : "";
@@ -46,6 +48,35 @@ function renderMediaBlock(row) {
   `;
 }
 
+function renderEditForm(row) {
+  return `
+    <form class="admin-edit-form" data-edit-form="${row.id}">
+      <label>
+        Название
+        <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
+      </label>
+      <label>
+        Описание
+        <textarea name="description" rows="4" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
+      </label>
+      <div class="grid-two">
+        <label>
+          Имя
+          <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
+        </label>
+        <label>
+          Контакт
+          <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
+        </label>
+      </div>
+      <div class="card-actions">
+        <button class="card-button approve" type="submit">Сохранить</button>
+        <button class="card-button" type="button" data-action="cancel-edit" data-id="${row.id}">Отмена</button>
+      </div>
+    </form>
+  `;
+}
+
 function renderCards(target, rows, options) {
   if (!rows.length) {
     target.innerHTML = `<p class="empty-state">${options.emptyMessage}</p>`;
@@ -54,6 +85,7 @@ function renderCards(target, rows, options) {
 
   target.innerHTML = rows.map((row) => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${row.latitude},${row.longitude}`;
+    const isEditing = editingShelterId === row.id;
     return `
       <article class="location-card">
         <h3>${escapeHtml(row.title)}</h3>
@@ -65,9 +97,11 @@ function renderCards(target, rows, options) {
         <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
         <div class="card-actions">
           <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
-          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${row.id}" type="button">Approve</button>` : ""}
-          <button class="card-button delete" data-action="delete" data-id="${row.id}" type="button">Delete</button>
+          <button class="card-button" data-action="edit" data-id="${row.id}" type="button">Редактировать</button>
+          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${row.id}" type="button">Опубликовать</button>` : ""}
+          <button class="card-button delete" data-action="delete" data-id="${row.id}" type="button">Удалить</button>
         </div>
+        ${isEditing ? renderEditForm(row) : ""}
       </article>
     `;
   }).join("");
@@ -93,6 +127,10 @@ async function loadShelters() {
   const approved = (data || []).filter((row) => row.status === "approved");
   pendingCount.textContent = String(pending.length);
   approvedCount.textContent = String(approved.length);
+
+  if (editingShelterId && !(data || []).some((row) => row.id === editingShelterId)) {
+    editingShelterId = null;
+  }
 
   renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "Нет pending-точек." });
   renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "Подтверждённых точек пока нет." });
@@ -157,7 +195,7 @@ async function moderateShelter(id, action) {
     return;
   }
 
-  setAuthMessage(action === "approve" ? "Подтверждаем точку..." : "Удаляем точку...");
+  setAuthMessage(action === "approve" ? "Публикуем точку..." : "Удаляем точку...");
 
   const response = action === "approve"
     ? await supabase.from("shelters").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", id)
@@ -168,18 +206,74 @@ async function moderateShelter(id, action) {
     return;
   }
 
-  setAuthMessage(action === "approve" ? "Точка подтверждена." : "Точка удалена.");
+  editingShelterId = null;
+  setAuthMessage(action === "approve" ? "Точка опубликована." : "Точка удалена.");
+  await loadShelters();
+}
+
+async function saveShelterEdits(form) {
+  if (!supabase) {
+    return;
+  }
+
+  const shelterId = form.dataset.editForm;
+  const formData = new FormData(form);
+  const payload = {
+    title: String(formData.get("title") || "").trim(),
+    description: String(formData.get("description") || "").trim(),
+    submitter_name: String(formData.get("submitter_name") || "").trim() || null,
+    submitter_contact: String(formData.get("submitter_contact") || "").trim() || null
+  };
+
+  if (!payload.title || !payload.description) {
+    setAuthMessage("Для сохранения нужны название и описание.", true);
+    return;
+  }
+
+  setAuthMessage("Сохраняем изменения...");
+  const { error } = await supabase.from("shelters").update(payload).eq("id", shelterId);
+
+  if (error) {
+    setAuthMessage(`Не удалось сохранить правки: ${error.message}`, true);
+    return;
+  }
+
+  editingShelterId = null;
+  setAuthMessage("Изменения сохранены.");
   await loadShelters();
 }
 
 loginForm.addEventListener("submit", handleLogin);
 logoutBtn.addEventListener("click", handleLogout);
 
+document.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-edit-form]");
+  if (!form) {
+    return;
+  }
+
+  event.preventDefault();
+  await saveShelterEdits(form);
+});
+
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) {
     return;
   }
+
+  if (button.dataset.action === "edit") {
+    editingShelterId = button.dataset.id;
+    await loadShelters();
+    return;
+  }
+
+  if (button.dataset.action === "cancel-edit") {
+    editingShelterId = null;
+    await loadShelters();
+    return;
+  }
+
   await moderateShelter(button.dataset.id, button.dataset.action);
 });
 
