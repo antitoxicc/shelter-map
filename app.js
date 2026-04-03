@@ -416,6 +416,3 @@ loadApprovedShelters().finally(() => {
   updateLocationHint();
   detectLocation();
 });
-
-  detectLocation();
-});
