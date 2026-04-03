@@ -1,6 +1,17 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-config.js";
 
+const SHELTER_TYPE_LABELS = {
+  school: "Школа",
+  mamad: "МАМАД",
+  mamadit: "МАМАДИТ",
+  migunit: "Мигунит",
+  public_shelter: "Общественное убежище",
+  parking: "Подземная парковка",
+  building_shelter: "Укрытие в здании",
+  other: "Другое"
+};
+
 const authMessage = document.getElementById("authMessage");
 const sessionBadge = document.getElementById("sessionBadge");
 const pendingList = document.getElementById("pendingList");
@@ -30,6 +41,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function getShelterTypeLabel(type) {
+  return SHELTER_TYPE_LABELS[type] || "Тип не указан";
+}
+
 function renderMediaBlock(row) {
   if (!row.media_url) {
     return '<div class="meta-line">Вложение: не добавлено</div>';
@@ -48,12 +63,25 @@ function renderMediaBlock(row) {
   `;
 }
 
+function renderTypeOptions(selectedType) {
+  return Object.entries(SHELTER_TYPE_LABELS).map(([value, label]) => (
+    `<option value="${value}"${selectedType === value ? " selected" : ""}>${label}</option>`
+  )).join("");
+}
+
 function renderEditForm(row) {
   return `
     <form class="admin-edit-form" data-edit-form="${row.id}">
       <label>
         Название
         <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
+      </label>
+      <label>
+        Тип точки
+        <select name="shelter_type">
+          <option value="">Не указано</option>
+          ${renderTypeOptions(row.shelter_type || "")}
+        </select>
       </label>
       <label>
         Описание
@@ -90,11 +118,14 @@ function renderCards(target, rows, options) {
       <article class="location-card">
         <h3>${escapeHtml(row.title)}</h3>
         <p>${escapeHtml(row.description || "Описание не указано")}</p>
+        <div class="badge-row">
+          <span class="type-badge">${escapeHtml(getShelterTypeLabel(row.shelter_type))}</span>
+          <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
+        </div>
         <div class="meta-line">Координаты: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
         <div class="meta-line">Добавил: ${escapeHtml(row.submitter_name || "не указано")}</div>
         <div class="meta-line">Контакт: ${escapeHtml(row.submitter_contact || "не указан")}</div>
         ${renderMediaBlock(row)}
-        <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
         <div class="card-actions">
           <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
           <button class="card-button" data-action="edit" data-id="${row.id}" type="button">Редактировать</button>
@@ -115,7 +146,7 @@ async function loadShelters() {
 
   const { data, error } = await supabase
     .from("shelters")
-    .select("id, title, description, latitude, longitude, status, submitter_name, submitter_contact, media_url, media_type, media_name, created_at")
+    .select("id, title, description, shelter_type, latitude, longitude, status, submitter_name, submitter_contact, media_url, media_type, media_name, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -221,6 +252,7 @@ async function saveShelterEdits(form) {
   const payload = {
     title: String(formData.get("title") || "").trim(),
     description: String(formData.get("description") || "").trim(),
+    shelter_type: String(formData.get("shelter_type") || "").trim() || null,
     submitter_name: String(formData.get("submitter_name") || "").trim() || null,
     submitter_contact: String(formData.get("submitter_contact") || "").trim() || null
   };
