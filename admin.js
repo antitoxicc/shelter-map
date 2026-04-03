@@ -3,13 +3,14 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-c
 
 const SHELTER_TYPE_LABELS = {
   school: "Школа",
-  mamad: "МАМАД",
-  mamadit: "МАМАДИТ",
+  hospital: "Больница",
+  synagogue: "Синагога",
+  kindergarten: "Детский сад",
+  shopping_center: "Торговый центр",
+  public_shelter: "Обычный миклат общественный",
   migunit: "Мигунит",
-  public_shelter: "Общественное убежище",
-  parking: "Подземная парковка",
-  building_shelter: "Укрытие в здании",
-  other: "Другое"
+  building_shelter: "Миклат в доме",
+  public_mamad: "МАМАД общественный"
 };
 
 const authMessage = document.getElementById("authMessage");
