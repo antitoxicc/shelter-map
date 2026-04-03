@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Админка укрытий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="admin-body">
+  <main class="admin-shell">
+    <section class="hero-card admin-hero">
+      <p class="eyebrow">Moderation</p>
+      <h1>Проверка пользовательских точек</h1>
+      <p class="hero-copy">Вход выполняется через Supabase Auth. После входа администратор может одобрять и удалять точки.</p>
+      <a class="secondary-link" href="./index.html">Назад к карте</a>
+    </section>
+
+    <section class="panel auth-panel">
+      <div class="panel-heading">
+        <h2>Вход</h2>
+        <span id="sessionBadge" class="count-pill muted">guest</span>
+      </div>
+      <form id="loginForm" class="suggest-form">
+        <label>
+          Email
+          <input id="emailInput" type="email" autocomplete="username" required />
+        </label>
+        <label>
+          Пароль
+          <input id="passwordInput" type="password" autocomplete="current-password" required />
+        </label>
+        <div class="hero-actions">
+          <button class="primary-button" type="submit">Войти</button>
+          <button id="logoutBtn" class="ghost-button" type="button">Выйти</button>
+        </div>
+        <p id="authMessage" class="form-message"></p>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <h2>Pending точки</h2>
+        <span id="pendingCount" class="count-pill">0</span>
+      </div>
+      <div id="pendingList" class="card-list">
+        <p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <h2>Уже опубликованные</h2>
+        <span id="approvedCount" class="count-pill">0</span>
+      </div>
+      <div id="approvedList" class="card-list">
+        <p class="empty-state">После входа здесь появится список подтверждённых точек.</p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

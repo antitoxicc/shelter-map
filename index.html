@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Карта укрытий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="hero-card">
+        <p class="eyebrow">Shelter Map</p>
+        <h1>Ближайшие укрытия рядом с тобой</h1>
+        <p class="hero-copy">Сайт автоматически определяет твою позицию, находит ближайшие точки и показывает, как быстро открыть маршрут.</p>
+        <div class="hero-actions">
+          <button id="refreshLocationBtn" class="primary-button" type="button">Обновить геопозицию</button>
+        </div>
+        <p id="statusMessage" class="status-text">Ищем твою геопозицию и загружаем подтверждённые точки...</p>
+      </div>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Ближайшие точки</h2>
+          <span id="nearbyCount" class="count-pill">0</span>
+        </div>
+        <div id="nearbyList" class="card-list">
+          <p class="empty-state">Пока нет данных для отображения.</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Добавить точку</h2>
+          <span class="count-pill muted">pending</span>
+        </div>
+        <p class="panel-copy">Новые точки попадают на ручную проверку перед публикацией.</p>
+        <form id="suggestForm" class="suggest-form">
+          <label>
+            Название
+            <input id="titleInput" name="title" maxlength="120" required />
+          </label>
+          <label>
+            Описание
+            <textarea id="descriptionInput" name="description" rows="3" maxlength="500" required></textarea>
+          </label>
+          <div class="grid-two">
+            <label>
+              Широта
+              <input id="latInput" name="latitude" type="number" step="any" required />
+            </label>
+            <label>
+              Долгота
+              <input id="lngInput" name="longitude" type="number" step="any" required />
+            </label>
+          </div>
+          <div class="grid-two">
+            <label>
+              Имя
+              <input id="submitterNameInput" name="submitter_name" maxlength="80" />
+            </label>
+            <label>
+              Контакт
+              <input id="submitterContactInput" name="submitter_contact" maxlength="120" />
+            </label>
+          </div>
+          <button class="primary-button" type="submit">Отправить на проверку</button>
+          <p id="formMessage" class="form-message"></p>
+        </form>
+      </section>
+    </aside>
+
+    <main class="map-panel">
+      <div class="map-frame">
+        <div id="map"></div>
+        <div class="map-legend">
+          <span><i class="legend-dot legend-user"></i> Ты</span>
+          <span><i class="legend-dot legend-shelter"></i> Укрытие</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
