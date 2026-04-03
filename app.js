@@ -5,6 +5,12 @@ const DEFAULT_CENTER = [32.0853, 34.7818];
 const MAX_NEARBY = 3;
 const MEDIA_BUCKET = "shelter-media";
 const MAX_MEDIA_SIZE_BYTES = 25 * 1024 * 1024;
+const NON_DESCRIPTIVE_PATTERNS = [
+  "импортировано из сопоставленных файлов",
+  "требуется проверка",
+  "imported from matched files",
+  "requires verification"
+];
 
 const statusMessage = document.getElementById("statusMessage");
 const formMessage = document.getElementById("formMessage");
@@ -87,15 +93,35 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function isMeaningfulDescription(description) {
+  const text = String(description || "").trim();
+  if (!text) {
+    return false;
+  }
+
+  const normalized = text.toLowerCase();
+  const hasOnlyBoilerplate = NON_DESCRIPTIVE_PATTERNS.some((pattern) => normalized.includes(pattern));
+  if (hasOnlyBoilerplate) {
+    const cleaned = NON_DESCRIPTIVE_PATTERNS.reduce(
+      (result, pattern) => result.replaceAll(pattern, ""),
+      normalized
+    ).replace(/[|,.;:()-]/g, " ").replace(/\s+/g, " ").trim();
+
+    return cleaned.length >= 25;
+  }
+
+  return text.length >= 40;
+}
+
 function getDescriptionSignal(description) {
   const text = String(description || "").trim();
-  if (text.length >= 40) {
-    return { className: "strong", label: "Есть подробное описание" };
+  if (!text) {
+    return { className: "weak", label: "Описания нет" };
   }
-  if (text.length > 0) {
-    return { className: "weak", label: "Описание короткое" };
+  if (isMeaningfulDescription(text)) {
+    return { className: "strong", label: "Есть понятное описание" };
   }
-  return { className: "weak", label: "Описания нет" };
+  return { className: "weak", label: "Описание нужно уточнить" };
 }
 
 function renderNearbyCards(points) {
@@ -110,10 +136,11 @@ function renderNearbyCards(points) {
     const description = String(point.description || "").trim();
     const signal = getDescriptionSignal(description);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
+    const fallbackText = "Описание не указано или пока слишком общее. Такую точку лучше дополнительно проверить.";
     return `
       <article class="location-card">
         <h3>${escapeHtml(point.title)}</h3>
-        <p>${escapeHtml(description || "Описание не указано. Такую точку может быть сложнее быстро найти.")}</p>
+        <p>${escapeHtml(description || fallbackText)}</p>
         <span class="distance-badge">${distance}</span>
         <span class="signal-badge ${signal.className}">${signal.label}</span>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
