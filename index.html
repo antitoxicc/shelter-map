@@ -16,11 +16,8 @@
       <div class="hero-card">
         <p class="eyebrow">Shelter Map</p>
         <h1>Ближайшие укрытия рядом с тобой</h1>
-        <p class="hero-copy">Сайт автоматически определяет твою позицию, находит ближайшие точки и показывает, как быстро открыть маршрут.</p>
-        <div class="hero-actions">
-          <button id="refreshLocationBtn" class="primary-button" type="button">Обновить геопозицию</button>
-        </div>
-        <p id="statusMessage" class="status-text">Ищем твою геопозицию и загружаем подтверждённые точки...</p>
+        <p class="hero-copy">Карта показывает ближайшие точки рядом с тобой и помогает быстро понять, какие из них проще найти по описанию.</p>
+        <p class="status-text hero-status-note">Геопозиция обновляется через кнопку на карте, а новые точки можно отправить во всплывающей форме.</p>
       </div>
 
       <section class="panel">
@@ -28,61 +25,73 @@
           <h2>Ближайшие точки</h2>
           <span id="nearbyCount" class="count-pill">0</span>
         </div>
+        <p class="panel-copy">Список помогает быстро оценить, какой точке проще доверять: подробное описание обычно легче проверить и найти на месте.</p>
         <div id="nearbyList" class="card-list">
           <p class="empty-state">Пока нет данных для отображения.</p>
         </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-heading">
-          <h2>Добавить точку</h2>
-          <span class="count-pill muted">pending</span>
-        </div>
-        <p class="panel-copy">Новые точки попадают на ручную проверку перед публикацией.</p>
-        <form id="suggestForm" class="suggest-form">
-          <label>
-            Название
-            <input id="titleInput" name="title" maxlength="120" required />
-          </label>
-          <label>
-            Описание
-            <textarea id="descriptionInput" name="description" rows="3" maxlength="500" required></textarea>
-          </label>
-          <div class="grid-two">
-            <label>
-              Широта
-              <input id="latInput" name="latitude" type="number" step="any" required />
-            </label>
-            <label>
-              Долгота
-              <input id="lngInput" name="longitude" type="number" step="any" required />
-            </label>
-          </div>
-          <div class="grid-two">
-            <label>
-              Имя
-              <input id="submitterNameInput" name="submitter_name" maxlength="80" />
-            </label>
-            <label>
-              Контакт
-              <input id="submitterContactInput" name="submitter_contact" maxlength="120" />
-            </label>
-          </div>
-          <button class="primary-button" type="submit">Отправить на проверку</button>
-          <p id="formMessage" class="form-message"></p>
-        </form>
       </section>
     </aside>
 
     <main class="map-panel">
       <div class="map-frame">
         <div id="map"></div>
+        <div class="map-overlay top-left">
+          <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтверждённые точки...</p>
+        </div>
+        <div class="map-overlay top-right map-tools">
+          <button id="refreshLocationBtn" class="map-fab" type="button" aria-label="Найти меня">◎</button>
+          <button id="openSuggestBtn" class="map-fab accent" type="button">Добавить точку</button>
+        </div>
         <div class="map-legend">
           <span><i class="legend-dot legend-user"></i> Ты</span>
           <span><i class="legend-dot legend-shelter"></i> Укрытие</span>
         </div>
       </div>
     </main>
+  </div>
+
+  <div id="suggestModal" class="modal-shell" hidden>
+    <div id="suggestBackdrop" class="modal-backdrop"></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="suggestModalTitle">
+      <div class="panel-heading modal-heading">
+        <div>
+          <p class="eyebrow">New Point</p>
+          <h2 id="suggestModalTitle">Добавить точку</h2>
+        </div>
+        <button id="closeSuggestBtn" class="icon-button" type="button" aria-label="Закрыть">×</button>
+      </div>
+      <p class="panel-copy">Координаты подставятся автоматически: сначала берём твою геопозицию, а если она недоступна, используем центр карты. Фото или видео можно прикрепить по желанию.</p>
+      <form id="suggestForm" class="suggest-form">
+        <label>
+          Название
+          <input id="titleInput" name="title" maxlength="120" required />
+        </label>
+        <label>
+          Описание
+          <textarea id="descriptionInput" name="description" rows="4" maxlength="500" required></textarea>
+        </label>
+        <div class="grid-two">
+          <label>
+            Имя
+            <input id="submitterNameInput" name="submitter_name" maxlength="80" />
+          </label>
+          <label>
+            Контакт
+            <input id="submitterContactInput" name="submitter_contact" maxlength="120" />
+          </label>
+        </div>
+        <label>
+          Фото или видео
+          <input id="mediaInput" name="media" type="file" accept="image/*,video/*" />
+        </label>
+        <p id="locationHint" class="form-hint">Точка будет сохранена по твоей текущей позиции или по центру карты.</p>
+        <div class="hero-actions">
+          <button class="primary-button" type="submit">Отправить на проверку</button>
+          <button id="cancelSuggestBtn" class="ghost-button" type="button">Отмена</button>
+        </div>
+        <p id="formMessage" class="form-message"></p>
+      </form>
+    </section>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
