@@ -12,6 +12,17 @@ const NON_DESCRIPTIVE_PATTERNS = [
   "requires verification"
 ];
 
+const SHELTER_TYPE_LABELS = {
+  school: "Школа",
+  mamad: "МАМАД",
+  mamadit: "МАМАДИТ",
+  migunit: "Мигунит",
+  public_shelter: "Общественное убежище",
+  parking: "Подземная парковка",
+  building_shelter: "Укрытие в здании",
+  other: "Другое"
+};
+
 const statusMessage = document.getElementById("statusMessage");
 const formMessage = document.getElementById("formMessage");
 const nearbyList = document.getElementById("nearbyList");
@@ -119,6 +130,10 @@ function getDescriptionSignal(description) {
   return { className: "weak", label: "Описание нужно уточнить" };
 }
 
+function getShelterTypeLabel(type) {
+  return SHELTER_TYPE_LABELS[type] || "Тип не указан";
+}
+
 function renderNearbyCards(points) {
   nearbyCount.textContent = String(points.length);
   if (!points.length) {
@@ -130,14 +145,18 @@ function renderNearbyCards(points) {
     const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
     const description = String(point.description || "").trim();
     const signal = getDescriptionSignal(description);
+    const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
     const fallbackText = "Описание не указано или пока слишком общее. Такую точку лучше дополнительно проверить.";
     return `
       <article class="location-card">
         <h3>${escapeHtml(point.title)}</h3>
         <p>${escapeHtml(description || fallbackText)}</p>
-        <span class="distance-badge">${distance}</span>
-        <span class="signal-badge ${signal.className}">${signal.label}</span>
+        <div class="badge-row">
+          <span class="distance-badge">${distance}</span>
+          <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
+          <span class="signal-badge ${signal.className}">${signal.label}</span>
+        </div>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
         <div class="card-actions">
           <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
@@ -159,10 +178,11 @@ function renderShelters(points) {
     const mediaLine = point.media_url
       ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
+    const typeLine = `<br />Тип: ${escapeHtml(getShelterTypeLabel(point.shelter_type))}`;
     const marker = L.marker([point.latitude, point.longitude], { icon: shelterIcon })
       .addTo(map)
       .bindPopup(
-        `<strong>${escapeHtml(point.title)}</strong><br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
+        `<strong>${escapeHtml(point.title)}</strong>${typeLine}<br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
       );
     shelterMarkers.push(marker);
   });
@@ -244,7 +264,7 @@ async function loadApprovedShelters() {
 
   const { data, error } = await supabase
     .from("shelters")
-    .select("id, title, description, latitude, longitude, status, media_url, media_type")
+    .select("id, title, description, shelter_type, latitude, longitude, status, media_url, media_type")
     .eq("status", "approved");
 
   if (error) {
@@ -359,6 +379,7 @@ async function handleSuggestSubmit(event) {
   const payload = {
     title: String(formData.get("title") || "").trim(),
     description: String(formData.get("description") || "").trim(),
+    shelter_type: String(formData.get("shelter_type") || "").trim() || null,
     latitude: Number(coords.lat),
     longitude: Number(coords.lng),
     submitter_name: String(formData.get("submitter_name") || "").trim() || null,
