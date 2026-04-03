@@ -28,6 +28,24 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function renderMediaBlock(row) {
+  if (!row.media_url) {
+    return '<div class="meta-line">Вложение: не добавлено</div>';
+  }
+
+  const safeUrl = escapeHtml(row.media_url);
+  const safeName = escapeHtml(row.media_name || "Открыть вложение");
+  const isVideo = String(row.media_type || "").startsWith("video/");
+  const preview = isVideo
+    ? `<video controls preload="metadata" style="width:100%;margin-top:12px;border-radius:16px;"><source src="${safeUrl}" type="${escapeHtml(row.media_type || "video/mp4")}" /></video>`
+    : `<img src="${safeUrl}" alt="${safeName}" style="width:100%;margin-top:12px;border-radius:16px;object-fit:cover;" />`;
+
+  return `
+    <div class="meta-line">Вложение: <a class="media-link" href="${safeUrl}" target="_blank" rel="noreferrer">${safeName}</a></div>
+    ${preview}
+  `;
+}
+
 function renderCards(target, rows, options) {
   if (!rows.length) {
     target.innerHTML = `<p class="empty-state">${options.emptyMessage}</p>`;
@@ -43,6 +61,7 @@ function renderCards(target, rows, options) {
         <div class="meta-line">Координаты: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
         <div class="meta-line">Добавил: ${escapeHtml(row.submitter_name || "не указано")}</div>
         <div class="meta-line">Контакт: ${escapeHtml(row.submitter_contact || "не указан")}</div>
+        ${renderMediaBlock(row)}
         <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
         <div class="card-actions">
           <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
@@ -62,7 +81,7 @@ async function loadShelters() {
 
   const { data, error } = await supabase
     .from("shelters")
-    .select("id, title, description, latitude, longitude, status, submitter_name, submitter_contact, created_at")
+    .select("id, title, description, latitude, longitude, status, submitter_name, submitter_contact, media_url, media_type, media_name, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
