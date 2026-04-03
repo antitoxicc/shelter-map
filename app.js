@@ -2,7 +2,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-config.js";
 
 const DEFAULT_CENTER = [32.0853, 34.7818];
-const MAX_NEARBY = 5;
+const MAX_NEARBY = 3;
+const MEDIA_BUCKET = "shelter-media";
+const MAX_MEDIA_SIZE_BYTES = 25 * 1024 * 1024;
 
 const statusMessage = document.getElementById("statusMessage");
 const formMessage = document.getElementById("formMessage");
@@ -10,8 +12,14 @@ const nearbyList = document.getElementById("nearbyList");
 const nearbyCount = document.getElementById("nearbyCount");
 const refreshLocationBtn = document.getElementById("refreshLocationBtn");
 const suggestForm = document.getElementById("suggestForm");
-const latInput = document.getElementById("latInput");
-const lngInput = document.getElementById("lngInput");
+const openSuggestBtn = document.getElementById("openSuggestBtn");
+const closeSuggestBtn = document.getElementById("closeSuggestBtn");
+const cancelSuggestBtn = document.getElementById("cancelSuggestBtn");
+const suggestModal = document.getElementById("suggestModal");
+const suggestBackdrop = document.getElementById("suggestBackdrop");
+const locationHint = document.getElementById("locationHint");
+const titleInput = document.getElementById("titleInput");
+const mediaInput = document.getElementById("mediaInput");
 
 const map = L.map("map", { zoomControl: false }).setView(DEFAULT_CENTER, 13);
 L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -79,6 +87,17 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function getDescriptionSignal(description) {
+  const text = String(description || "").trim();
+  if (text.length >= 40) {
+    return { className: "strong", label: "Есть подробное описание" };
+  }
+  if (text.length > 0) {
+    return { className: "weak", label: "Описание короткое" };
+  }
+  return { className: "weak", label: "Описания нет" };
+}
+
 function renderNearbyCards(points) {
   nearbyCount.textContent = String(points.length);
   if (!points.length) {
@@ -88,12 +107,15 @@ function renderNearbyCards(points) {
 
   nearbyList.innerHTML = points.map((point) => {
     const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
+    const description = String(point.description || "").trim();
+    const signal = getDescriptionSignal(description);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
     return `
       <article class="location-card">
         <h3>${escapeHtml(point.title)}</h3>
-        <p>${escapeHtml(point.description || "Описание не указано")}</p>
+        <p>${escapeHtml(description || "Описание не указано. Такую точку может быть сложнее быстро найти.")}</p>
         <span class="distance-badge">${distance}</span>
+        <span class="signal-badge ${signal.className}">${signal.label}</span>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
         <div class="card-actions">
           <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
@@ -111,9 +133,15 @@ function clearShelterMarkers() {
 function renderShelters(points) {
   clearShelterMarkers();
   points.forEach((point) => {
+    const description = String(point.description || "").trim();
+    const mediaLine = point.media_url
+      ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">Открыть вложение</a>`
+      : "";
     const marker = L.marker([point.latitude, point.longitude], { icon: shelterIcon })
       .addTo(map)
-      .bindPopup(`<strong>${escapeHtml(point.title)}</strong><br />${escapeHtml(point.description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>`);
+      .bindPopup(
+        `<strong>${escapeHtml(point.title)}</strong><br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
+      );
     shelterMarkers.push(marker);
   });
 }
@@ -148,6 +176,41 @@ function sortByDistance(points, coords) {
     .slice(0, MAX_NEARBY);
 }
 
+function getSubmissionCoords() {
+  if (userCoords) {
+    return {
+      lat: userCoords.lat,
+      lng: userCoords.lng,
+      sourceLabel: "по твоей текущей геопозиции"
+    };
+  }
+
+  const center = map.getCenter();
+  return {
+    lat: center.lat,
+    lng: center.lng,
+    sourceLabel: "по центру карты"
+  };
+}
+
+function updateLocationHint() {
+  const coords = getSubmissionCoords();
+  locationHint.textContent = `Точка будет сохранена ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
+}
+
+function openSuggestModal() {
+  suggestModal.hidden = false;
+  document.body.style.overflow = "hidden";
+  setFormMessage("");
+  updateLocationHint();
+  titleInput.focus();
+}
+
+function closeSuggestModal() {
+  suggestModal.hidden = true;
+  document.body.style.overflow = "";
+}
+
 async function loadApprovedShelters() {
   if (!supabase) {
     shelters = [];
@@ -159,7 +222,7 @@ async function loadApprovedShelters() {
 
   const { data, error } = await supabase
     .from("shelters")
-    .select("id, title, description, latitude, longitude, status")
+    .select("id, title, description, latitude, longitude, status, media_url, media_type")
     .eq("status", "approved");
 
   if (error) {
@@ -186,7 +249,7 @@ async function loadApprovedShelters() {
   }
 
   renderNearbyCards([]);
-  setStatus("Точки загружены. Разреши геолокацию, чтобы увидеть ближайшие.");
+  setStatus("Точки загружены. Нажми кнопку на карте, чтобы показать ближайшие к тебе.");
 }
 
 async function detectLocation() {
@@ -200,9 +263,8 @@ async function detectLocation() {
   navigator.geolocation.getCurrentPosition(
     async (position) => {
       userCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
-      latInput.value = userCoords.lat.toFixed(6);
-      lngInput.value = userCoords.lng.toFixed(6);
       updateUserMarker(userCoords);
+      updateLocationHint();
 
       if (!shelters.length) {
         map.setView([userCoords.lat, userCoords.lng], 14);
@@ -214,16 +276,52 @@ async function detectLocation() {
       const nearby = sortByDistance(shelters, userCoords);
       renderNearbyCards(nearby);
       fitMapToUserAndNearby(nearby);
-      setStatus(`Позиция обновлена. Показываю ${nearby.length} ближайших точек.`);
+      setStatus(`Позиция обновлена. Показываю ${nearby.length} ближайшие точки.`);
     },
     (error) => {
       setStatus(`Не удалось определить позицию: ${error.message}`, true);
+      updateLocationHint();
       if (shelters.length) {
         map.setView(DEFAULT_CENTER, 13);
       }
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
+}
+
+function sanitizeFilename(name) {
+  return String(name || "file")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function uploadMediaFile(file) {
+  if (!file) {
+    return { media_url: null, media_type: null, media_name: null };
+  }
+
+  if (file.size > MAX_MEDIA_SIZE_BYTES) {
+    throw new Error("Файл слишком большой. Сейчас лимит 25 МБ.");
+  }
+
+  const extension = sanitizeFilename(file.name).split(".").pop();
+  const path = `pending/${Date.now()}-${crypto.randomUUID()}.${extension || "bin"}`;
+  const { data, error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false
+  });
+
+  if (error) {
+    throw new Error(`Не удалось загрузить файл: ${error.message}`);
+  }
+
+  const { data: publicUrlData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(data.path);
+  return {
+    media_url: publicUrlData.publicUrl,
+    media_type: file.type || null,
+    media_name: file.name || null
+  };
 }
 
 async function handleSuggestSubmit(event) {
@@ -235,40 +333,64 @@ async function handleSuggestSubmit(event) {
   }
 
   const formData = new FormData(suggestForm);
+  const coords = getSubmissionCoords();
   const payload = {
     title: String(formData.get("title") || "").trim(),
     description: String(formData.get("description") || "").trim(),
-    latitude: Number(formData.get("latitude")),
-    longitude: Number(formData.get("longitude")),
+    latitude: Number(coords.lat),
+    longitude: Number(coords.lng),
     submitter_name: String(formData.get("submitter_name") || "").trim() || null,
     submitter_contact: String(formData.get("submitter_contact") || "").trim() || null,
-    status: "pending"
+    status: "pending",
+    media_url: null,
+    media_type: null,
+    media_name: null
   };
 
-  if (!payload.title || !payload.description || Number.isNaN(payload.latitude) || Number.isNaN(payload.longitude)) {
-    setFormMessage("Заполни название, описание и координаты точки.", true);
+  if (!payload.title || !payload.description) {
+    setFormMessage("Заполни название и описание точки.", true);
     return;
   }
 
-  setFormMessage("Отправляем точку на модерацию...");
-  const { error } = await supabase.from("shelters").insert(payload);
+  const file = mediaInput.files?.[0] || null;
 
-  if (error) {
+  try {
+    setFormMessage("Отправляем точку на модерацию...");
+    if (file) {
+      const mediaPayload = await uploadMediaFile(file);
+      Object.assign(payload, mediaPayload);
+    }
+
+    const { error } = await supabase.from("shelters").insert(payload);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    suggestForm.reset();
+    setFormMessage("");
+    closeSuggestModal();
+    setStatus("Точка отправлена на проверку. Спасибо.");
+  } catch (error) {
     setFormMessage(`Не удалось отправить точку: ${error.message}`, true);
-    return;
   }
-
-  suggestForm.reset();
-  if (userCoords) {
-    latInput.value = userCoords.lat.toFixed(6);
-    lngInput.value = userCoords.lng.toFixed(6);
-  }
-  setFormMessage("Точка отправлена на проверку.");
 }
 
 refreshLocationBtn.addEventListener("click", detectLocation);
+openSuggestBtn.addEventListener("click", openSuggestModal);
+closeSuggestBtn.addEventListener("click", closeSuggestModal);
+cancelSuggestBtn.addEventListener("click", closeSuggestModal);
+suggestBackdrop.addEventListener("click", closeSuggestModal);
 suggestForm.addEventListener("submit", handleSuggestSubmit);
 
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !suggestModal.hidden) {
+    closeSuggestModal();
+  }
+});
+
+map.on("moveend", updateLocationHint);
+
 loadApprovedShelters().finally(() => {
+  updateLocationHint();
   detectLocation();
 });
