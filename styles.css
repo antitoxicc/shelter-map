@@ -309,7 +309,8 @@ textarea {
 
 .distance-badge,
 .status-badge,
-.signal-badge {
+.signal-badge,
+.type-badge {
   display: inline-flex;
   align-items: center;
   margin-top: 12px;
@@ -322,6 +323,11 @@ textarea {
 .distance-badge {
   background: rgba(35, 100, 255, 0.1);
   color: #1540aa;
+}
+
+.type-badge {
+  background: rgba(23, 89, 74, 0.12);
+  color: var(--accent);
 }
 
 .signal-badge.strong {
@@ -352,6 +358,19 @@ textarea {
 .card-actions {
   margin-top: 14px;
   flex-wrap: wrap;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge-row .distance-badge,
+.badge-row .signal-badge,
+.badge-row .status-badge,
+.badge-row .type-badge {
+  margin-top: 12px;
 }
 
 .card-link,
@@ -394,7 +413,8 @@ textarea {
 }
 
 .suggest-form input,
-.suggest-form textarea {
+.suggest-form textarea,
+.suggest-form select {
   width: 100%;
   border: 1px solid rgba(31, 42, 31, 0.12);
   border-radius: 14px;
