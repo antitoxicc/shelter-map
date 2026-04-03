@@ -100,14 +100,9 @@ function isMeaningfulDescription(description) {
   }
 
   const normalized = text.toLowerCase();
-  const hasOnlyBoilerplate = NON_DESCRIPTIVE_PATTERNS.some((pattern) => normalized.includes(pattern));
-  if (hasOnlyBoilerplate) {
-    const cleaned = NON_DESCRIPTIVE_PATTERNS.reduce(
-      (result, pattern) => result.replaceAll(pattern, ""),
-      normalized
-    ).replace(/[|,.;:()-]/g, " ").replace(/\s+/g, " ").trim();
-
-    return cleaned.length >= 25;
+  const hasBoilerplate = NON_DESCRIPTIVE_PATTERNS.some((pattern) => normalized.includes(pattern));
+  if (hasBoilerplate) {
+    return false;
   }
 
   return text.length >= 40;
@@ -419,5 +414,8 @@ map.on("moveend", updateLocationHint);
 
 loadApprovedShelters().finally(() => {
   updateLocationHint();
+  detectLocation();
+});
+
   detectLocation();
 });
