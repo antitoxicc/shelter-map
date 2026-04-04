@@ -59,6 +59,7 @@ const suggestBackdrop = document.getElementById("suggestBackdrop");
 const locationHint = document.getElementById("locationHint");
 const titleInput = document.getElementById("titleInput");
 const mediaInput = document.getElementById("mediaInput");
+const suggestMapElement = document.getElementById("suggestMap");
 
 const map = L.map("map", { zoomControl: false }).setView(DEFAULT_CENTER, 13);
 L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -107,6 +108,8 @@ let shelters = [];
 let shelterMarkers = [];
 let userMarker = null;
 let userCoords = null;
+let suggestMap = null;
+let suggestMarker = null;
 
 function setStatus(message, isError = false) {
   statusMessage.textContent = message;
@@ -352,6 +355,15 @@ function sortByDistance(points, coords) {
 }
 
 function getSubmissionCoords() {
+  if (suggestMarker) {
+    const coords = suggestMarker.getLatLng();
+    return {
+      lat: coords.lat,
+      lng: coords.lng,
+      sourceLabel: "по выбранной точке на карте"
+    };
+  }
+
   if (userCoords) {
     return {
       lat: userCoords.lat,
@@ -373,10 +385,62 @@ function updateLocationHint() {
   locationHint.textContent = `Точка будет сохранена ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
 }
 
+function ensureSuggestMap() {
+  if (suggestMap || !suggestMapElement || typeof L === "undefined") {
+    return;
+  }
+
+  suggestMap = L.map(suggestMapElement, { zoomControl: true, attributionControl: false }).setView(DEFAULT_CENTER, 14);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(suggestMap);
+
+  suggestMap.on("click", (event) => {
+    setSuggestMarker(event.latlng, true);
+  });
+}
+
+function setSuggestMarker(latlng, shouldCenter = false) {
+  ensureSuggestMap();
+  if (!suggestMap || !latlng) {
+    return;
+  }
+
+  const coords = {
+    lat: Number(latlng.lat),
+    lng: Number(latlng.lng)
+  };
+
+  if (!suggestMarker) {
+    suggestMarker = L.marker([coords.lat, coords.lng], {
+      draggable: true,
+      icon: userIcon
+    }).addTo(suggestMap);
+
+    suggestMarker.on("dragend", () => {
+      updateLocationHint();
+    });
+  } else {
+    suggestMarker.setLatLng([coords.lat, coords.lng]);
+  }
+
+  if (shouldCenter) {
+    suggestMap.setView([coords.lat, coords.lng], Math.max(suggestMap.getZoom(), 15));
+  }
+
+  updateLocationHint();
+}
+
 function openSuggestModal() {
   suggestModal.hidden = false;
   document.body.style.overflow = "hidden";
   setFormMessage("");
+  ensureSuggestMap();
+  setSuggestMarker(getSubmissionCoords(), true);
+  setTimeout(() => {
+    suggestMap?.invalidateSize();
+  }, 0);
   updateLocationHint();
   titleInput.focus();
 }
@@ -439,6 +503,9 @@ async function detectLocation() {
     async (position) => {
       userCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
       updateUserMarker(userCoords);
+      if (!suggestMarker && !suggestModal.hidden) {
+        setSuggestMarker(userCoords, true);
+      }
       updateLocationHint();
 
       if (!shelters.length) {
