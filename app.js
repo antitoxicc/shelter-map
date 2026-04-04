@@ -12,6 +12,21 @@ const NON_DESCRIPTIVE_PATTERNS = [
   "requires verification"
 ];
 
+const DESCRIPTION_HINT_PATTERNS = [
+  "entrance",
+  "gate",
+  "behind",
+  "between",
+  "near",
+  "next to",
+  "opposite",
+  "inside",
+  "stairs",
+  "parking",
+  "photo",
+  "video"
+];
+
 const SHELTER_TYPE_LABELS = {
   school: "Школа",
   hospital: "Больница",
@@ -112,19 +127,53 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function isMeaningfulDescription(description) {
-  const text = String(description || "").trim();
+function normalizeDescriptionText(value) {
+  return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function stripKnownDescriptionBoilerplate(value) {
+  return normalizeDescriptionText(value)
+    .replace(/manual location check recommended\.?/gi, "")
+    .replace(/notes:\s*/gi, "")
+    .replace(/address:\s*/gi, "")
+    .trim();
+}
+
+function isMeaningfulDescription(description, point = null) {
+  const text = normalizeDescriptionText(description);
   if (!text) {
-    return false;
+    return Boolean(point?.media_url);
   }
 
   const normalized = text.toLowerCase();
   const hasBoilerplate = NON_DESCRIPTIVE_PATTERNS.some((pattern) => normalized.includes(pattern));
-  if (hasBoilerplate) {
+  const cleanedText = stripKnownDescriptionBoilerplate(text);
+  const normalizedCleaned = cleanedText.toLowerCase();
+  const normalizedAddress = normalizeDescriptionText(point?.address || "").toLowerCase();
+  const normalizedTitle = normalizeDescriptionText(point?.title || "").toLowerCase();
+
+  if (!cleanedText) {
+    return Boolean(point?.media_url);
+  }
+
+  if (hasBoilerplate && !point?.media_url) {
     return false;
   }
 
-  return text.length >= 40;
+  if (normalizedAddress && normalizedCleaned === normalizedAddress) {
+    return Boolean(point?.media_url);
+  }
+
+  if (normalizedTitle && normalizedCleaned === normalizedTitle) {
+    return Boolean(point?.media_url);
+  }
+
+  const hasHelpfulHint = DESCRIPTION_HINT_PATTERNS.some((pattern) => normalizedCleaned.includes(pattern.toLowerCase()));
+  if (hasHelpfulHint) {
+    return true;
+  }
+
+  return Boolean(point?.media_url) && cleanedText.length >= 16;
 }
 
 function getDescriptionSignal(description) {
@@ -138,6 +187,32 @@ function getDescriptionSignal(description) {
   }
 
   return { className: "weak", label: "Описание нужно уточнить" };
+}
+
+function getDescriptionSignalForPoint(point) {
+  const text = normalizeDescriptionText(point?.description);
+  if (!text && !point?.media_url) {
+    return { className: "weak", label: "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð½ÐµÑ‚" };
+  }
+
+  if (isMeaningfulDescription(text, point)) {
+    return { className: "strong", label: "Ð•ÑÑ‚ÑŒ Ð¿Ð¾Ð½ÑÑ‚Ð½Ð¾Ðµ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ" };
+  }
+
+  return { className: "weak", label: "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½ÑƒÐ¶Ð½Ð¾ ÑƒÑ‚Ð¾Ñ‡Ð½Ð¸Ñ‚ÑŒ" };
+}
+
+function getDescriptionSignalForPointV2(point) {
+  const text = normalizeDescriptionText(point?.description);
+  if (!text && !point?.media_url) {
+    return { className: "weak", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u043D\u0435\u0442" };
+  }
+
+  if (isMeaningfulDescription(text, point)) {
+    return { className: "strong", label: "\u0415\u0441\u0442\u044C \u043F\u043E\u043D\u044F\u0442\u043D\u043E\u0435 \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435" };
+  }
+
+  return { className: "weak", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u043D\u0443\u0436\u043D\u043E \u0443\u0442\u043E\u0447\u043D\u0438\u0442\u044C" };
 }
 
 function getShelterTypeLabel(type) {
@@ -161,7 +236,7 @@ function renderNearbyCards(points) {
     const address = String(point.address || "").trim();
     const source = String(point.source || "").trim();
     const verificationStatus = String(point.location_verification_status || "needs_review").trim();
-    const signal = getDescriptionSignal(description);
+    const signal = getDescriptionSignalForPointV2(point);
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
     const verificationLabel = getLocationVerificationLabel(verificationStatus);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
