@@ -86,8 +86,12 @@ function getFilteredShelters() {
 }
 
 function createMarkerIcon(status, isSelected) {
-  const color = isSelected ? "#1f6feb" : status === "pending" ? "#d49a17" : "#17594a";
-  const halo = isSelected ? "0 0 0 12px rgba(31,111,235,0.18)" : "0 10px 24px rgba(23,89,74,0.18)";
+  const color = isSelected ? "#1f6feb" : status === "verified" ? "#17594a" : "#c84b31";
+  const halo = isSelected
+    ? "0 0 0 12px rgba(31,111,235,0.18)"
+    : status === "verified"
+      ? "0 10px 24px rgba(23,89,74,0.18)"
+      : "0 10px 24px rgba(200,75,49,0.2)";
 
   return L.divIcon({
     className: "custom-marker",
@@ -142,7 +146,7 @@ function renderAdminMap() {
   visibleShelters.forEach((row) => {
     const isSelected = row.id === selectedShelterId;
     const marker = L.marker([row.latitude, row.longitude], {
-      icon: createMarkerIcon(row.status, isSelected),
+      icon: createMarkerIcon(row.location_verification_status, isSelected),
       draggable: isSelected
     }).addTo(adminMap);
 
