@@ -108,6 +108,10 @@ function initAdminMap() {
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(adminMap);
+
+  setTimeout(() => {
+    adminMap?.invalidateSize();
+  }, 0);
 }
 
 function clearAdminMarkers() {
@@ -129,6 +133,8 @@ function renderAdminMap() {
   if (!adminMap) {
     return;
   }
+
+  adminMap.invalidateSize();
 
   clearAdminMarkers();
   const visibleShelters = getFilteredShelters();
@@ -617,6 +623,14 @@ if (supabase) {
     refreshSession();
   });
 }
+
+window.addEventListener("load", () => {
+  adminMap?.invalidateSize();
+});
+
+window.addEventListener("resize", () => {
+  adminMap?.invalidateSize();
+});
 
 setFilterButtonState();
 initAdminMap();
