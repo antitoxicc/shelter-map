@@ -67,8 +67,16 @@
           <input id="titleInput" name="title" maxlength="120" required />
         </label>
         <label>
+          Адрес
+          <input id="addressInput" name="address" maxlength="200" required />
+        </label>
+        <label>
+          Источник
+          <input id="sourceInput" name="source" maxlength="200" placeholder="Например: муниципалитет, CSV, ручная проверка" required />
+        </label>
+        <label>
           Тип точки
-          <select id="shelterTypeInput" name="shelter_type">
+          <select id="shelterTypeInput" name="shelter_type" required>
             <option value="">Не указано</option>
             <option value="school">Школа</option>
             <option value="hospital">Больница</option>
