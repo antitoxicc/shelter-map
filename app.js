@@ -67,13 +67,21 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-const shelterIcon = L.divIcon({
-  className: "custom-marker",
-  html: '<div style="width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#17594a;border:3px solid #fffaf2;box-shadow:0 10px 24px rgba(23,89,74,0.28);"></div>',
-  iconSize: [22, 22],
-  iconAnchor: [11, 22],
-  popupAnchor: [0, -18]
-});
+function createShelterIcon(verificationStatus) {
+  const isVerified = verificationStatus === "verified";
+  const color = isVerified ? "#17594a" : "#c84b31";
+  const shadow = isVerified
+    ? "0 10px 24px rgba(23,89,74,0.28)"
+    : "0 10px 24px rgba(200,75,49,0.28)";
+
+  return L.divIcon({
+    className: "custom-marker",
+    html: `<div style="width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:3px solid #fffaf2;box-shadow:${shadow};"></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 22],
+    popupAnchor: [0, -18]
+  });
+}
 
 const userIcon = L.divIcon({
   className: "custom-marker",
@@ -284,7 +292,9 @@ function renderShelters(points) {
     const sourceLine = source ? `<br />Источник: ${escapeHtml(source)}` : "";
     const verificationLine = `<br />Точность местоположения: ${escapeHtml(getLocationVerificationLabel(verificationStatus))}`;
 
-    const marker = L.marker([point.latitude, point.longitude], { icon: shelterIcon })
+    const marker = L.marker([point.latitude, point.longitude], {
+      icon: createShelterIcon(verificationStatus)
+    })
       .addTo(map)
       .bindPopup(
         `<strong>${escapeHtml(point.title)}</strong>${typeLine}${addressLine}${sourceLine}${verificationLine}<br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
