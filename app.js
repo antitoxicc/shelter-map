@@ -68,7 +68,8 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 function createShelterIcon(verificationStatus) {
-  const isVerified = verificationStatus === "verified";
+  const normalizedStatus = String(verificationStatus || "").trim().toLowerCase();
+  const isVerified = normalizedStatus === "verified";
   const color = isVerified ? "#17594a" : "#c84b31";
   const shadow = isVerified
     ? "0 10px 24px rgba(23,89,74,0.28)"
@@ -81,6 +82,15 @@ function createShelterIcon(verificationStatus) {
     iconAnchor: [11, 22],
     popupAnchor: [0, -18]
   });
+}
+
+function getNormalizedVerificationLabel(value) {
+  const normalizedValue = String(value || "").trim().toLowerCase();
+  if (normalizedValue === "verified") {
+    return "Подтверждено";
+  }
+
+  return "Нужно проверить";
 }
 
 const userIcon = L.divIcon({
@@ -243,10 +253,12 @@ function renderNearbyCards(points) {
     const description = String(point.description || "").trim();
     const address = String(point.address || "").trim();
     const source = String(point.source || "").trim();
-    const verificationStatus = String(point.location_verification_status || "needs_review").trim();
+    const verificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase() === "verified"
+      ? "verified"
+      : "needs_review";
     const signal = getDescriptionSignalForPointV2(point);
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
-    const verificationLabel = getLocationVerificationLabel(verificationStatus);
+    const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
     const fallbackText = "Описание не указано или пока слишком общее. Такую точку лучше дополнительно проверить.";
 
@@ -283,14 +295,16 @@ function renderShelters(points) {
     const description = String(point.description || "").trim();
     const address = String(point.address || "").trim();
     const source = String(point.source || "").trim();
-    const verificationStatus = String(point.location_verification_status || "needs_review").trim();
+    const verificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase() === "verified"
+      ? "verified"
+      : "needs_review";
     const mediaLine = point.media_url
       ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
     const typeLine = `<br />Тип: ${escapeHtml(getShelterTypeLabel(point.shelter_type))}`;
     const addressLine = address ? `<br />Адрес: ${escapeHtml(address)}` : "";
     const sourceLine = source ? `<br />Источник: ${escapeHtml(source)}` : "";
-    const verificationLine = `<br />Точность местоположения: ${escapeHtml(getLocationVerificationLabel(verificationStatus))}`;
+    const verificationLine = `<br />Точность местоположения: ${escapeHtml(getNormalizedVerificationLabel(verificationStatus))}`;
 
     const marker = L.marker([point.latitude, point.longitude], {
       icon: createShelterIcon(verificationStatus)
