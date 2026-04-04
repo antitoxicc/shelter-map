@@ -63,6 +63,12 @@ function getShelterTypeLabel(type) {
   return SHELTER_TYPE_LABELS[type] || "Тип не указан";
 }
 
+function getSimpleVerificationLabel(value) {
+  return String(value || "").trim().toLowerCase() === "verified"
+    ? "Подтверждено"
+    : "Нужно проверить";
+}
+
 function getLocationVerificationLabel(value) {
   return LOCATION_VERIFICATION_LABELS[value] || "Требует ручной проверки";
 }
@@ -86,10 +92,12 @@ function getFilteredShelters() {
 }
 
 function createMarkerIcon(status, isSelected) {
-  const color = isSelected ? "#1f6feb" : status === "verified" ? "#17594a" : "#c84b31";
+  const normalizedStatus = String(status || "").trim().toLowerCase();
+  const isVerified = normalizedStatus === "verified";
+  const color = isSelected ? "#1f6feb" : isVerified ? "#17594a" : "#c84b31";
   const halo = isSelected
     ? "0 0 0 12px rgba(31,111,235,0.18)"
-    : status === "verified"
+    : isVerified
       ? "0 10px 24px rgba(23,89,74,0.18)"
       : "0 10px 24px rgba(200,75,49,0.2)";
 
@@ -162,7 +170,7 @@ function renderAdminMap() {
     const popupHtml = `
       <strong>${escapeHtml(row.title)}</strong>
       <br />${escapeHtml(getShelterTypeLabel(row.shelter_type))}
-      <br />${escapeHtml(getLocationVerificationLabel(row.location_verification_status))}
+      <br />${escapeHtml(getSimpleVerificationLabel(row.location_verification_status))}
       <br />Статус: ${escapeHtml(row.status)}
       <br /><button type="button" class="admin-popup-button" data-action="select-from-popup" data-id="${escapeHtml(row.id)}">Открыть в панели</button>
     `;
@@ -195,9 +203,14 @@ function renderTypeOptions(selectedType) {
 }
 
 function renderLocationVerificationOptions(selectedValue) {
-  return Object.entries(LOCATION_VERIFICATION_LABELS)
-    .map(([value, label]) => `<option value="${value}"${selectedValue === value ? " selected" : ""}>${escapeHtml(label)}</option>`)
-    .join("");
+  const normalizedValue = String(selectedValue || "").trim().toLowerCase() === "verified"
+    ? "verified"
+    : "needs_review";
+
+  return `
+    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>Нужно проверить</option>
+    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>Подтверждено</option>
+  `;
 }
 
 function renderSelectedShelterPanel() {
@@ -222,7 +235,7 @@ function renderSelectedShelterPanel() {
       <h3>${escapeHtml(row.title)}</h3>
       <div class="badge-row">
         <span class="type-badge">${escapeHtml(getShelterTypeLabel(row.shelter_type))}</span>
-        <span class="verification-badge ${escapeHtml(row.location_verification_status || "needs_review")}">${escapeHtml(getLocationVerificationLabel(row.location_verification_status))}</span>
+        <span class="verification-badge ${escapeHtml(String(row.location_verification_status || "").trim().toLowerCase() === "verified" ? "verified" : "needs_review")}">${escapeHtml(getSimpleVerificationLabel(row.location_verification_status))}</span>
         <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
       </div>
       <div class="meta-line">Адрес: ${escapeHtml(row.address || "не указан")}</div>
@@ -304,7 +317,9 @@ function renderCards(target, rows, options) {
 
   target.innerHTML = rows.map((row) => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${row.latitude},${row.longitude}`;
-    const verificationStatus = String(row.location_verification_status || "needs_review").trim();
+    const verificationStatus = String(row.location_verification_status || "needs_review").trim().toLowerCase() === "verified"
+      ? "verified"
+      : "needs_review";
     const isSelected = row.id === selectedShelterId;
 
     return `
@@ -313,7 +328,7 @@ function renderCards(target, rows, options) {
         <p>${escapeHtml(row.description || "Описание не указано")}</p>
         <div class="badge-row">
           <span class="type-badge">${escapeHtml(getShelterTypeLabel(row.shelter_type))}</span>
-          <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(getLocationVerificationLabel(verificationStatus))}</span>
+          <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(getSimpleVerificationLabel(verificationStatus))}</span>
           <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
         </div>
         <div class="meta-line">Адрес: ${escapeHtml(row.address || "не указан")}</div>
