@@ -61,7 +61,7 @@
         </div>
         <button id="closeSuggestBtn" class="icon-button" type="button" aria-label="Закрыть">×</button>
       </div>
-      <p class="panel-copy">Координаты подставятся автоматически: сначала берём твою геопозицию, а если она недоступна, используем центр карты. Фото или видео можно прикрепить по желанию.</p>
+      <p class="panel-copy">Выбери точку на мини-карте ниже. По умолчанию поставим маркер по твоей геопозиции, а если она недоступна, по центру основной карты. Фото или видео можно прикрепить по желанию.</p>
       <form id="suggestForm" class="suggest-form">
         <label>
           Название
@@ -94,6 +94,13 @@
           Описание
           <textarea id="descriptionInput" name="description" rows="4" maxlength="500" required></textarea>
         </label>
+        <div class="suggest-location-picker">
+          <div class="panel-heading modal-heading">
+            <h2>Выбери точку на карте</h2>
+          </div>
+          <p class="panel-copy">Кликни по карте или перетащи маркер в нужное место. Именно эта точка уйдёт на проверку.</p>
+          <div id="suggestMap" class="suggest-map" aria-label="Карта выбора точки"></div>
+        </div>
         <div class="grid-two">
           <label>
             Имя
