@@ -545,14 +545,16 @@ textarea {
 }
 
 .admin-workspace-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(340px, 420px);
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
   gap: 18px;
-  align-items: start;
 }
 
 .admin-map-shell {
   position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .admin-master-map {
@@ -593,6 +595,7 @@ textarea {
 }
 
 .admin-details-panel {
+  flex: 0 0 380px;
   position: sticky;
   top: 20px;
   align-self: start;
@@ -652,11 +655,13 @@ textarea {
   }
 
   .admin-workspace-grid {
-    grid-template-columns: 1fr;
+    display: block;
   }
 
   .admin-details-panel {
+    flex: none;
     position: static;
+    margin-top: 18px;
   }
 
   .admin-master-map {
