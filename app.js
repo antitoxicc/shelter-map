@@ -24,6 +24,12 @@ const SHELTER_TYPE_LABELS = {
   public_mamad: "МАМАД общественный"
 };
 
+const LOCATION_VERIFICATION_LABELS = {
+  verified: "Подтверждено",
+  approximate: "Нужно проверить",
+  needs_review: "Нужно проверить"
+};
+
 const statusMessage = document.getElementById("statusMessage");
 const formMessage = document.getElementById("formMessage");
 const nearbyList = document.getElementById("nearbyList");
@@ -83,6 +89,7 @@ function formatDistance(distanceMeters) {
   if (distanceMeters < 1000) {
     return `${Math.round(distanceMeters)} м`;
   }
+
   return `${(distanceMeters / 1000).toFixed(1)} км`;
 }
 
@@ -125,14 +132,20 @@ function getDescriptionSignal(description) {
   if (!text) {
     return { className: "weak", label: "Описания нет" };
   }
+
   if (isMeaningfulDescription(text)) {
     return { className: "strong", label: "Есть понятное описание" };
   }
+
   return { className: "weak", label: "Описание нужно уточнить" };
 }
 
 function getShelterTypeLabel(type) {
   return SHELTER_TYPE_LABELS[type] || "Тип не указан";
+}
+
+function getLocationVerificationLabel(value) {
+  return LOCATION_VERIFICATION_LABELS[value] || "Требует ручной проверки";
 }
 
 function renderNearbyCards(points) {
@@ -145,17 +158,25 @@ function renderNearbyCards(points) {
   nearbyList.innerHTML = points.map((point) => {
     const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
     const description = String(point.description || "").trim();
+    const address = String(point.address || "").trim();
+    const source = String(point.source || "").trim();
+    const verificationStatus = String(point.location_verification_status || "needs_review").trim();
     const signal = getDescriptionSignal(description);
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
+    const verificationLabel = getLocationVerificationLabel(verificationStatus);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
     const fallbackText = "Описание не указано или пока слишком общее. Такую точку лучше дополнительно проверить.";
+
     return `
       <article class="location-card">
         <h3>${escapeHtml(point.title)}</h3>
         <p>${escapeHtml(description || fallbackText)}</p>
+        ${address ? `<div class="meta-line">${escapeHtml(address)}</div>` : ""}
+        ${source ? `<div class="meta-line">Источник: ${escapeHtml(source)}</div>` : ""}
         <div class="badge-row">
           <span class="distance-badge">${distance}</span>
           <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
+          <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
           <span class="signal-badge ${signal.className}">${signal.label}</span>
         </div>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
@@ -174,17 +195,26 @@ function clearShelterMarkers() {
 
 function renderShelters(points) {
   clearShelterMarkers();
+
   points.forEach((point) => {
     const description = String(point.description || "").trim();
+    const address = String(point.address || "").trim();
+    const source = String(point.source || "").trim();
+    const verificationStatus = String(point.location_verification_status || "needs_review").trim();
     const mediaLine = point.media_url
       ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
     const typeLine = `<br />Тип: ${escapeHtml(getShelterTypeLabel(point.shelter_type))}`;
+    const addressLine = address ? `<br />Адрес: ${escapeHtml(address)}` : "";
+    const sourceLine = source ? `<br />Источник: ${escapeHtml(source)}` : "";
+    const verificationLine = `<br />Точность местоположения: ${escapeHtml(getLocationVerificationLabel(verificationStatus))}`;
+
     const marker = L.marker([point.latitude, point.longitude], { icon: shelterIcon })
       .addTo(map)
       .bindPopup(
-        `<strong>${escapeHtml(point.title)}</strong>${typeLine}<br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
+        `<strong>${escapeHtml(point.title)}</strong>${typeLine}${addressLine}${sourceLine}${verificationLine}<br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
       );
+
     shelterMarkers.push(marker);
   });
 }
@@ -199,13 +229,16 @@ function updateUserMarker(coords) {
 
 function fitMapToUserAndNearby(points) {
   const bounds = [];
+
   if (userCoords) {
     bounds.push([userCoords.lat, userCoords.lng]);
   }
+
   points.forEach((point) => bounds.push([point.latitude, point.longitude]));
   if (!bounds.length) {
     return;
   }
+
   map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 });
 }
 
@@ -265,7 +298,7 @@ async function loadApprovedShelters() {
 
   const { data, error } = await supabase
     .from("shelters")
-    .select("id, title, description, shelter_type, latitude, longitude, status, media_url, media_type")
+    .select("id, title, description, address, source, shelter_type, location_verification_status, latitude, longitude, status, media_url, media_type")
     .eq("status", "approved");
 
   if (error) {
@@ -379,8 +412,11 @@ async function handleSuggestSubmit(event) {
   const coords = getSubmissionCoords();
   const payload = {
     title: String(formData.get("title") || "").trim(),
+    address: String(formData.get("address") || "").trim(),
+    source: String(formData.get("source") || "").trim(),
     description: String(formData.get("description") || "").trim(),
-    shelter_type: String(formData.get("shelter_type") || "").trim() || null,
+    shelter_type: String(formData.get("shelter_type") || "").trim(),
+    location_verification_status: "needs_review",
     latitude: Number(coords.lat),
     longitude: Number(coords.lng),
     submitter_name: String(formData.get("submitter_name") || "").trim() || null,
@@ -391,8 +427,8 @@ async function handleSuggestSubmit(event) {
     media_name: null
   };
 
-  if (!payload.title || !payload.description) {
-    setFormMessage("Заполни название и описание точки.", true);
+  if (!payload.title || !payload.address || !payload.source || !payload.description || !payload.shelter_type) {
+    setFormMessage("Заполни название, адрес, источник, тип и описание точки.", true);
     return;
   }
 
@@ -413,6 +449,7 @@ async function handleSuggestSubmit(event) {
     suggestForm.reset();
     setFormMessage("");
     closeSuggestModal();
+    updateLocationHint();
     setStatus("Точка отправлена на проверку. Спасибо.");
   } catch (error) {
     setFormMessage(`Не удалось отправить точку: ${error.message}`, true);
