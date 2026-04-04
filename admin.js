@@ -1,6 +1,9 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-config.js";
 
+const DEFAULT_CENTER = [32.0853, 34.7818];
+const DEFAULT_ADMIN_MAP_ZOOM = 13;
+
 const SHELTER_TYPE_LABELS = {
   school: "Школа",
   hospital: "Больница",
@@ -19,8 +22,6 @@ const LOCATION_VERIFICATION_LABELS = {
   needs_review: "Нужно проверить"
 };
 
-const DEFAULT_ADMIN_MAP_ZOOM = 17;
-
 const authMessage = document.getElementById("authMessage");
 const sessionBadge = document.getElementById("sessionBadge");
 const pendingList = document.getElementById("pendingList");
@@ -31,12 +32,18 @@ const loginForm = document.getElementById("loginForm");
 const logoutBtn = document.getElementById("logoutBtn");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
+const adminMapElement = document.getElementById("adminMap");
+const selectedShelterPanel = document.getElementById("selectedShelterPanel");
+const mapFilterButtons = Array.from(document.querySelectorAll("[data-map-filter]"));
 
 const supabase = hasSupabaseConfig() ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let editingShelterId = null;
-let activeEditMap = null;
-let activeEditMarker = null;
+let adminMap = null;
+let adminMarkers = [];
+let allShelters = [];
+let selectedShelterId = null;
+let currentMapFilter = "all";
+let hasFitMapToData = false;
 
 function setAuthMessage(message, isError = false) {
   authMessage.textContent = message;
@@ -60,110 +67,222 @@ function getLocationVerificationLabel(value) {
   return LOCATION_VERIFICATION_LABELS[value] || "Требует ручной проверки";
 }
 
-function destroyActiveEditMap() {
-  if (activeEditMap) {
-    activeEditMap.remove();
-    activeEditMap = null;
-    activeEditMarker = null;
-  }
+function getShelterById(id) {
+  return allShelters.find((row) => row.id === id) || null;
 }
 
-function renderMediaBlock(row) {
-  if (!row.media_url) {
-    return '<div class="meta-line">Вложение: не добавлено</div>';
+function setFilterButtonState() {
+  mapFilterButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.mapFilter === currentMapFilter);
+  });
+}
+
+function getFilteredShelters() {
+  if (currentMapFilter === "all") {
+    return allShelters;
   }
 
-  const safeUrl = escapeHtml(row.media_url);
-  const safeName = escapeHtml(row.media_name || "Открыть вложение");
-  const isVideo = String(row.media_type || "").startsWith("video/");
-  const preview = isVideo
-    ? `<video controls preload="metadata" style="width:100%;margin-top:12px;border-radius:16px;"><source src="${safeUrl}" type="${escapeHtml(row.media_type || "video/mp4")}" /></video>`
-    : `<img src="${safeUrl}" alt="${safeName}" style="width:100%;margin-top:12px;border-radius:16px;object-fit:cover;" />`;
+  return allShelters.filter((row) => row.status === currentMapFilter);
+}
 
-  return `
-    <div class="meta-line">Вложение: <a class="media-link" href="${safeUrl}" target="_blank" rel="noreferrer">${safeName}</a></div>
-    ${preview}
-  `;
+function createMarkerIcon(status, isSelected) {
+  const color = isSelected ? "#1f6feb" : status === "pending" ? "#d49a17" : "#17594a";
+  const halo = isSelected ? "0 0 0 12px rgba(31,111,235,0.18)" : "0 10px 24px rgba(23,89,74,0.18)";
+
+  return L.divIcon({
+    className: "custom-marker",
+    html: `<div style="width:20px;height:20px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:3px solid #fffaf2;box-shadow:${halo};"></div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -18]
+  });
+}
+
+function initAdminMap() {
+  if (adminMap || !adminMapElement || typeof L === "undefined") {
+    return;
+  }
+
+  adminMap = L.map(adminMapElement, { zoomControl: true }).setView(DEFAULT_CENTER, DEFAULT_ADMIN_MAP_ZOOM);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(adminMap);
+}
+
+function clearAdminMarkers() {
+  adminMarkers.forEach((marker) => marker.remove());
+  adminMarkers = [];
+}
+
+function fitMapToShelters(points) {
+  if (!adminMap || !points.length) {
+    return;
+  }
+
+  const bounds = L.latLngBounds(points.map((row) => [row.latitude, row.longitude]));
+  adminMap.fitBounds(bounds, { padding: [28, 28], maxZoom: 16 });
+}
+
+function renderAdminMap() {
+  initAdminMap();
+  if (!adminMap) {
+    return;
+  }
+
+  clearAdminMarkers();
+  const visibleShelters = getFilteredShelters();
+
+  visibleShelters.forEach((row) => {
+    const isSelected = row.id === selectedShelterId;
+    const marker = L.marker([row.latitude, row.longitude], {
+      icon: createMarkerIcon(row.status, isSelected),
+      draggable: isSelected
+    }).addTo(adminMap);
+
+    marker.on("click", () => {
+      selectShelter(row.id, { center: false });
+    });
+
+    marker.on("dragend", () => {
+      const { lat, lng } = marker.getLatLng();
+      updateSelectedCoordsInputs(lat, lng);
+    });
+
+    const popupHtml = `
+      <strong>${escapeHtml(row.title)}</strong>
+      <br />${escapeHtml(getShelterTypeLabel(row.shelter_type))}
+      <br />${escapeHtml(getLocationVerificationLabel(row.location_verification_status))}
+      <br />Статус: ${escapeHtml(row.status)}
+      <br /><button type="button" class="admin-popup-button" data-action="select-from-popup" data-id="${escapeHtml(row.id)}">Открыть в панели</button>
+    `;
+
+    marker.bindPopup(popupHtml);
+    adminMarkers.push(marker);
+  });
+
+  if (!visibleShelters.length) {
+    adminMap.setView(DEFAULT_CENTER, DEFAULT_ADMIN_MAP_ZOOM);
+    return;
+  }
+
+  const selectedShelter = visibleShelters.find((row) => row.id === selectedShelterId);
+  if (selectedShelter) {
+    adminMap.setView([selectedShelter.latitude, selectedShelter.longitude], Math.max(adminMap.getZoom(), 15));
+    return;
+  }
+
+  if (!hasFitMapToData) {
+    fitMapToShelters(visibleShelters);
+    hasFitMapToData = true;
+  }
 }
 
 function renderTypeOptions(selectedType) {
-  return Object.entries(SHELTER_TYPE_LABELS).map(([value, label]) => (
-    `<option value="${value}"${selectedType === value ? " selected" : ""}>${label}</option>`
-  )).join("");
+  return Object.entries(SHELTER_TYPE_LABELS)
+    .map(([value, label]) => `<option value="${value}"${selectedType === value ? " selected" : ""}>${escapeHtml(label)}</option>`)
+    .join("");
 }
 
 function renderLocationVerificationOptions(selectedValue) {
-  return Object.entries(LOCATION_VERIFICATION_LABELS).map(([value, label]) => (
-    `<option value="${value}"${selectedValue === value ? " selected" : ""}>${label}</option>`
-  )).join("");
+  return Object.entries(LOCATION_VERIFICATION_LABELS)
+    .map(([value, label]) => `<option value="${value}"${selectedValue === value ? " selected" : ""}>${escapeHtml(label)}</option>`)
+    .join("");
 }
 
-function renderEditForm(row) {
-  return `
-    <form class="admin-edit-form" data-edit-form="${row.id}">
-      <label>
-        Название
-        <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
-      </label>
-      <label>
-        Адрес
-        <input name="address" value="${escapeHtml(row.address || "")}" maxlength="200" required />
-      </label>
-      <label>
-        Источник
-        <input name="source" value="${escapeHtml(row.source || "")}" maxlength="200" required />
-      </label>
-      <label>
-        Тип точки
-        <select name="shelter_type" required>
-          <option value="">Не указано</option>
-          ${renderTypeOptions(row.shelter_type || "")}
-        </select>
-      </label>
-      <label>
-        Точность местоположения
-        <select name="location_verification_status" required>
-          ${renderLocationVerificationOptions(row.location_verification_status || "needs_review")}
-        </select>
-      </label>
-      <label>
-        Описание
-        <textarea name="description" rows="4" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
-      </label>
-      <div class="grid-two">
-        <label>
-          Широта
-          <input name="latitude" value="${escapeHtml(row.latitude)}" inputmode="decimal" required />
-        </label>
-        <label>
-          Долгота
-          <input name="longitude" value="${escapeHtml(row.longitude)}" inputmode="decimal" required />
-        </label>
+function renderSelectedShelterPanel() {
+  if (!supabase) {
+    selectedShelterPanel.innerHTML = '<p class="empty-state">Сначала заполни `./supabase-config.js`, чтобы карта админки заработала.</p>';
+    return;
+  }
+
+  const row = getShelterById(selectedShelterId);
+  if (!row) {
+    selectedShelterPanel.innerHTML = '<p class="empty-state">Выбери точку на карте или из списка ниже. После выбора здесь появится форма редактирования.</p>';
+    return;
+  }
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${row.latitude},${row.longitude}`;
+  const mediaBlock = row.media_url
+    ? `<div class="meta-line">Вложение: <a class="media-link" href="${escapeHtml(row.media_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.media_name || "Открыть вложение")}</a></div>`
+    : '<div class="meta-line">Вложение: не добавлено</div>';
+
+  selectedShelterPanel.innerHTML = `
+    <article class="selected-shelter-card">
+      <h3>${escapeHtml(row.title)}</h3>
+      <div class="badge-row">
+        <span class="type-badge">${escapeHtml(getShelterTypeLabel(row.shelter_type))}</span>
+        <span class="verification-badge ${escapeHtml(row.location_verification_status || "needs_review")}">${escapeHtml(getLocationVerificationLabel(row.location_verification_status))}</span>
+        <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
       </div>
-      <div class="admin-map-block">
-        <div class="meta-line">Перетащи маркер на карте или поправь координаты вручную.</div>
-        <div
-          class="admin-edit-map"
-          data-edit-map="${row.id}"
-          data-lat="${escapeHtml(row.latitude)}"
-          data-lng="${escapeHtml(row.longitude)}"
-        ></div>
-      </div>
-      <div class="grid-two">
-        <label>
-          Имя
-          <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
-        </label>
-        <label>
-          Контакт
-          <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
-        </label>
-      </div>
+      <div class="meta-line">Адрес: ${escapeHtml(row.address || "не указан")}</div>
+      <div class="meta-line">Источник: ${escapeHtml(row.source || "не указан")}</div>
+      <div class="meta-line">Координаты: ${row.latitude.toFixed(6)}, ${row.longitude.toFixed(6)}</div>
+      <div class="meta-line">Добавил: ${escapeHtml(row.submitter_name || "не указано")}</div>
+      <div class="meta-line">Контакт: ${escapeHtml(row.submitter_contact || "не указан")}</div>
+      ${mediaBlock}
       <div class="card-actions">
-        <button class="card-button approve" type="submit">Сохранить</button>
-        <button class="card-button" type="button" data-action="cancel-edit" data-id="${row.id}">Отмена</button>
+        <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
+        <button class="card-button" type="button" data-action="focus-selected-map">Показать на карте</button>
       </div>
-    </form>
+      <form class="admin-edit-form selected-edit-form" data-selected-edit-form="${escapeHtml(row.id)}">
+        <label>
+          Название
+          <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
+        </label>
+        <label>
+          Адрес
+          <input name="address" value="${escapeHtml(row.address || "")}" maxlength="200" required />
+        </label>
+        <label>
+          Источник
+          <input name="source" value="${escapeHtml(row.source || "")}" maxlength="200" required />
+        </label>
+        <label>
+          Тип точки
+          <select name="shelter_type" required>
+            <option value="">Не указано</option>
+            ${renderTypeOptions(row.shelter_type || "")}
+          </select>
+        </label>
+        <label>
+          Точность местоположения
+          <select name="location_verification_status" required>
+            ${renderLocationVerificationOptions(row.location_verification_status || "needs_review")}
+          </select>
+        </label>
+        <label>
+          Описание
+          <textarea name="description" rows="5" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
+        </label>
+        <div class="grid-two">
+          <label>
+            Широта
+            <input name="latitude" value="${escapeHtml(row.latitude)}" inputmode="decimal" required />
+          </label>
+          <label>
+            Долгота
+            <input name="longitude" value="${escapeHtml(row.longitude)}" inputmode="decimal" required />
+          </label>
+        </div>
+        <p class="form-hint">Перетащи выбранный маркер на большой карте или поправь координаты вручную.</p>
+        <div class="grid-two">
+          <label>
+            Имя
+            <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
+          </label>
+          <label>
+            Контакт
+            <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
+          </label>
+        </div>
+        <div class="card-actions">
+          <button class="card-button approve" type="submit">Сохранить</button>
+          ${row.status === "pending" ? '<button class="card-button approve" type="button" data-action="approve" data-id="' + escapeHtml(row.id) + '">Опубликовать</button>' : ""}
+          <button class="card-button delete" type="button" data-action="delete" data-id="${escapeHtml(row.id)}">Удалить</button>
+        </div>
+      </form>
+    </article>
   `;
 }
 
@@ -175,11 +294,11 @@ function renderCards(target, rows, options) {
 
   target.innerHTML = rows.map((row) => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${row.latitude},${row.longitude}`;
-    const isEditing = editingShelterId === row.id;
     const verificationStatus = String(row.location_verification_status || "needs_review").trim();
+    const isSelected = row.id === selectedShelterId;
 
     return `
-      <article class="location-card">
+      <article class="location-card${isSelected ? " is-selected" : ""}">
         <h3>${escapeHtml(row.title)}</h3>
         <p>${escapeHtml(row.description || "Описание не указано")}</p>
         <div class="badge-row">
@@ -192,77 +311,78 @@ function renderCards(target, rows, options) {
         <div class="meta-line">Координаты: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
         <div class="meta-line">Добавил: ${escapeHtml(row.submitter_name || "не указано")}</div>
         <div class="meta-line">Контакт: ${escapeHtml(row.submitter_contact || "не указан")}</div>
-        ${renderMediaBlock(row)}
         <div class="card-actions">
           <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
-          <button class="card-button" data-action="edit" data-id="${row.id}" type="button">Редактировать</button>
-          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${row.id}" type="button">Опубликовать</button>` : ""}
-          <button class="card-button delete" data-action="delete" data-id="${row.id}" type="button">Удалить</button>
+          <button class="card-button" data-action="edit" data-id="${escapeHtml(row.id)}" type="button">Выбрать на карте</button>
+          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${escapeHtml(row.id)}" type="button">Опубликовать</button>` : ""}
+          <button class="card-button delete" data-action="delete" data-id="${escapeHtml(row.id)}" type="button">Удалить</button>
         </div>
-        ${isEditing ? renderEditForm(row) : ""}
       </article>
     `;
   }).join("");
 }
 
-function initializeEditMap() {
-  destroyActiveEditMap();
+function renderLists() {
+  const pending = allShelters.filter((row) => row.status === "pending");
+  const approved = allShelters.filter((row) => row.status === "approved");
 
-  const mapElement = document.querySelector("[data-edit-map]");
-  if (!mapElement || typeof L === "undefined") {
+  pendingCount.textContent = String(pending.length);
+  approvedCount.textContent = String(approved.length);
+
+  renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "Нет pending-точек." });
+  renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "Подтверждённых точек пока нет." });
+}
+
+function updateSelectedCoordsInputs(lat, lng) {
+  const latInput = selectedShelterPanel.querySelector('input[name="latitude"]');
+  const lngInput = selectedShelterPanel.querySelector('input[name="longitude"]');
+
+  if (!latInput || !lngInput || !Number.isFinite(lat) || !Number.isFinite(lng)) {
     return;
   }
 
-  const form = mapElement.closest("[data-edit-form]");
-  const latInput = form?.querySelector('input[name="latitude"]');
-  const lngInput = form?.querySelector('input[name="longitude"]');
-  const lat = Number(mapElement.dataset.lat || latInput?.value);
-  const lng = Number(mapElement.dataset.lng || lngInput?.value);
+  latInput.value = lat.toFixed(7);
+  lngInput.value = lng.toFixed(7);
+}
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+function syncSelectedMarkerFromInputs() {
+  if (!adminMap || !selectedShelterId) {
     return;
   }
 
-  activeEditMap = L.map(mapElement, { zoomControl: true }).setView([lat, lng], DEFAULT_ADMIN_MAP_ZOOM);
+  const latInput = selectedShelterPanel.querySelector('input[name="latitude"]');
+  const lngInput = selectedShelterPanel.querySelector('input[name="longitude"]');
+  const nextLat = Number(String(latInput?.value || "").replace(",", "."));
+  const nextLng = Number(String(lngInput?.value || "").replace(",", "."));
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(activeEditMap);
+  if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng)) {
+    return;
+  }
 
-  activeEditMarker = L.marker([lat, lng], { draggable: true }).addTo(activeEditMap);
+  const row = getShelterById(selectedShelterId);
+  if (!row) {
+    return;
+  }
 
-  const syncMarkerPosition = (nextLat, nextLng) => {
-    if (!latInput || !lngInput) {
-      return;
-    }
+  row.latitude = nextLat;
+  row.longitude = nextLng;
+  renderAdminMap();
+}
 
-    latInput.value = nextLat.toFixed(7);
-    lngInput.value = nextLng.toFixed(7);
-  };
+function selectShelter(id, options = {}) {
+  const nextShelter = getShelterById(id);
+  if (!nextShelter) {
+    return;
+  }
 
-  activeEditMarker.on("dragend", () => {
-    const { lat: nextLat, lng: nextLng } = activeEditMarker.getLatLng();
-    syncMarkerPosition(nextLat, nextLng);
-  });
+  selectedShelterId = id;
+  renderLists();
+  renderSelectedShelterPanel();
+  renderAdminMap();
 
-  const updateMarkerFromInputs = () => {
-    const nextLat = Number(latInput?.value);
-    const nextLng = Number(lngInput?.value);
-    if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng) || !activeEditMarker || !activeEditMap) {
-      return;
-    }
-
-    activeEditMarker.setLatLng([nextLat, nextLng]);
-    activeEditMap.setView([nextLat, nextLng], activeEditMap.getZoom());
-  };
-
-  latInput?.addEventListener("change", updateMarkerFromInputs);
-  lngInput?.addEventListener("change", updateMarkerFromInputs);
-
-  // Leaflet needs a size invalidation after the hidden edit form is rendered.
-  setTimeout(() => {
-    activeEditMap?.invalidateSize();
-  }, 0);
+  if (options.center !== false && adminMap) {
+    adminMap.setView([nextShelter.latitude, nextShelter.longitude], Math.max(adminMap.getZoom(), 15));
+  }
 }
 
 async function loadShelters() {
@@ -281,35 +401,46 @@ async function loadShelters() {
     return;
   }
 
-  const pending = (data || []).filter((row) => row.status === "pending");
-  const approved = (data || []).filter((row) => row.status === "approved");
-  pendingCount.textContent = String(pending.length);
-  approvedCount.textContent = String(approved.length);
+  allShelters = (data || []).map((row) => ({
+    ...row,
+    latitude: Number(row.latitude),
+    longitude: Number(row.longitude)
+  }));
 
-  if (editingShelterId && !(data || []).some((row) => row.id === editingShelterId)) {
-    editingShelterId = null;
+  if (selectedShelterId && !getShelterById(selectedShelterId)) {
+    selectedShelterId = null;
   }
 
-  renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "Нет pending-точек." });
-  renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "Подтверждённых точек пока нет." });
-  initializeEditMap();
+  renderLists();
+  renderSelectedShelterPanel();
+  renderAdminMap();
+}
+
+function resetAdminViewForGuest() {
+  clearAdminMarkers();
+  selectedShelterId = null;
+  allShelters = [];
+  hasFitMapToData = false;
+  selectedShelterPanel.innerHTML = '<p class="empty-state">Войди как администратор, чтобы открыть карту модерации и редактирование точек.</p>';
+  pendingList.innerHTML = '<p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>';
+  approvedList.innerHTML = '<p class="empty-state">После входа здесь появится список подтверждённых точек.</p>';
+  pendingCount.textContent = "0";
+  approvedCount.textContent = "0";
 }
 
 async function refreshSession() {
   if (!supabase) {
     sessionBadge.textContent = "no config";
+    renderSelectedShelterPanel();
     return;
   }
 
+  initAdminMap();
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    destroyActiveEditMap();
     sessionBadge.textContent = "guest";
-    pendingList.innerHTML = '<p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>';
-    approvedList.innerHTML = '<p class="empty-state">После входа здесь появится список подтверждённых точек.</p>';
-    pendingCount.textContent = "0";
-    approvedCount.textContent = "0";
+    resetAdminViewForGuest();
     return;
   }
 
@@ -346,7 +477,6 @@ async function handleLogout() {
     return;
   }
 
-  destroyActiveEditMap();
   await supabase.auth.signOut();
   setAuthMessage("Сессия завершена.");
   await refreshSession();
@@ -368,8 +498,10 @@ async function moderateShelter(id, action) {
     return;
   }
 
-  editingShelterId = null;
-  destroyActiveEditMap();
+  if (action === "delete" && selectedShelterId === id) {
+    selectedShelterId = null;
+  }
+
   setAuthMessage(action === "approve" ? "Точка опубликована." : "Точка удалена.");
   await loadShelters();
 }
@@ -379,7 +511,7 @@ async function saveShelterEdits(form) {
     return;
   }
 
-  const shelterId = form.dataset.editForm;
+  const shelterId = form.dataset.selectedEditForm || form.dataset.editForm;
   const formData = new FormData(form);
   const latitude = Number(String(formData.get("latitude") || "").trim().replace(",", "."));
   const longitude = Number(String(formData.get("longitude") || "").trim().replace(",", "."));
@@ -414,8 +546,7 @@ async function saveShelterEdits(form) {
     return;
   }
 
-  editingShelterId = null;
-  destroyActiveEditMap();
+  selectedShelterId = shelterId;
   setAuthMessage("Изменения сохранены.");
   await loadShelters();
 }
@@ -423,8 +554,17 @@ async function saveShelterEdits(form) {
 loginForm.addEventListener("submit", handleLogin);
 logoutBtn.addEventListener("click", handleLogout);
 
+mapFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentMapFilter = button.dataset.mapFilter || "all";
+    hasFitMapToData = false;
+    setFilterButtonState();
+    renderAdminMap();
+  });
+});
+
 document.addEventListener("submit", async (event) => {
-  const form = event.target.closest("[data-edit-form]");
+  const form = event.target.closest("[data-selected-edit-form], [data-edit-form]");
   if (!form) {
     return;
   }
@@ -433,22 +573,39 @@ document.addEventListener("submit", async (event) => {
   await saveShelterEdits(form);
 });
 
+document.addEventListener("input", (event) => {
+  const field = event.target;
+  if (!field.closest("[data-selected-edit-form]")) {
+    return;
+  }
+
+  if (field.name === "latitude" || field.name === "longitude") {
+    syncSelectedMarkerFromInputs();
+  }
+});
+
 document.addEventListener("click", async (event) => {
+  const popupButton = event.target.closest(".admin-popup-button");
+  if (popupButton) {
+    selectShelter(popupButton.dataset.id);
+    return;
+  }
+
   const button = event.target.closest("[data-action]");
   if (!button) {
     return;
   }
 
-  if (button.dataset.action === "edit") {
-    editingShelterId = button.dataset.id;
-    await loadShelters();
+  if (button.dataset.action === "edit" || button.dataset.action === "select-from-popup") {
+    selectShelter(button.dataset.id);
     return;
   }
 
-  if (button.dataset.action === "cancel-edit") {
-    editingShelterId = null;
-    destroyActiveEditMap();
-    await loadShelters();
+  if (button.dataset.action === "focus-selected-map") {
+    const row = getShelterById(selectedShelterId);
+    if (row && adminMap) {
+      adminMap.setView([row.latitude, row.longitude], Math.max(adminMap.getZoom(), 16));
+    }
     return;
   }
 
@@ -461,4 +618,7 @@ if (supabase) {
   });
 }
 
+setFilterButtonState();
+initAdminMap();
+renderSelectedShelterPanel();
 refreshSession();
