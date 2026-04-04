@@ -4,7 +4,10 @@ create table if not exists public.shelters (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   description text not null,
+  address text,
+  source text not null default 'Источник не указан',
   shelter_type text,
+  location_verification_status text not null default 'needs_review' check (location_verification_status in ('verified', 'approximate', 'needs_review')),
   latitude double precision not null,
   longitude double precision not null,
   status text not null default 'pending' check (status in ('pending', 'approved')),
@@ -18,10 +21,21 @@ create table if not exists public.shelters (
 );
 
 alter table public.shelters
+  add column if not exists address text,
+  add column if not exists source text not null default 'Источник не указан',
   add column if not exists shelter_type text,
+  add column if not exists location_verification_status text not null default 'needs_review',
   add column if not exists media_url text,
   add column if not exists media_type text,
   add column if not exists media_name text;
+
+update public.shelters
+set source = 'Источник не указан'
+where source is null or btrim(source) = '';
+
+update public.shelters
+set location_verification_status = 'needs_review'
+where location_verification_status is null or btrim(location_verification_status) = '';
 
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -104,11 +118,11 @@ to authenticated
 using (bucket_id = 'shelter-media' and public.is_admin())
 with check (bucket_id = 'shelter-media' and public.is_admin());
 
-insert into public.shelters (id, title, description, shelter_type, latitude, longitude, status)
+insert into public.shelters (id, title, description, address, shelter_type, latitude, longitude, status)
 values
-  ('11111111-1111-1111-1111-111111111111', 'Укрытие на Dizengoff', 'Вход со двора, бетонное помещение.', 'building_shelter', 32.0853, 34.7818, 'approved'),
-  ('22222222-2222-2222-2222-222222222222', 'Подземное укрытие у парковки', 'Рядом с въездом на подземную парковку.', 'parking', 32.0900, 34.7900, 'approved'),
-  ('33333333-3333-3333-3333-333333333333', 'Укрытие под зданием', 'Спуск по лестнице за главным входом.', 'building_shelter', 32.0800, 34.7700, 'approved')
+  ('11111111-1111-1111-1111-111111111111', '??????? ?? Dizengoff', '???? ?? ?????, ???????? ?????????.', 'Dizengoff St 120, Tel Aviv-Yafo', 'building_shelter', 32.0853, 34.7818, 'approved'),
+  ('22222222-2222-2222-2222-222222222222', '????????? ??????? ? ????????', '????? ? ??????? ?? ????????? ????????.', 'HaYarkon St 18, Tel Aviv-Yafo', 'parking', 32.0900, 34.7900, 'approved'),
+  ('33333333-3333-3333-3333-333333333333', '??????? ??? ???????', '????? ?? ???????? ?? ??????? ??????.', 'Allenby St 52, Tel Aviv-Yafo', 'building_shelter', 32.0800, 34.7700, 'approved')
 on conflict (id) do nothing;
 
 -- После создания первого пользователя в Supabase Auth:
