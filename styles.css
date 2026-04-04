@@ -462,6 +462,24 @@ textarea {
   font-size: 0.9rem;
 }
 
+.suggest-location-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 250, 242, 0.72);
+}
+
+.suggest-map {
+  width: 100%;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
 .modal-shell {
   position: fixed;
   inset: 0;
