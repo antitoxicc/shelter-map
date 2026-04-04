@@ -41,6 +41,38 @@
       </form>
     </section>
 
+    <section class="panel admin-workspace-panel">
+      <div class="panel-heading admin-workspace-heading">
+        <div>
+          <h2>Карта модерации</h2>
+          <p class="panel-copy">Выбирай точку на карте, двигай маркер и сохраняй правки без поиска в длинном списке.</p>
+        </div>
+        <div class="admin-map-filters" role="group" aria-label="Фильтр точек">
+          <button class="card-button is-active" type="button" data-map-filter="all">Все</button>
+          <button class="card-button" type="button" data-map-filter="pending">Pending</button>
+          <button class="card-button" type="button" data-map-filter="approved">Approved</button>
+        </div>
+      </div>
+      <div class="admin-workspace-grid">
+        <div class="admin-map-shell">
+          <div id="adminMap" class="admin-master-map" aria-label="Карта убежищ"></div>
+          <div class="admin-map-legend">
+            <span><i class="legend-dot pending"></i>Pending</span>
+            <span><i class="legend-dot approved"></i>Approved</span>
+            <span><i class="legend-dot selected"></i>Выбрана</span>
+          </div>
+        </div>
+        <aside class="admin-details-panel">
+          <div class="panel-heading">
+            <h2>Выбранная точка</h2>
+          </div>
+          <div id="selectedShelterPanel" class="selected-shelter-panel">
+            <p class="empty-state">Войди и выбери точку на карте, чтобы редактировать её здесь.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
     <section class="panel">
       <div class="panel-heading">
         <h2>Pending точки</h2>
