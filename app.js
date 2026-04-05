@@ -39,6 +39,7 @@ const searchAreaBtn = document.getElementById("searchAreaBtn");
 const mapSearchAreaBtn = document.getElementById("mapSearchAreaBtn");
 const locationSearchForm = document.getElementById("locationSearchForm");
 const locationSearchInput = document.getElementById("locationSearchInput");
+const citySuggestions = document.getElementById("citySuggestions");
 const suggestForm = document.getElementById("suggestForm");
 const openSuggestBtn = document.getElementById("openSuggestBtn");
 const closeSuggestBtn = document.getElementById("closeSuggestBtn");
@@ -107,6 +108,7 @@ let userMarker = null;
 let userCoords = null;
 let suggestMap = null;
 let suggestMarker = null;
+let availableCities = [];
 
 function setStatus(message, isError = false) {
   statusMessage.textContent = message;
@@ -264,6 +266,62 @@ async function fetchApprovedShelters(applyFilters) {
   return normalizeShelterRows(rows);
 }
 
+function renderCitySuggestions(cities) {
+  if (!citySuggestions) {
+    return;
+  }
+
+  citySuggestions.innerHTML = cities
+    .map((city) => `<option value="${escapeHtml(city)}"></option>`)
+    .join("");
+}
+
+async function loadCitySuggestions() {
+  if (!supabase || !citySuggestions) {
+    return;
+  }
+
+  try {
+    const rows = [];
+    let from = 0;
+
+    while (true) {
+      const to = from + SUPABASE_PAGE_SIZE - 1;
+      const { data, error } = await supabase
+        .from("shelters")
+        .select("city")
+        .eq("status", "approved")
+        .not("city", "is", null)
+        .range(from, to);
+
+      if (error) {
+        throw error;
+      }
+
+      rows.push(...(data || []));
+
+      if (!data || data.length < SUPABASE_PAGE_SIZE) {
+        break;
+      }
+
+      from += SUPABASE_PAGE_SIZE;
+    }
+
+    availableCities = Array.from(
+      new Set(
+        rows
+          .map((row) => String(row.city || "").trim())
+          .filter(Boolean)
+      )
+    ).sort((a, b) => a.localeCompare(b, "ru"));
+
+    renderCitySuggestions(availableCities);
+  } catch (error) {
+    availableCities = [];
+    renderCitySuggestions([]);
+  }
+}
+
 function renderNearbyCards(points, totalCount = points.length) {
   nearbyCount.textContent = String(totalCount);
   if (!points.length) {
@@ -321,21 +379,36 @@ function renderShelters(points) {
     const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
       ? rawVerificationStatus
       : "needs_review";
-    const mediaLine = point.media_url
-      ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">Открыть вложение</a>`
+    const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
+    const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
+    const popupDescription = escapeHtml(description || "Описание не указано");
+    const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
+    const mediaAction = point.media_url
+      ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
-    const typeLine = `<br />Тип: ${escapeHtml(getShelterTypeLabel(point.shelter_type))}`;
-    const addressLine = address ? `<br />Адрес: ${escapeHtml(address)}` : "";
-    const sourceLine = source ? `<br />Источник: ${escapeHtml(source)}` : "";
-    const verificationLine = `<br />Точность местоположения: ${escapeHtml(getNormalizedVerificationLabel(verificationStatus))}`;
+    const popupHtml = `
+      <article class="map-popup-card">
+        <h3>${escapeHtml(point.title)}</h3>
+        <p>${popupDescription}</p>
+        ${address ? `<div class="meta-line">${escapeHtml(address)}</div>` : ""}
+        ${source ? `<div class="meta-line">Источник: ${escapeHtml(source)}</div>` : ""}
+        <div class="badge-row popup-badge-row">
+          <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
+          <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
+        </div>
+        <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
+        <div class="card-actions popup-actions">
+          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
+          ${mediaAction}
+        </div>
+      </article>
+    `;
 
     const marker = L.marker([point.latitude, point.longitude], {
       icon: createShelterIcon(verificationStatus)
     })
       .addTo(map)
-      .bindPopup(
-        `<strong>${escapeHtml(point.title)}</strong>${typeLine}${addressLine}${sourceLine}${verificationLine}<br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
-      );
+      .bindPopup(popupHtml, { className: "shelter-popup" });
 
     shelterMarkers.push(marker);
   });
@@ -546,7 +619,7 @@ async function loadSheltersNearUser(coords) {
 async function searchShelters(queryText) {
   const queryValue = String(queryText || "").trim();
   if (!queryValue) {
-    setStatus("Введи город, улицу или район для поиска.", true);
+    setStatus("Введи город для поиска.", true);
     return;
   }
 
@@ -563,15 +636,13 @@ async function searchShelters(queryText) {
 
   try {
     const escapedQuery = queryValue.replaceAll(",", "\\,");
-    const rows = await fetchApprovedShelters((query) => query.or(
-      `city.ilike.%${escapedQuery}%,address.ilike.%${escapedQuery}%,title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%`
-    ));
+    const rows = await fetchApprovedShelters((query) => query.ilike("city", `%${escapedQuery}%`));
 
     shelters = rows;
     renderShelters(rows);
     setResultsPanelContext(
       `Результаты для «${queryValue}»`,
-      "Можно искать по городу, улице, району или части адреса. Карта покажет только найденные точки."
+      "Поиск работает только по городам из базы. После выбора города карта показывает найденные точки в этом городе."
     );
 
     if (!rows.length) {
@@ -601,7 +672,7 @@ async function searchShelters(queryText) {
 async function detectLocation() {
   if (!navigator.geolocation) {
     if (!shelters.length) {
-      setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город, улицу или район вручную.");
+      setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город вручную.");
       setEmptyResultsState("Геолокация недоступна. Введи город или нажми «Искать здесь» после перемещения карты.");
     }
     setStatus("Геолокация не поддерживается браузером.", true);
@@ -624,7 +695,7 @@ async function detectLocation() {
     },
     (error) => {
       if (!shelters.length) {
-        setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город, улицу или район вручную.");
+        setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город вручную.");
         setEmptyResultsState("Пока ничего не загружено. Введи город сверху или приблизь карту и нажми «Искать здесь».");
       }
       setStatus(`Не удалось определить позицию: ${error.message}`, true);
@@ -760,8 +831,9 @@ document.addEventListener("keydown", (event) => {
 map.on("moveend", updateLocationHint);
 
 updateLocationHint();
-setResultsPanelContext("Ищем рядом с тобой", "Если разрешишь геолокацию, покажем точки рядом. Иначе можно выбрать другой город или район вручную.");
+setResultsPanelContext("Ищем рядом с тобой", "Если разрешишь геолокацию, покажем точки рядом. Иначе можно выбрать другой город вручную.");
 setEmptyResultsState("Разреши геолокацию, введи город или приблизь карту и нажми «Искать здесь».");
+loadCitySuggestions();
 detectLocation();
 
 

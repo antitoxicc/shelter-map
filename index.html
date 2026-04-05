@@ -24,11 +24,12 @@
         <div class="panel-heading">
           <h2>Где искать</h2>
         </div>
-        <p class="panel-copy">Разреши геолокацию для точек рядом с тобой или введи город, улицу или район, чтобы посмотреть другое место.</p>
+        <p class="panel-copy">Разреши геолокацию для точек рядом с тобой или введи город, чтобы посмотреть другое место.</p>
         <form id="locationSearchForm" class="search-form">
-          <label class="search-label" for="locationSearchInput">Город или адрес</label>
+          <label class="search-label" for="locationSearchInput">Город</label>
           <div class="search-row">
-            <input id="locationSearchInput" name="query" type="search" placeholder="Например: Нетания или הרצל 12 בת ים" autocomplete="off" />
+            <input id="locationSearchInput" name="query" type="search" placeholder="Например: Нетания или Бат-Ям" autocomplete="off" list="citySuggestions" />
+            <datalist id="citySuggestions"></datalist>
             <button class="primary-button" type="submit">Найти</button>
           </div>
         </form>
