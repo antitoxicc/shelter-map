@@ -148,6 +148,22 @@
     </section>
   </div>
 
+  <div id="detailsModal" class="modal-shell" hidden>
+    <div id="detailsBackdrop" class="modal-backdrop"></div>
+    <section class="modal-card details-modal-card" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
+      <div class="panel-heading modal-heading">
+        <div>
+          <p class="eyebrow">Shelter Details</p>
+          <h2 id="detailsModalTitle">Подробности</h2>
+        </div>
+        <button id="closeDetailsBtn" class="icon-button" type="button" aria-label="Закрыть">×</button>
+      </div>
+      <div id="detailsModalContent" class="details-modal-content">
+        <p class="empty-state">Выбери точку из списка, чтобы увидеть подробности.</p>
+      </div>
+    </section>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script type="module" src="./app.js?v=20260405-3"></script>
 </body>

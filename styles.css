@@ -334,6 +334,12 @@ select {
   border: 1px solid var(--border);
 }
 
+.compact-location-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .location-card h3 {
   margin: 0 0 6px;
   font-size: 1.05rem;
@@ -575,6 +581,37 @@ select {
   overflow-y: auto;
 }
 
+.details-modal-card {
+  width: min(100%, 620px);
+}
+
+.details-modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.details-sheet h3 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+}
+
+.details-section {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.details-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.96rem;
+}
+
+.details-section p {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--text);
+}
+
 .modal-heading {
   align-items: flex-start;
 }
@@ -591,6 +628,11 @@ select {
 .meta-line {
   margin-top: 10px;
   font-size: 0.88rem;
+}
+
+.card-address {
+  margin-top: 0;
+  font-size: 0.96rem;
 }
 
 .media-link {

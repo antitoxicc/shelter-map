@@ -46,6 +46,10 @@ const closeSuggestBtn = document.getElementById("closeSuggestBtn");
 const cancelSuggestBtn = document.getElementById("cancelSuggestBtn");
 const suggestModal = document.getElementById("suggestModal");
 const suggestBackdrop = document.getElementById("suggestBackdrop");
+const detailsModal = document.getElementById("detailsModal");
+const detailsBackdrop = document.getElementById("detailsBackdrop");
+const closeDetailsBtn = document.getElementById("closeDetailsBtn");
+const detailsModalContent = document.getElementById("detailsModalContent");
 const locationHint = document.getElementById("locationHint");
 const titleInput = document.getElementById("titleInput");
 const mediaInput = document.getElementById("mediaInput");
@@ -331,9 +335,7 @@ function renderNearbyCards(points, totalCount = points.length) {
 
   nearbyList.innerHTML = points.map((point) => {
     const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
-    const description = String(point.description || "").trim();
     const address = formatAddress(point.address, point.city);
-    const source = String(point.source || "").trim();
     const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
     const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
       ? rawVerificationStatus
@@ -341,21 +343,18 @@ function renderNearbyCards(points, totalCount = points.length) {
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
     const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
-    const fallbackText = "Описание не указано или пока слишком общее. Такую точку лучше дополнительно проверить.";
 
     return `
-      <article class="location-card">
+      <article class="location-card compact-location-card" data-shelter-id="${escapeHtml(point.id)}">
         <h3>${escapeHtml(point.title)}</h3>
-        <p>${escapeHtml(description || fallbackText)}</p>
-        ${address ? `<div class="meta-line">${escapeHtml(address)}</div>` : ""}
-        ${source ? `<div class="meta-line">Источник: ${escapeHtml(source)}</div>` : ""}
+        ${address ? `<div class="meta-line card-address">${escapeHtml(address)}</div>` : ""}
         <div class="badge-row">
           <span class="distance-badge">${distance}</span>
           <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
         </div>
-        <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
         <div class="card-actions">
+          <button class="card-button" type="button" data-action="open-details" data-id="${escapeHtml(point.id)}">Подробнее</button>
           <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
         </div>
       </article>
@@ -542,6 +541,69 @@ function openSuggestModal() {
 function closeSuggestModal() {
   suggestModal.hidden = true;
   document.body.style.overflow = "";
+}
+
+function openDetailsModal(pointId) {
+  const point = shelters.find((row) => String(row.id) === String(pointId));
+  if (!point || !detailsModal || !detailsModalContent) {
+    return;
+  }
+
+  const description = String(point.description || "").trim() || "Описание не указано.";
+  const source = String(point.source || "").trim();
+  const address = formatAddress(point.address, point.city);
+  const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
+  const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
+    ? rawVerificationStatus
+    : "needs_review";
+  const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
+  const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
+  const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
+  const distanceText = point.distanceMeters ? formatDistance(point.distanceMeters) : null;
+  const mediaAction = point.media_url
+    ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
+    : "";
+
+  detailsModalContent.innerHTML = `
+    <article class="details-sheet">
+      <h3>${escapeHtml(point.title)}</h3>
+      ${address ? `<div class="meta-line card-address">${escapeHtml(address)}</div>` : ""}
+      <div class="badge-row">
+        ${distanceText ? `<span class="distance-badge">${escapeHtml(distanceText)}</span>` : ""}
+        <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
+        <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
+      </div>
+      <section class="details-section">
+        <h4>Описание</h4>
+        <p>${escapeHtml(description)}</p>
+      </section>
+      ${source ? `
+        <section class="details-section">
+          <h4>Источник</h4>
+          <p>${escapeHtml(source)}</p>
+        </section>
+      ` : ""}
+      <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
+      <div class="card-actions popup-actions">
+        <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
+        ${mediaAction}
+      </div>
+    </article>
+  `;
+
+  detailsModal.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closeDetailsModal() {
+  if (!detailsModal) {
+    return;
+  }
+
+  detailsModal.hidden = true;
+  if (suggestModal?.hidden !== false) {
+    document.body.style.overflow = "";
+  }
 }
 
 async function loadSheltersInBounds(bounds, options = {}) {
@@ -812,6 +874,15 @@ async function handleLocationSearchSubmit(event) {
   await searchShelters(locationSearchInput?.value || "");
 }
 
+nearbyList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-action='open-details']");
+  if (!button) {
+    return;
+  }
+
+  openDetailsModal(button.dataset.id);
+});
+
 refreshLocationBtn.addEventListener("click", detectLocation);
 searchAreaBtn?.addEventListener("click", handleSearchArea);
 mapSearchAreaBtn?.addEventListener("click", handleSearchArea);
@@ -820,11 +891,17 @@ openSuggestBtn.addEventListener("click", openSuggestModal);
 closeSuggestBtn.addEventListener("click", closeSuggestModal);
 cancelSuggestBtn.addEventListener("click", closeSuggestModal);
 suggestBackdrop.addEventListener("click", closeSuggestModal);
+closeDetailsBtn?.addEventListener("click", closeDetailsModal);
+detailsBackdrop?.addEventListener("click", closeDetailsModal);
 suggestForm.addEventListener("submit", handleSuggestSubmit);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !suggestModal.hidden) {
     closeSuggestModal();
+  }
+
+  if (event.key === "Escape" && detailsModal && !detailsModal.hidden) {
+    closeDetailsModal();
   }
 });
 
