@@ -32,27 +32,20 @@
         <p class="hero-copy">Карта показывает ближайшие точки рядом с тобой, содержит информацию о них и позволяет предложить убежище или защищенное место, которого еще нет на карте.</p>
       </div>
 
+      <form id="locationSearchForm" class="search-form map-search-panel">
+        <label class="search-label visually-hidden" for="locationSearchInput">Город</label>
+        <div class="search-row map-search-row">
+          <input id="locationSearchInput" name="query" type="search" placeholder="Введи город" autocomplete="off" list="citySuggestions" />
+          <datalist id="citySuggestions"></datalist>
+          <button class="primary-button search-submit-button" type="submit">Найти</button>
+        </div>
+      </form>
+
       <div class="map-frame">
         <div id="map"></div>
 
-        <div class="map-overlay map-search-overlay">
-          <form id="locationSearchForm" class="search-form map-search-form">
-            <label class="search-label visually-hidden" for="locationSearchInput">Город</label>
-            <div class="search-row map-search-row">
-              <input id="locationSearchInput" name="query" type="search" placeholder="Введи город" autocomplete="off" list="citySuggestions" />
-              <datalist id="citySuggestions"></datalist>
-              <button class="primary-button search-submit-button" type="submit">Найти</button>
-            </div>
-          </form>
-        </div>
-
         <div class="map-overlay top-left">
           <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтвержденные точки...</p>
-        </div>
-
-        <div class="map-overlay map-actions-overlay">
-          <button id="mapSearchAreaBtn" class="map-fab" type="button">Обновить карту</button>
-          <button id="openSuggestBtn" class="map-fab accent" type="button">Добавить точку</button>
         </div>
 
         <div class="map-overlay map-geolocate-overlay">
@@ -64,6 +57,11 @@
           <span><i class="legend-dot legend-shelter"></i> Проверено</span>
           <span><i class="legend-dot pending"></i> Нужно проверить</span>
         </div>
+      </div>
+
+      <div class="map-action-bar">
+        <button id="mapSearchAreaBtn" class="map-fab" type="button">Обновить карту</button>
+        <button id="openSuggestBtn" class="map-fab accent" type="button">Добавить точку</button>
       </div>
 
       <div class="map-mobile-legend" aria-label="Map legend"></div>

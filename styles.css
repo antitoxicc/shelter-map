@@ -191,19 +191,11 @@ select {
   right: 18px;
 }
 
-.map-search-overlay {
-  top: 18px;
-  left: 18px;
-  right: 18px;
-}
-
-.map-actions-overlay {
-  left: 18px;
-  bottom: 18px;
+.map-action-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  z-index: 500;
+  flex-wrap: wrap;
 }
 
 .map-geolocate-overlay {
@@ -221,7 +213,7 @@ select {
   box-shadow: 0 12px 30px rgba(31, 42, 31, 0.1);
 }
 
-.map-search-form {
+.map-search-panel {
   width: 100%;
 }
 
@@ -916,19 +908,10 @@ select {
   }
 
   .map-overlay.top-left {
-    top: 84px;
-  }
-
-  .map-search-overlay {
     top: 12px;
-    left: 12px;
-    right: 12px;
   }
 
-  .map-actions-overlay {
-    left: 12px;
-    right: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  .map-action-bar {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
