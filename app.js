@@ -1,4 +1,4 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+﻿import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-config.js";
 
 const DEFAULT_CENTER = [32.0853, 34.7818];
@@ -6,44 +6,22 @@ const MAX_NEARBY = 3;
 const MEDIA_BUCKET = "shelter-media";
 const MAX_MEDIA_SIZE_BYTES = 25 * 1024 * 1024;
 const SUPABASE_PAGE_SIZE = 1000;
-const NON_DESCRIPTIVE_PATTERNS = [
-  "импортировано из сопоставленных файлов",
-  "требуется проверка",
-  "imported from matched files",
-  "requires verification"
-];
-
-const DESCRIPTION_HINT_PATTERNS = [
-  "entrance",
-  "gate",
-  "behind",
-  "between",
-  "near",
-  "next to",
-  "opposite",
-  "inside",
-  "stairs",
-  "parking",
-  "photo",
-  "video"
-];
-
 const SHELTER_TYPE_LABELS = {
-  school: "Школа",
-  hospital: "Больница",
-  synagogue: "Синагога",
-  kindergarten: "Детский сад",
-  shopping_center: "Торговый центр",
-  public_shelter: "Обычный миклат общественный",
-  migunit: "Мигунит",
-  building_shelter: "Миклат в доме",
-  public_mamad: "МАМАД общественный"
+  school: "Ð¨ÐºÐ¾Ð»Ð°",
+  hospital: "Ð‘Ð¾Ð»ÑŒÐ½Ð¸Ñ†Ð°",
+  synagogue: "Ð¡Ð¸Ð½Ð°Ð³Ð¾Ð³Ð°",
+  kindergarten: "Ð”ÐµÑ‚ÑÐºÐ¸Ð¹ ÑÐ°Ð´",
+  shopping_center: "Ð¢Ð¾Ñ€Ð³Ð¾Ð²Ñ‹Ð¹ Ñ†ÐµÐ½Ñ‚Ñ€",
+  public_shelter: "ÐžÐ±Ñ‹Ñ‡Ð½Ñ‹Ð¹ Ð¼Ð¸ÐºÐ»Ð°Ñ‚ Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹",
+  migunit: "ÐœÐ¸Ð³ÑƒÐ½Ð¸Ñ‚",
+  building_shelter: "ÐœÐ¸ÐºÐ»Ð°Ñ‚ Ð² Ð´Ð¾Ð¼Ðµ",
+  public_mamad: "ÐœÐÐœÐÐ” Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹"
 };
 
 const LOCATION_VERIFICATION_LABELS = {
-  verified: "Подтверждено",
-  approximate: "Нужно проверить",
-  needs_review: "Нужно проверить"
+  verified: "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¾",
+  approximate: "Ð¡ÐºÐ¾Ñ€ÐµÐµ Ð²ÑÐµÐ³Ð¾ Ð²ÐµÑ€Ð½Ð¾",
+  needs_review: "ÐÐµ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾"
 };
 
 const statusMessage = document.getElementById("statusMessage");
@@ -71,11 +49,16 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 function createShelterIcon(verificationStatus) {
   const normalizedStatus = String(verificationStatus || "").trim().toLowerCase();
-  const isVerified = normalizedStatus === "verified";
-  const color = isVerified ? "#17594a" : "#c84b31";
-  const shadow = isVerified
+  const color = normalizedStatus === "verified"
+    ? "#17594a"
+    : normalizedStatus === "approximate"
+      ? "#b78103"
+      : "#c84b31";
+  const shadow = normalizedStatus === "verified"
     ? "0 10px 24px rgba(23,89,74,0.28)"
-    : "0 10px 24px rgba(200,75,49,0.28)";
+    : normalizedStatus === "approximate"
+      ? "0 10px 24px rgba(183,129,3,0.28)"
+      : "0 10px 24px rgba(200,75,49,0.28)";
 
   return L.divIcon({
     className: "custom-marker",
@@ -89,10 +72,13 @@ function createShelterIcon(verificationStatus) {
 function getNormalizedVerificationLabel(value) {
   const normalizedValue = String(value || "").trim().toLowerCase();
   if (normalizedValue === "verified") {
-    return "Подтверждено";
+    return "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¾";
+  }
+  if (normalizedValue === "approximate") {
+    return "Ð¡ÐºÐ¾Ñ€ÐµÐµ Ð²ÑÐµÐ³Ð¾ Ð²ÐµÑ€Ð½Ð¾";
   }
 
-  return "Нужно проверить";
+  return "ÐÐµ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾";
 }
 
 const userIcon = L.divIcon({
@@ -124,10 +110,10 @@ function setFormMessage(message, isError = false) {
 
 function formatDistance(distanceMeters) {
   if (distanceMeters < 1000) {
-    return `${Math.round(distanceMeters)} м`;
+    return `${Math.round(distanceMeters)} Ð¼`;
   }
 
-  return `${(distanceMeters / 1000).toFixed(1)} км`;
+  return `${(distanceMeters / 1000).toFixed(1)} ÐºÐ¼`;
 }
 
 function calculateDistanceMeters(from, to) {
@@ -160,138 +146,49 @@ function formatAddress(address, city) {
   return addressText || cityText;
 }
 
-function normalizeDescriptionText(value) {
-  return String(value || "").trim().replace(/\s+/g, " ");
-}
-
-function stripKnownDescriptionBoilerplate(value) {
-  return normalizeDescriptionText(value)
-    .replace(/manual location check recommended\.?/gi, "")
-    .replace(/notes:\s*/gi, "")
-    .replace(/address:\s*/gi, "")
-    .trim();
-}
-
-function isMeaningfulDescription(description, point = null) {
-  const text = normalizeDescriptionText(description);
-  if (!text) {
-    return Boolean(point?.media_url);
-  }
-
-  const normalized = text.toLowerCase();
-  const hasBoilerplate = NON_DESCRIPTIVE_PATTERNS.some((pattern) => normalized.includes(pattern));
-  const cleanedText = stripKnownDescriptionBoilerplate(text);
-  const normalizedCleaned = cleanedText.toLowerCase();
-  const normalizedAddress = normalizeDescriptionText(formatAddress(point?.address, point?.city)).toLowerCase();
-  const normalizedTitle = normalizeDescriptionText(point?.title || "").toLowerCase();
-
-  if (!cleanedText) {
-    return Boolean(point?.media_url);
-  }
-
-  if (hasBoilerplate && !point?.media_url) {
-    return false;
-  }
-
-  if (normalizedAddress && normalizedCleaned === normalizedAddress) {
-    return Boolean(point?.media_url);
-  }
-
-  if (normalizedTitle && normalizedCleaned === normalizedTitle) {
-    return Boolean(point?.media_url);
-  }
-
-  const hasHelpfulHint = DESCRIPTION_HINT_PATTERNS.some((pattern) => normalizedCleaned.includes(pattern.toLowerCase()));
-  if (hasHelpfulHint) {
-    return true;
-  }
-
-  return Boolean(point?.media_url) && cleanedText.length >= 16;
-}
-
-function getDescriptionSignal(description) {
-  const text = String(description || "").trim();
-  if (!text) {
-    return { className: "weak", label: "Описания нет" };
-  }
-
-  if (isMeaningfulDescription(text)) {
-    return { className: "strong", label: "Есть понятное описание" };
-  }
-
-  return { className: "weak", label: "Описание нужно уточнить" };
-}
-
-function getDescriptionSignalForPoint(point) {
-  const text = normalizeDescriptionText(point?.description);
-  if (!text && !point?.media_url) {
-    return { className: "weak", label: "Описания нет" };
-  }
-
-  if (isMeaningfulDescription(text, point)) {
-    return { className: "strong", label: "Есть понятное описание" };
-  }
-
-  return { className: "weak", label: "Описание нужно уточнить" };
-}
-
-function getDescriptionSignalForPointV2(point) {
-  const text = normalizeDescriptionText(point?.description);
-  if (!text && !point?.media_url) {
-    return { className: "weak", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u043D\u0435\u0442" };
-  }
-
-  if (isMeaningfulDescription(text, point)) {
-    return { className: "strong", label: "\u0415\u0441\u0442\u044C \u043F\u043E\u043D\u044F\u0442\u043D\u043E\u0435 \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435" };
-  }
-
-  return { className: "weak", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u043D\u0443\u0436\u043D\u043E \u0443\u0442\u043E\u0447\u043D\u0438\u0442\u044C" };
-}
-
 function getShelterTypeLabel(type) {
-  return SHELTER_TYPE_LABELS[type] || "Тип не указан";
+  return SHELTER_TYPE_LABELS[type] || "Ð¢Ð¸Ð¿ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½";
 }
 
 function getLocationVerificationLabel(value) {
-  return LOCATION_VERIFICATION_LABELS[value] || "Требует ручной проверки";
+  return LOCATION_VERIFICATION_LABELS[value] || "Ð¢Ñ€ÐµÐ±ÑƒÐµÑ‚ Ñ€ÑƒÑ‡Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸";
 }
 
 function renderNearbyCards(points) {
   nearbyCount.textContent = String(points.length);
   if (!points.length) {
-    nearbyList.innerHTML = '<p class="empty-state">Подтверждённые точки пока не найдены.</p>';
+    nearbyList.innerHTML = '<p class="empty-state">ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ñ‘Ð½Ð½Ñ‹Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸ Ð¿Ð¾ÐºÐ° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ñ‹.</p>';
     return;
   }
 
   nearbyList.innerHTML = points.map((point) => {
-    const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
+    const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Ð‘ÐµÐ· Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ñ";
     const description = String(point.description || "").trim();
     const address = formatAddress(point.address, point.city);
     const source = String(point.source || "").trim();
-    const verificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase() === "verified"
-      ? "verified"
+    const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
+    const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
+      ? rawVerificationStatus
       : "needs_review";
-    const signal = getDescriptionSignalForPointV2(point);
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
     const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
-    const fallbackText = "Описание не указано или пока слишком общее. Такую точку лучше дополнительно проверить.";
+    const fallbackText = "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾ Ð¸Ð»Ð¸ Ð¿Ð¾ÐºÐ° ÑÐ»Ð¸ÑˆÐºÐ¾Ð¼ Ð¾Ð±Ñ‰ÐµÐµ. Ð¢Ð°ÐºÑƒÑŽ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð»ÑƒÑ‡ÑˆÐµ Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ.";
 
     return `
       <article class="location-card">
         <h3>${escapeHtml(point.title)}</h3>
         <p>${escapeHtml(description || fallbackText)}</p>
         ${address ? `<div class="meta-line">${escapeHtml(address)}</div>` : ""}
-        ${source ? `<div class="meta-line">Источник: ${escapeHtml(source)}</div>` : ""}
+        ${source ? `<div class="meta-line">Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº: ${escapeHtml(source)}</div>` : ""}
         <div class="badge-row">
           <span class="distance-badge">${distance}</span>
           <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
-          <span class="signal-badge ${signal.className}">${signal.label}</span>
         </div>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
         <div class="card-actions">
-          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
+          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð² Google Maps</a>
         </div>
       </article>
     `;
@@ -310,23 +207,24 @@ function renderShelters(points) {
     const description = String(point.description || "").trim();
     const address = formatAddress(point.address, point.city);
     const source = String(point.source || "").trim();
-    const verificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase() === "verified"
-      ? "verified"
+    const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
+    const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
+      ? rawVerificationStatus
       : "needs_review";
     const mediaLine = point.media_url
-      ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">Открыть вложение</a>`
+      ? `<br /><a href="${point.media_url}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ</a>`
       : "";
-    const typeLine = `<br />Тип: ${escapeHtml(getShelterTypeLabel(point.shelter_type))}`;
-    const addressLine = address ? `<br />Адрес: ${escapeHtml(address)}` : "";
-    const sourceLine = source ? `<br />Источник: ${escapeHtml(source)}` : "";
-    const verificationLine = `<br />Точность местоположения: ${escapeHtml(getNormalizedVerificationLabel(verificationStatus))}`;
+    const typeLine = `<br />Ð¢Ð¸Ð¿: ${escapeHtml(getShelterTypeLabel(point.shelter_type))}`;
+    const addressLine = address ? `<br />ÐÐ´Ñ€ÐµÑ: ${escapeHtml(address)}` : "";
+    const sourceLine = source ? `<br />Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº: ${escapeHtml(source)}` : "";
+    const verificationLine = `<br />Ð¢Ð¾Ñ‡Ð½Ð¾ÑÑ‚ÑŒ Ð¼ÐµÑÑ‚Ð¾Ð¿Ð¾Ð»Ð¾Ð¶ÐµÐ½Ð¸Ñ: ${escapeHtml(getNormalizedVerificationLabel(verificationStatus))}`;
 
     const marker = L.marker([point.latitude, point.longitude], {
       icon: createShelterIcon(verificationStatus)
     })
       .addTo(map)
       .bindPopup(
-        `<strong>${escapeHtml(point.title)}</strong>${typeLine}${addressLine}${sourceLine}${verificationLine}<br />${escapeHtml(description || "Описание не указано")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>${mediaLine}`
+        `<strong>${escapeHtml(point.title)}</strong>${typeLine}${addressLine}${sourceLine}${verificationLine}<br />${escapeHtml(description || "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾")}<br /><a href="https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð² Google Maps</a>${mediaLine}`
       );
 
     shelterMarkers.push(marker);
@@ -338,7 +236,7 @@ function updateUserMarker(coords) {
     map.removeLayer(userMarker);
   }
 
-  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup("Ты здесь");
+  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup("Ð¢Ñ‹ Ð·Ð´ÐµÑÑŒ");
 }
 
 function fitMapToUserAndNearby(points) {
@@ -372,7 +270,7 @@ function getSubmissionCoords() {
     return {
       lat: coords.lat,
       lng: coords.lng,
-      sourceLabel: "по выбранной точке на карте"
+      sourceLabel: "Ð¿Ð¾ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½Ð¾Ð¹ Ñ‚Ð¾Ñ‡ÐºÐµ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ"
     };
   }
 
@@ -380,7 +278,7 @@ function getSubmissionCoords() {
     return {
       lat: userCoords.lat,
       lng: userCoords.lng,
-      sourceLabel: "по твоей текущей геопозиции"
+      sourceLabel: "Ð¿Ð¾ Ñ‚Ð²Ð¾ÐµÐ¹ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ð³ÐµÐ¾Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸"
     };
   }
 
@@ -388,13 +286,13 @@ function getSubmissionCoords() {
   return {
     lat: center.lat,
     lng: center.lng,
-    sourceLabel: "по центру карты"
+    sourceLabel: "Ð¿Ð¾ Ñ†ÐµÐ½Ñ‚Ñ€Ñƒ ÐºÐ°Ñ€Ñ‚Ñ‹"
   };
 }
 
 function updateLocationHint() {
   const coords = getSubmissionCoords();
-  locationHint.textContent = `Точка будет сохранена ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
+  locationHint.textContent = `Ð¢Ð¾Ñ‡ÐºÐ° Ð±ÑƒÐ´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð° ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
 }
 
 function ensureSuggestMap() {
@@ -467,7 +365,7 @@ async function loadApprovedShelters() {
     shelters = [];
     renderShelters([]);
     renderNearbyCards([]);
-    setStatus("Заполни ./supabase-config.js, чтобы загрузить точки из базы.", true);
+    setStatus("Ð—Ð°Ð¿Ð¾Ð»Ð½Ð¸ ./supabase-config.js, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ‚Ð¾Ñ‡ÐºÐ¸ Ð¸Ð· Ð±Ð°Ð·Ñ‹.", true);
     return;
   }
 
@@ -485,7 +383,7 @@ async function loadApprovedShelters() {
     if (error) {
       renderShelters([]);
       renderNearbyCards([]);
-      setStatus(`Не удалось загрузить точки: ${error.message}`, true);
+      setStatus(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ‚Ð¾Ñ‡ÐºÐ¸: ${error.message}`, true);
       return;
     }
 
@@ -510,21 +408,21 @@ async function loadApprovedShelters() {
     const nearby = sortByDistance(shelters, userCoords);
     renderNearbyCards(nearby);
     fitMapToUserAndNearby(nearby);
-    setStatus(`Найдено ${nearby.length} ближайших точек.`);
+    setStatus(`ÐÐ°Ð¹Ð´ÐµÐ½Ð¾ ${nearby.length} Ð±Ð»Ð¸Ð¶Ð°Ð¹ÑˆÐ¸Ñ… Ñ‚Ð¾Ñ‡ÐµÐº.`);
     return;
   }
 
   renderNearbyCards([]);
-  setStatus("Точки загружены. Нажми кнопку на карте, чтобы показать ближайшие к тебе.");
+  setStatus("Ð¢Ð¾Ñ‡ÐºÐ¸ Ð·Ð°Ð³Ñ€ÑƒÐ¶ÐµÐ½Ñ‹. ÐÐ°Ð¶Ð¼Ð¸ ÐºÐ½Ð¾Ð¿ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾ÐºÐ°Ð·Ð°Ñ‚ÑŒ Ð±Ð»Ð¸Ð¶Ð°Ð¹ÑˆÐ¸Ðµ Ðº Ñ‚ÐµÐ±Ðµ.");
 }
 
 async function detectLocation() {
   if (!navigator.geolocation) {
-    setStatus("Геолокация не поддерживается браузером.", true);
+    setStatus("Ð“ÐµÐ¾Ð»Ð¾ÐºÐ°Ñ†Ð¸Ñ Ð½Ðµ Ð¿Ð¾Ð´Ð´ÐµÑ€Ð¶Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ð±Ñ€Ð°ÑƒÐ·ÐµÑ€Ð¾Ð¼.", true);
     return;
   }
 
-  setStatus("Определяем твоё местоположение...");
+  setStatus("ÐžÐ¿Ñ€ÐµÐ´ÐµÐ»ÑÐµÐ¼ Ñ‚Ð²Ð¾Ñ‘ Ð¼ÐµÑÑ‚Ð¾Ð¿Ð¾Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ...");
 
   navigator.geolocation.getCurrentPosition(
     async (position) => {
@@ -537,7 +435,7 @@ async function detectLocation() {
 
       if (!shelters.length) {
         map.setView([userCoords.lat, userCoords.lng], 14);
-        setStatus("Геопозиция определена. Загружаем точки...");
+        setStatus("Ð“ÐµÐ¾Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð°. Ð—Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ Ñ‚Ð¾Ñ‡ÐºÐ¸...");
         await loadApprovedShelters();
         return;
       }
@@ -545,10 +443,10 @@ async function detectLocation() {
       const nearby = sortByDistance(shelters, userCoords);
       renderNearbyCards(nearby);
       fitMapToUserAndNearby(nearby);
-      setStatus(`Позиция обновлена. Показываю ${nearby.length} ближайшие точки.`);
+      setStatus(`ÐŸÐ¾Ð·Ð¸Ñ†Ð¸Ñ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð°. ÐŸÐ¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÑŽ ${nearby.length} Ð±Ð»Ð¸Ð¶Ð°Ð¹ÑˆÐ¸Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸.`);
     },
     (error) => {
-      setStatus(`Не удалось определить позицию: ${error.message}`, true);
+      setStatus(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ñ‚ÑŒ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸ÑŽ: ${error.message}`, true);
       updateLocationHint();
       if (shelters.length) {
         map.setView(DEFAULT_CENTER, 13);
@@ -571,7 +469,7 @@ async function uploadMediaFile(file) {
   }
 
   if (file.size > MAX_MEDIA_SIZE_BYTES) {
-    throw new Error("Файл слишком большой. Сейчас лимит 25 МБ.");
+    throw new Error("Ð¤Ð°Ð¹Ð» ÑÐ»Ð¸ÑˆÐºÐ¾Ð¼ Ð±Ð¾Ð»ÑŒÑˆÐ¾Ð¹. Ð¡ÐµÐ¹Ñ‡Ð°Ñ Ð»Ð¸Ð¼Ð¸Ñ‚ 25 ÐœÐ‘.");
   }
 
   const extension = sanitizeFilename(file.name).split(".").pop();
@@ -582,7 +480,7 @@ async function uploadMediaFile(file) {
   });
 
   if (error) {
-    throw new Error(`Не удалось загрузить файл: ${error.message}`);
+    throw new Error(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ„Ð°Ð¹Ð»: ${error.message}`);
   }
 
   const { data: publicUrlData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(data.path);
@@ -597,7 +495,7 @@ async function handleSuggestSubmit(event) {
   event.preventDefault();
 
   if (!supabase) {
-    setFormMessage("Сначала заполни ./supabase-config.js для подключения к базе.", true);
+    setFormMessage("Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð¿Ð¾Ð»Ð½Ð¸ ./supabase-config.js Ð´Ð»Ñ Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ Ðº Ð±Ð°Ð·Ðµ.", true);
     return;
   }
 
@@ -622,14 +520,14 @@ async function handleSuggestSubmit(event) {
   };
 
   if (!payload.title || !payload.address || !payload.city || !payload.source || !payload.description || !payload.shelter_type) {
-    setFormMessage("Заполни название, адрес, источник, тип и описание точки.", true);
+    setFormMessage("Ð—Ð°Ð¿Ð¾Ð»Ð½Ð¸ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ðµ, Ð°Ð´Ñ€ÐµÑ, Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº, Ñ‚Ð¸Ð¿ Ð¸ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸.", true);
     return;
   }
 
   const file = mediaInput.files?.[0] || null;
 
   try {
-    setFormMessage("Отправляем точку на модерацию...");
+    setFormMessage("ÐžÑ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÐ¼ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð½Ð° Ð¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸ÑŽ...");
     if (file) {
       const mediaPayload = await uploadMediaFile(file);
       Object.assign(payload, mediaPayload);
@@ -644,9 +542,9 @@ async function handleSuggestSubmit(event) {
     setFormMessage("");
     closeSuggestModal();
     updateLocationHint();
-    setStatus("Точка отправлена на проверку. Спасибо.");
+    setStatus("Ð¢Ð¾Ñ‡ÐºÐ° Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð° Ð½Ð° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ. Ð¡Ð¿Ð°ÑÐ¸Ð±Ð¾.");
   } catch (error) {
-    setFormMessage(`Не удалось отправить точку: ${error.message}`, true);
+    setFormMessage(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ñ‚Ð¾Ñ‡ÐºÑƒ: ${error.message}`, true);
   }
 }
 
@@ -669,5 +567,6 @@ loadApprovedShelters().finally(() => {
   updateLocationHint();
   detectLocation();
 });
+
 
 
