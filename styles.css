@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f4efe6;
   --surface: rgba(255, 252, 247, 0.9);
   --surface-strong: #fffaf2;
@@ -39,6 +39,11 @@ a {
 button,
 input,
 textarea {
+  font: inherit;
+}
+
+input,
+select {
   font: inherit;
 }
 
@@ -125,6 +130,10 @@ textarea {
   flex-wrap: wrap;
 }
 
+.compact-actions {
+  margin-top: 12px;
+}
+
 .panel-heading {
   align-items: center;
   justify-content: space-between;
@@ -172,6 +181,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .map-fab {
@@ -291,6 +301,32 @@ textarea {
   gap: 12px;
 }
 
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.search-row {
+  display: flex;
+  gap: 10px;
+}
+
+.search-row input {
+  flex: 1 1 auto;
+  width: 100%;
+  border: 1px solid rgba(31, 42, 31, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 14px;
+  color: var(--text);
+}
+
 .location-card {
   padding: 16px;
   border-radius: 20px;
@@ -309,7 +345,6 @@ textarea {
 
 .distance-badge,
 .status-badge,
-.signal-badge,
 .type-badge,
 .verification-badge {
   display: inline-flex;
@@ -337,21 +372,11 @@ textarea {
 }
 
 .verification-badge.approximate {
-  background: rgba(35, 100, 255, 0.1);
-  color: #1540aa;
+  background: rgba(183, 129, 3, 0.14);
+  color: #8a6200;
 }
 
 .verification-badge.needs_review {
-  background: rgba(157, 59, 50, 0.1);
-  color: var(--danger);
-}
-
-.signal-badge.strong {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.signal-badge.weak {
   background: rgba(157, 59, 50, 0.1);
   color: var(--danger);
 }
@@ -383,7 +408,6 @@ textarea {
 }
 
 .badge-row .distance-badge,
-.badge-row .signal-badge,
 .badge-row .status-badge,
 .badge-row .type-badge,
 .badge-row .verification-badge {
@@ -713,6 +737,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .search-row {
+    flex-direction: column;
+  }
+
   .map-overlay.top-left,
   .map-overlay.top-right {
     left: 12px;
@@ -752,3 +780,5 @@ textarea {
     border-radius: 18px;
   }
 }
+
+
