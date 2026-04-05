@@ -1,4 +1,4 @@
-﻿import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-config.js";
 
 const DEFAULT_CENTER = [32.0853, 34.7818];
@@ -8,15 +8,15 @@ const MAX_MEDIA_SIZE_BYTES = 25 * 1024 * 1024;
 const SUPABASE_PAGE_SIZE = 1000;
 
 const SHELTER_TYPE_LABELS = {
-  school: "Ð¨ÐºÐ¾Ð»Ð°",
-  hospital: "Ð‘Ð¾Ð»ÑŒÐ½Ð¸Ñ†Ð°",
-  synagogue: "Ð¡Ð¸Ð½Ð°Ð³Ð¾Ð³Ð°",
-  kindergarten: "Ð”ÐµÑ‚ÑÐºÐ¸Ð¹ ÑÐ°Ð´",
-  shopping_center: "Ð¢Ð¾Ñ€Ð³Ð¾Ð²Ñ‹Ð¹ Ñ†ÐµÐ½Ñ‚Ñ€",
-  public_shelter: "ÐžÐ±Ñ‹Ñ‡Ð½Ñ‹Ð¹ Ð¼Ð¸ÐºÐ»Ð°Ñ‚ Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹",
-  migunit: "ÐœÐ¸Ð³ÑƒÐ½Ð¸Ñ‚",
-  building_shelter: "ÐœÐ¸ÐºÐ»Ð°Ñ‚ Ð² Ð´Ð¾Ð¼Ðµ",
-  public_mamad: "ÐœÐÐœÐÐ” Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹"
+  school: "Школа",
+  hospital: "Больница",
+  synagogue: "Синагога",
+  kindergarten: "Детский сад",
+  shopping_center: "Торговый центр",
+  public_shelter: "Обычный миклат общественный",
+  migunit: "Мигунит",
+  building_shelter: "Миклат в доме",
+  public_mamad: "МАМАД общественный"
 };
 
 const authMessage = document.getElementById("authMessage");
@@ -80,7 +80,7 @@ async function uploadMediaFile(file) {
   }
 
   if (file.size > MAX_MEDIA_SIZE_BYTES) {
-    throw new Error("Ð¤Ð°Ð¹Ð» ÑÐ»Ð¸ÑˆÐºÐ¾Ð¼ Ð±Ð¾Ð»ÑŒÑˆÐ¾Ð¹. Ð¡ÐµÐ¹Ñ‡Ð°Ñ Ð»Ð¸Ð¼Ð¸Ñ‚ 25 ÐœÐ‘.");
+    throw new Error("Файл слишком большой. Сейчас лимит 25 МБ.");
   }
 
   const extension = sanitizeFilename(file.name).split(".").pop();
@@ -91,7 +91,7 @@ async function uploadMediaFile(file) {
   });
 
   if (error) {
-    throw new Error(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ„Ð°Ð¹Ð»: ${error.message}`);
+    throw new Error(`Не удалось загрузить файл: ${error.message}`);
   }
 
   const { data: publicUrlData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(data.path);
@@ -103,7 +103,7 @@ async function uploadMediaFile(file) {
 }
 
 function getShelterTypeLabel(type) {
-  return SHELTER_TYPE_LABELS[type] || "Ð¢Ð¸Ð¿ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½";
+  return SHELTER_TYPE_LABELS[type] || "Тип не указан";
 }
 
 function getNormalizedVerificationStatus(value) {
@@ -118,13 +118,13 @@ function getNormalizedVerificationStatus(value) {
 function getVerificationLabel(value) {
   const normalizedValue = getNormalizedVerificationStatus(value);
   if (normalizedValue === "verified") {
-    return "Подтверждено";
+    return "????????????";
   }
   if (normalizedValue === "approximate") {
-    return "Скорее всего верно";
+    return "?????? ????? ?????";
   }
 
-  return "Не проверено";
+  return "?? ?????????";
 }
 
 function getShelterById(id) {
@@ -231,8 +231,8 @@ function renderAdminMap() {
       <strong>${escapeHtml(row.title)}</strong>
       <br />${escapeHtml(getShelterTypeLabel(row.shelter_type))}
       <br />${escapeHtml(getVerificationLabel(row.location_verification_status))}
-      <br />Ð¡Ñ‚Ð°Ñ‚ÑƒÑ: ${escapeHtml(row.status)}
-      <br /><button type="button" class="admin-popup-button" data-action="select-from-popup" data-id="${escapeHtml(row.id)}">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð² Ð¿Ð°Ð½ÐµÐ»Ð¸</button>
+      <br />Статус: ${escapeHtml(row.status)}
+      <br /><button type="button" class="admin-popup-button" data-action="select-from-popup" data-id="${escapeHtml(row.id)}">Открыть в панели</button>
     `);
 
     adminMarkers.push(marker);
@@ -264,28 +264,28 @@ function renderTypeOptions(selectedType) {
 function renderLocationVerificationOptions(selectedValue) {
   const normalizedValue = getNormalizedVerificationStatus(selectedValue);
   return `
-    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>Подтверждено</option>
-    <option value="approximate"${normalizedValue === "approximate" ? " selected" : ""}>Скорее всего верно</option>
-    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>Не проверено</option>
+    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>????????????</option>
+    <option value="approximate"${normalizedValue === "approximate" ? " selected" : ""}>?????? ????? ?????</option>
+    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>?? ?????????</option>
   `;
 }
 
 function renderSelectedShelterPanel() {
   if (!supabase) {
-    selectedShelterPanel.innerHTML = '<p class="empty-state">Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð¿Ð¾Ð»Ð½Ð¸ `./supabase-config.js`, Ñ‡Ñ‚Ð¾Ð±Ñ‹ ÐºÐ°Ñ€Ñ‚Ð° Ð°Ð´Ð¼Ð¸Ð½ÐºÐ¸ Ð·Ð°Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð»Ð°.</p>';
+    selectedShelterPanel.innerHTML = '<p class="empty-state">Сначала заполни `./supabase-config.js`, чтобы карта админки заработала.</p>';
     return;
   }
 
   const row = getShelterById(selectedShelterId);
   if (!row) {
-    selectedShelterPanel.innerHTML = '<p class="empty-state">Ð’Ñ‹Ð±ÐµÑ€Ð¸ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ Ð¸Ð»Ð¸ Ð¸Ð· ÑÐ¿Ð¸ÑÐºÐ° Ð½Ð¸Ð¶Ðµ. ÐŸÐ¾ÑÐ»Ðµ Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ð·Ð´ÐµÑÑŒ Ð¿Ð¾ÑÐ²Ð¸Ñ‚ÑÑ Ñ„Ð¾Ñ€Ð¼Ð° Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ.</p>';
+    selectedShelterPanel.innerHTML = '<p class="empty-state">Выбери точку на карте или из списка ниже. После выбора здесь появится форма редактирования.</p>';
     return;
   }
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${row.latitude},${row.longitude}`;
   const mediaBlock = row.media_url
-    ? `<div class="meta-line">Ð’Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ: <a class="media-link" href="${escapeHtml(row.media_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.media_name || "ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ")}</a></div>`
-    : '<div class="meta-line">Ð’Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ: Ð½Ðµ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¾</div>';
+    ? `<div class="meta-line">Вложение: <a class="media-link" href="${escapeHtml(row.media_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.media_name || "Открыть вложение")}</a></div>`
+    : '<div class="meta-line">Вложение: не добавлено</div>';
 
   selectedShelterPanel.innerHTML = `
     <article class="selected-shelter-card">
@@ -295,80 +295,80 @@ function renderSelectedShelterPanel() {
         <span class="verification-badge ${escapeHtml(getNormalizedVerificationStatus(row.location_verification_status))}">${escapeHtml(getVerificationLabel(row.location_verification_status))}</span>
         <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
       </div>
-      <div class="meta-line">ÐÐ´Ñ€ÐµÑ: ${escapeHtml(formatAddress(row.address, row.city) || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½")}</div>
-      <div class="meta-line">Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº: ${escapeHtml(row.source || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½")}</div>
-      <div class="meta-line">ÐšÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹: ${row.latitude.toFixed(6)}, ${row.longitude.toFixed(6)}</div>
-      <div class="meta-line">Ð”Ð¾Ð±Ð°Ð²Ð¸Ð»: ${escapeHtml(row.submitter_name || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾")}</div>
-      <div class="meta-line">ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚: ${escapeHtml(row.submitter_contact || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½")}</div>
+      <div class="meta-line">Адрес: ${escapeHtml(formatAddress(row.address, row.city) || "не указан")}</div>
+      <div class="meta-line">Источник: ${escapeHtml(row.source || "не указан")}</div>
+      <div class="meta-line">Координаты: ${row.latitude.toFixed(6)}, ${row.longitude.toFixed(6)}</div>
+      <div class="meta-line">Добавил: ${escapeHtml(row.submitter_name || "не указано")}</div>
+      <div class="meta-line">Контакт: ${escapeHtml(row.submitter_contact || "не указан")}</div>
       ${mediaBlock}
       <div class="card-actions">
         <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
-        <button class="card-button" type="button" data-action="focus-selected-map">ÐŸÐ¾ÐºÐ°Ð·Ð°Ñ‚ÑŒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ</button>
+        <button class="card-button" type="button" data-action="focus-selected-map">Показать на карте</button>
       </div>
       <form class="admin-edit-form selected-edit-form" data-selected-edit-form="${escapeHtml(row.id)}">
         <label>
-          ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ
+          Название
           <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
         </label>
         <label>
-          ÐÐ´Ñ€ÐµÑ
+          Адрес
           <input name="address" value="${escapeHtml(row.address || "")}" maxlength="200" required />
         </label>
         <label>
-          Ð“Ð¾Ñ€Ð¾Ð´
+          Город
           <input name="city" value="${escapeHtml(row.city || "")}" maxlength="120" required />
         </label>
         <label>
-          Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº
+          Источник
           <input name="source" value="${escapeHtml(row.source || "")}" maxlength="200" required />
         </label>
         <label>
-          Ð¢Ð¸Ð¿ Ñ‚Ð¾Ñ‡ÐºÐ¸
+          Тип точки
           <select name="shelter_type" required>
-            <option value="">ÐÐµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾</option>
+            <option value="">Не указано</option>
             ${renderTypeOptions(row.shelter_type || "")}
           </select>
         </label>
         <label>
-          Ð¢Ð¾Ñ‡Ð½Ð¾ÑÑ‚ÑŒ Ð¼ÐµÑÑ‚Ð¾Ð¿Ð¾Ð»Ð¾Ð¶ÐµÐ½Ð¸Ñ
+          Точность местоположения
           <select name="location_verification_status" required>
             ${renderLocationVerificationOptions(row.location_verification_status)}
           </select>
         </label>
         <label>
-          ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+          Описание
           <textarea name="description" rows="5" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
         </label>
         <div class="grid-two">
           <label>
-            Ð¨Ð¸Ñ€Ð¾Ñ‚Ð°
+            Широта
             <input name="latitude" value="${escapeHtml(row.latitude)}" inputmode="decimal" required />
           </label>
           <label>
-            Ð”Ð¾Ð»Ð³Ð¾Ñ‚Ð°
+            Долгота
             <input name="longitude" value="${escapeHtml(row.longitude)}" inputmode="decimal" required />
           </label>
         </div>
-        <p class="form-hint">ÐŸÐµÑ€ÐµÑ‚Ð°Ñ‰Ð¸ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½Ñ‹Ð¹ Ð¼Ð°Ñ€ÐºÐµÑ€ Ð½Ð° Ð±Ð¾Ð»ÑŒÑˆÐ¾Ð¹ ÐºÐ°Ñ€Ñ‚Ðµ Ð¸Ð»Ð¸ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÑŒ ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹ Ð²Ñ€ÑƒÑ‡Ð½ÑƒÑŽ.</p>
+        <p class="form-hint">Перетащи выбранный маркер на большой карте или поправь координаты вручную.</p>
         <div class="grid-two">
           <label>
-            Ð˜Ð¼Ñ
+            Имя
             <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
           </label>
           <label>
-            ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚
+            Контакт
             <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
           </label>
         </div>
         <label>
-          ÐÐ¾Ð²Ð¾Ðµ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ
+          Новое вложение
           <input name="media" type="file" accept="image/*,video/*" />
         </label>
-        <p class="form-hint">Ð•ÑÐ»Ð¸ Ð²Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ñ„Ð°Ð¹Ð», Ð¾Ð½ Ð·Ð°Ð¼ÐµÐ½Ð¸Ñ‚ Ñ‚ÐµÐºÑƒÑ‰ÐµÐµ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ Ñƒ ÑÑ‚Ð¾Ð¹ Ñ‚Ð¾Ñ‡ÐºÐ¸.</p>
+        <p class="form-hint">Если выбрать файл, он заменит текущее вложение у этой точки.</p>
         <div class="card-actions">
-          <button class="card-button approve" type="submit">Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ</button>
-          ${row.status === "pending" ? `<button class="card-button approve" type="button" data-action="approve" data-id="${escapeHtml(row.id)}">ÐžÐ¿ÑƒÐ±Ð»Ð¸ÐºÐ¾Ð²Ð°Ñ‚ÑŒ</button>` : ""}
-          <button class="card-button delete" type="button" data-action="delete" data-id="${escapeHtml(row.id)}">Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ</button>
+          <button class="card-button approve" type="submit">Сохранить</button>
+          ${row.status === "pending" ? `<button class="card-button approve" type="button" data-action="approve" data-id="${escapeHtml(row.id)}">Опубликовать</button>` : ""}
+          <button class="card-button delete" type="button" data-action="delete" data-id="${escapeHtml(row.id)}">Удалить</button>
         </div>
       </form>
     </article>
@@ -389,22 +389,22 @@ function renderCards(target, rows, options) {
     return `
       <article class="location-card${isSelected ? " is-selected" : ""}">
         <h3>${escapeHtml(row.title)}</h3>
-        <p>${escapeHtml(row.description || "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾")}</p>
+        <p>${escapeHtml(row.description || "Описание не указано")}</p>
         <div class="badge-row">
           <span class="type-badge">${escapeHtml(getShelterTypeLabel(row.shelter_type))}</span>
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(getVerificationLabel(verificationStatus))}</span>
           <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
         </div>
-        <div class="meta-line">ÐÐ´Ñ€ÐµÑ: ${escapeHtml(formatAddress(row.address, row.city) || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½")}</div>
-        <div class="meta-line">Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº: ${escapeHtml(row.source || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½")}</div>
-        <div class="meta-line">ÐšÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
-        <div class="meta-line">Ð”Ð¾Ð±Ð°Ð²Ð¸Ð»: ${escapeHtml(row.submitter_name || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾")}</div>
-        <div class="meta-line">ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚: ${escapeHtml(row.submitter_contact || "Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½")}</div>
+        <div class="meta-line">Адрес: ${escapeHtml(formatAddress(row.address, row.city) || "не указан")}</div>
+        <div class="meta-line">Источник: ${escapeHtml(row.source || "не указан")}</div>
+        <div class="meta-line">Координаты: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
+        <div class="meta-line">Добавил: ${escapeHtml(row.submitter_name || "не указано")}</div>
+        <div class="meta-line">Контакт: ${escapeHtml(row.submitter_contact || "не указан")}</div>
         <div class="card-actions">
           <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
-          <button class="card-button" data-action="edit" data-id="${escapeHtml(row.id)}" type="button">Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ</button>
-          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${escapeHtml(row.id)}" type="button">ÐžÐ¿ÑƒÐ±Ð»Ð¸ÐºÐ¾Ð²Ð°Ñ‚ÑŒ</button>` : ""}
-          <button class="card-button delete" data-action="delete" data-id="${escapeHtml(row.id)}" type="button">Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ</button>
+          <button class="card-button" data-action="edit" data-id="${escapeHtml(row.id)}" type="button">Выбрать на карте</button>
+          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${escapeHtml(row.id)}" type="button">Опубликовать</button>` : ""}
+          <button class="card-button delete" data-action="delete" data-id="${escapeHtml(row.id)}" type="button">Удалить</button>
         </div>
       </article>
     `;
@@ -418,8 +418,8 @@ function renderLists() {
   pendingCount.textContent = String(pending.length);
   approvedCount.textContent = String(approved.length);
 
-  renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "ÐÐµÑ‚ pending-Ñ‚Ð¾Ñ‡ÐµÐº." });
-  renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ñ‘Ð½Ð½Ñ‹Ñ… Ñ‚Ð¾Ñ‡ÐµÐº Ð¿Ð¾ÐºÐ° Ð½ÐµÑ‚." });
+  renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "Нет pending-точек." });
+  renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "Подтверждённых точек пока нет." });
 }
 
 function updateSelectedCoordsInputs(lat, lng) {
@@ -476,7 +476,7 @@ function selectShelter(id, options = {}) {
 
 async function loadShelters() {
   if (!supabase) {
-    setAuthMessage("Ð—Ð°Ð¿Ð¾Ð»Ð½Ð¸ ./supabase-config.js, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð°Ð´Ð¼Ð¸Ð½ÐºÐ° Ð·Ð°Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð»Ð°.", true);
+    setAuthMessage("Заполни ./supabase-config.js, чтобы админка заработала.", true);
     return;
   }
 
@@ -492,7 +492,7 @@ async function loadShelters() {
       .range(from, to);
 
     if (error) {
-      setAuthMessage(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ‚Ð¾Ñ‡ÐºÐ¸: ${error.message}`, true);
+      setAuthMessage(`Не удалось загрузить точки: ${error.message}`, true);
       return;
     }
 
@@ -525,9 +525,9 @@ function resetAdminViewForGuest() {
   selectedShelterId = null;
   allShelters = [];
   hasFitMapToData = false;
-  selectedShelterPanel.innerHTML = '<p class="empty-state">Ð’Ð¾Ð¹Ð´Ð¸ ÐºÐ°Ðº Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ÑŒ ÐºÐ°Ñ€Ñ‚Ñƒ Ð¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð¸ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ‚Ð¾Ñ‡ÐµÐº.</p>';
-  pendingList.innerHTML = '<p class="empty-state">Ð’Ð¾Ð¹Ð´Ð¸ ÐºÐ°Ðº Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€, Ñ‡Ñ‚Ð¾Ð±Ñ‹ ÑƒÐ²Ð¸Ð´ÐµÑ‚ÑŒ Ð¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸ÑŽ.</p>';
-  approvedList.innerHTML = '<p class="empty-state">ÐŸÐ¾ÑÐ»Ðµ Ð²Ñ…Ð¾Ð´Ð° Ð·Ð´ÐµÑÑŒ Ð¿Ð¾ÑÐ²Ð¸Ñ‚ÑÑ ÑÐ¿Ð¸ÑÐ¾Ðº Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ñ‘Ð½Ð½Ñ‹Ñ… Ñ‚Ð¾Ñ‡ÐµÐº.</p>';
+  selectedShelterPanel.innerHTML = '<p class="empty-state">Войди как администратор, чтобы открыть карту модерации и редактирование точек.</p>';
+  pendingList.innerHTML = '<p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>';
+  approvedList.innerHTML = '<p class="empty-state">После входа здесь появится список подтверждённых точек.</p>';
   pendingCount.textContent = "0";
   approvedCount.textContent = "0";
 }
@@ -556,23 +556,23 @@ async function handleLogin(event) {
   event.preventDefault();
 
   if (!supabase) {
-    setAuthMessage("Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ Supabase Ð² ./supabase-config.js.", true);
+    setAuthMessage("Сначала настрой Supabase в ./supabase-config.js.", true);
     return;
   }
 
-  setAuthMessage("Ð’Ñ…Ð¾Ð´Ð¸Ð¼...");
+  setAuthMessage("Входим...");
   const { error } = await supabase.auth.signInWithPassword({
     email: emailInput.value.trim(),
     password: passwordInput.value
   });
 
   if (error) {
-    setAuthMessage(`ÐžÑˆÐ¸Ð±ÐºÐ° Ð²Ñ…Ð¾Ð´Ð°: ${error.message}`, true);
+    setAuthMessage(`Ошибка входа: ${error.message}`, true);
     return;
   }
 
   passwordInput.value = "";
-  setAuthMessage("Ð’Ñ…Ð¾Ð´ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½.");
+  setAuthMessage("Вход выполнен.");
   await refreshSession();
 }
 
@@ -582,7 +582,7 @@ async function handleLogout() {
   }
 
   await supabase.auth.signOut();
-  setAuthMessage("Ð¡ÐµÑÑÐ¸Ñ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð°.");
+  setAuthMessage("Сессия завершена.");
   await refreshSession();
 }
 
@@ -591,14 +591,14 @@ async function moderateShelter(id, action) {
     return;
   }
 
-  setAuthMessage(action === "approve" ? "ÐŸÑƒÐ±Ð»Ð¸ÐºÑƒÐµÐ¼ Ñ‚Ð¾Ñ‡ÐºÑƒ..." : "Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ñ‚Ð¾Ñ‡ÐºÑƒ...");
+  setAuthMessage(action === "approve" ? "Публикуем точку..." : "Удаляем точку...");
 
   const response = action === "approve"
     ? await supabase.from("shelters").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", id)
     : await supabase.from("shelters").delete().eq("id", id);
 
   if (response.error) {
-    setAuthMessage(`ÐžÐ¿ÐµÑ€Ð°Ñ†Ð¸Ñ Ð½Ðµ ÑƒÐ´Ð°Ð»Ð°ÑÑŒ: ${response.error.message}`, true);
+    setAuthMessage(`Операция не удалась: ${response.error.message}`, true);
     return;
   }
 
@@ -606,7 +606,7 @@ async function moderateShelter(id, action) {
     selectedShelterId = null;
   }
 
-  setAuthMessage(action === "approve" ? "Ð¢Ð¾Ñ‡ÐºÐ° Ð¾Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ¾Ð²Ð°Ð½Ð°." : "Ð¢Ð¾Ñ‡ÐºÐ° ÑƒÐ´Ð°Ð»ÐµÐ½Ð°.");
+  setAuthMessage(action === "approve" ? "Точка опубликована." : "Точка удалена.");
   await loadShelters();
 }
 
@@ -635,17 +635,17 @@ async function saveShelterEdits(form) {
   const file = form.querySelector('input[name="media"]')?.files?.[0] || null;
 
   if (!payload.title || !payload.address || !payload.city || !payload.source || !payload.description || !payload.shelter_type || !payload.location_verification_status) {
-    setAuthMessage("Ð”Ð»Ñ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð½ÑƒÐ¶Ð½Ñ‹ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ðµ, Ð°Ð´Ñ€ÐµÑ, Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº, Ñ‚Ð¸Ð¿, Ñ‚Ð¾Ñ‡Ð½Ð¾ÑÑ‚ÑŒ Ð¼ÐµÑÑ‚Ð¾Ð¿Ð¾Ð»Ð¾Ð¶ÐµÐ½Ð¸Ñ Ð¸ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ.", true);
+    setAuthMessage("Для сохранения нужны название, адрес, источник, тип, точность местоположения и описание.", true);
     return;
   }
 
   if (!Number.isFinite(payload.latitude) || !Number.isFinite(payload.longitude)) {
-    setAuthMessage("Ð”Ð»Ñ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð½ÑƒÐ¶Ð½Ñ‹ ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ñ‹Ðµ ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹ ÑˆÐ¸Ñ€Ð¾Ñ‚Ñ‹ Ð¸ Ð´Ð¾Ð»Ð³Ð¾Ñ‚Ñ‹.", true);
+    setAuthMessage("Для сохранения нужны корректные координаты широты и долготы.", true);
     return;
   }
 
   try {
-    setAuthMessage(file ? "Ð—Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ Ð¸ ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ..." : "Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ...");
+    setAuthMessage(file ? "Загружаем вложение и сохраняем изменения..." : "Сохраняем изменения...");
     if (file) {
       const mediaPayload = await uploadMediaFile(file);
       Object.assign(payload, mediaPayload);
@@ -656,12 +656,12 @@ async function saveShelterEdits(form) {
       throw new Error(error.message);
     }
   } catch (error) {
-    setAuthMessage(`ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑÐ¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð°Ð²ÐºÐ¸: ${error.message}`, true);
+    setAuthMessage(`Не удалось сохранить правки: ${error.message}`, true);
     return;
   }
 
   selectedShelterId = shelterId;
-  setAuthMessage("Ð˜Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ñ‹.");
+  setAuthMessage("Изменения сохранены.");
   await loadShelters();
 }
 
