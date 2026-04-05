@@ -225,14 +225,14 @@ function getDescriptionSignal(description) {
 function getDescriptionSignalForPoint(point) {
   const text = normalizeDescriptionText(point?.description);
   if (!text && !point?.media_url) {
-    return { className: "weak", label: "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð½ÐµÑ‚" };
+    return { className: "weak", label: "Описания нет" };
   }
 
   if (isMeaningfulDescription(text, point)) {
-    return { className: "strong", label: "Ð•ÑÑ‚ÑŒ Ð¿Ð¾Ð½ÑÑ‚Ð½Ð¾Ðµ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ" };
+    return { className: "strong", label: "Есть понятное описание" };
   }
 
-  return { className: "weak", label: "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½ÑƒÐ¶Ð½Ð¾ ÑƒÑ‚Ð¾Ñ‡Ð½Ð¸Ñ‚ÑŒ" };
+  return { className: "weak", label: "Описание нужно уточнить" };
 }
 
 function getDescriptionSignalForPointV2(point) {

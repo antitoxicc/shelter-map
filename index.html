@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ÐšÐ°Ñ€Ñ‚Ð° ÑƒÐºÑ€Ñ‹Ñ‚Ð¸Ð¹</title>
+  <title>Карта укрытий</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
@@ -15,19 +15,19 @@
     <aside class="sidebar">
       <div class="hero-card">
         <p class="eyebrow">Shelter Map</p>
-        <h1>Ð‘Ð»Ð¸Ð¶Ð°Ð¹ÑˆÐ¸Ðµ ÑƒÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ñ€ÑÐ´Ð¾Ð¼ Ñ Ñ‚Ð¾Ð±Ð¾Ð¹</h1>
-        <p class="hero-copy">ÐšÐ°Ñ€Ñ‚Ð° Ð¿Ð¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÑ‚ Ð±Ð»Ð¸Ð¶Ð°Ð¹ÑˆÐ¸Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸ Ñ€ÑÐ´Ð¾Ð¼ Ñ Ñ‚Ð¾Ð±Ð¾Ð¹ Ð¸ Ð¿Ð¾Ð¼Ð¾Ð³Ð°ÐµÑ‚ Ð±Ñ‹ÑÑ‚Ñ€Ð¾ Ð¿Ð¾Ð½ÑÑ‚ÑŒ, ÐºÐ°ÐºÐ¸Ðµ Ð¸Ð· Ð½Ð¸Ñ… Ð¿Ñ€Ð¾Ñ‰Ðµ Ð½Ð°Ð¹Ñ‚Ð¸ Ð¿Ð¾ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸ÑŽ.</p>
-        <p class="status-text hero-status-note">Ð“ÐµÐ¾Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÐµÑ‚ÑÑ Ñ‡ÐµÑ€ÐµÐ· ÐºÐ½Ð¾Ð¿ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ, Ð° Ð½Ð¾Ð²Ñ‹Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ð²Ð¾ Ð²ÑÐ¿Ð»Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ Ñ„Ð¾Ñ€Ð¼Ðµ.</p>
+        <h1>Ближайшие укрытия рядом с тобой</h1>
+        <p class="hero-copy">Карта показывает ближайшие точки рядом с тобой и помогает быстро понять, какие из них проще найти по описанию.</p>
+        <p class="status-text hero-status-note">Геопозиция обновляется через кнопку на карте, а новые точки можно отправить во всплывающей форме.</p>
       </div>
 
       <section class="panel">
         <div class="panel-heading">
-          <h2>Ð‘Ð»Ð¸Ð¶Ð°Ð¹ÑˆÐ¸Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸</h2>
+          <h2>Ближайшие точки</h2>
           <span id="nearbyCount" class="count-pill">0</span>
         </div>
-        <p class="panel-copy">Ð¡Ð¿Ð¸ÑÐ¾Ðº Ð¿Ð¾Ð¼Ð¾Ð³Ð°ÐµÑ‚ Ð±Ñ‹ÑÑ‚Ñ€Ð¾ Ð¾Ñ†ÐµÐ½Ð¸Ñ‚ÑŒ, ÐºÐ°ÐºÐ¾Ð¹ Ñ‚Ð¾Ñ‡ÐºÐµ Ð¿Ñ€Ð¾Ñ‰Ðµ Ð´Ð¾Ð²ÐµÑ€ÑÑ‚ÑŒ: Ð¿Ð¾Ð´Ñ€Ð¾Ð±Ð½Ð¾Ðµ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¾Ð±Ñ‹Ñ‡Ð½Ð¾ Ð»ÐµÐ³Ñ‡Ðµ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ Ð¸ Ð½Ð°Ð¹Ñ‚Ð¸ Ð½Ð° Ð¼ÐµÑÑ‚Ðµ.</p>
+        <p class="panel-copy">Список помогает быстро оценить, какой точке проще доверять: подробное описание обычно легче проверить и найти на месте.</p>
         <div id="nearbyList" class="card-list">
-          <p class="empty-state">ÐŸÐ¾ÐºÐ° Ð½ÐµÑ‚ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð´Ð»Ñ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ.</p>
+          <p class="empty-state">Пока нет данных для отображения.</p>
         </div>
       </section>
     </aside>
@@ -36,16 +36,16 @@
       <div class="map-frame">
         <div id="map"></div>
         <div class="map-overlay top-left">
-          <p id="statusMessage" class="map-status-card">Ð˜Ñ‰ÐµÐ¼ Ñ‚Ð²Ð¾ÑŽ Ð³ÐµÐ¾Ð¿Ð¾Ð·Ð¸Ñ†Ð¸ÑŽ Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ñ‘Ð½Ð½Ñ‹Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸...</p>
+          <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтверждённые точки...</p>
         </div>
         <div class="map-overlay top-right map-tools">
-          <button id="refreshLocationBtn" class="map-fab" type="button" aria-label="ÐÐ°Ð¹Ñ‚Ð¸ Ð¼ÐµÐ½Ñ">â—Ž</button>
-          <button id="openSuggestBtn" class="map-fab accent" type="button">Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ñ‚Ð¾Ñ‡ÐºÑƒ</button>
+          <button id="refreshLocationBtn" class="map-fab" type="button" aria-label="Найти меня">◎</button>
+          <button id="openSuggestBtn" class="map-fab accent" type="button">Добавить точку</button>
         </div>
         <div class="map-legend">
-          <span><i class="legend-dot legend-user"></i> Ð¢Ñ‹</span>
-          <span><i class="legend-dot legend-shelter"></i> ÐŸÑ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾</span>
-          <span><i class="legend-dot pending"></i> ÐÑƒÐ¶Ð½Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ</span>
+          <span><i class="legend-dot legend-user"></i> Ты</span>
+          <span><i class="legend-dot legend-shelter"></i> Проверено</span>
+          <span><i class="legend-dot pending"></i> Нужно проверить</span>
         </div>
       </div>
     </main>
@@ -57,72 +57,72 @@
       <div class="panel-heading modal-heading">
         <div>
           <p class="eyebrow">New Point</p>
-          <h2 id="suggestModalTitle">Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ñ‚Ð¾Ñ‡ÐºÑƒ</h2>
+          <h2 id="suggestModalTitle">Добавить точку</h2>
         </div>
-        <button id="closeSuggestBtn" class="icon-button" type="button" aria-label="Ð—Ð°ÐºÑ€Ñ‹Ñ‚ÑŒ">Ã—</button>
+        <button id="closeSuggestBtn" class="icon-button" type="button" aria-label="Закрыть">×</button>
       </div>
-      <p class="panel-copy">Ð’Ñ‹Ð±ÐµÑ€Ð¸ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð½Ð° Ð¼Ð¸Ð½Ð¸-ÐºÐ°Ñ€Ñ‚Ðµ Ð½Ð¸Ð¶Ðµ. ÐŸÐ¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ Ð¿Ð¾ÑÑ‚Ð°Ð²Ð¸Ð¼ Ð¼Ð°Ñ€ÐºÐµÑ€ Ð¿Ð¾ Ñ‚Ð²Ð¾ÐµÐ¹ Ð³ÐµÐ¾Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸, Ð° ÐµÑÐ»Ð¸ Ð¾Ð½Ð° Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ð°, Ð¿Ð¾ Ñ†ÐµÐ½Ñ‚Ñ€Ñƒ Ð¾ÑÐ½Ð¾Ð²Ð½Ð¾Ð¹ ÐºÐ°Ñ€Ñ‚Ñ‹. Ð¤Ð¾Ñ‚Ð¾ Ð¸Ð»Ð¸ Ð²Ð¸Ð´ÐµÐ¾ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¿Ñ€Ð¸ÐºÑ€ÐµÐ¿Ð¸Ñ‚ÑŒ Ð¿Ð¾ Ð¶ÐµÐ»Ð°Ð½Ð¸ÑŽ.</p>
+      <p class="panel-copy">Выбери точку на мини-карте ниже. По умолчанию поставим маркер по твоей геопозиции, а если она недоступна, по центру основной карты. Фото или видео можно прикрепить по желанию.</p>
       <form id="suggestForm" class="suggest-form">
         <label>
-          ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ
+          Название
           <input id="titleInput" name="title" maxlength="120" required />
         </label>
         <label>
-          ÐÐ´Ñ€ÐµÑ
+          Адрес
           <input id="addressInput" name="address" maxlength="200" required />
         </label>
         <label>
-          Ð“Ð¾Ñ€Ð¾Ð´
+          Город
           <input id="cityInput" name="city" maxlength="120" required />
         </label>
         <label>
-          Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº
-          <input id="sourceInput" name="source" maxlength="200" placeholder="ÐÐ°Ð¿Ñ€Ð¸Ð¼ÐµÑ€: Ð¼ÑƒÐ½Ð¸Ñ†Ð¸Ð¿Ð°Ð»Ð¸Ñ‚ÐµÑ‚, CSV, Ñ€ÑƒÑ‡Ð½Ð°Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ°" required />
+          Источник
+          <input id="sourceInput" name="source" maxlength="200" placeholder="Например: муниципалитет, CSV, ручная проверка" required />
         </label>
         <label>
-          Ð¢Ð¸Ð¿ Ñ‚Ð¾Ñ‡ÐºÐ¸
+          Тип точки
           <select id="shelterTypeInput" name="shelter_type" required>
-            <option value="">ÐÐµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾</option>
-            <option value="school">Ð¨ÐºÐ¾Ð»Ð°</option>
-            <option value="hospital">Ð‘Ð¾Ð»ÑŒÐ½Ð¸Ñ†Ð°</option>
-            <option value="synagogue">Ð¡Ð¸Ð½Ð°Ð³Ð¾Ð³Ð°</option>
-            <option value="kindergarten">Ð”ÐµÑ‚ÑÐºÐ¸Ð¹ ÑÐ°Ð´</option>
-            <option value="shopping_center">Ð¢Ð¾Ñ€Ð³Ð¾Ð²Ñ‹Ð¹ Ñ†ÐµÐ½Ñ‚Ñ€</option>
-            <option value="public_shelter">ÐžÐ±Ñ‹Ñ‡Ð½Ñ‹Ð¹ Ð¼Ð¸ÐºÐ»Ð°Ñ‚ Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹</option>
-            <option value="migunit">ÐœÐ¸Ð³ÑƒÐ½Ð¸Ñ‚</option>
-            <option value="building_shelter">ÐœÐ¸ÐºÐ»Ð°Ñ‚ Ð² Ð´Ð¾Ð¼Ðµ</option>
-            <option value="public_mamad">ÐœÐÐœÐÐ” Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹</option>
+            <option value="">Не указано</option>
+            <option value="school">Школа</option>
+            <option value="hospital">Больница</option>
+            <option value="synagogue">Синагога</option>
+            <option value="kindergarten">Детский сад</option>
+            <option value="shopping_center">Торговый центр</option>
+            <option value="public_shelter">Обычный миклат общественный</option>
+            <option value="migunit">Мигунит</option>
+            <option value="building_shelter">Миклат в доме</option>
+            <option value="public_mamad">МАМАД общественный</option>
           </select>
         </label>
         <label>
-          ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+          Описание
           <textarea id="descriptionInput" name="description" rows="4" maxlength="500" required></textarea>
         </label>
         <div class="suggest-location-picker">
           <div class="panel-heading modal-heading">
-            <h2>Ð’Ñ‹Ð±ÐµÑ€Ð¸ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ</h2>
+            <h2>Выбери точку на карте</h2>
           </div>
-          <p class="panel-copy">ÐšÐ»Ð¸ÐºÐ½Ð¸ Ð¿Ð¾ ÐºÐ°Ñ€Ñ‚Ðµ Ð¸Ð»Ð¸ Ð¿ÐµÑ€ÐµÑ‚Ð°Ñ‰Ð¸ Ð¼Ð°Ñ€ÐºÐµÑ€ Ð² Ð½ÑƒÐ¶Ð½Ð¾Ðµ Ð¼ÐµÑÑ‚Ð¾. Ð˜Ð¼ÐµÐ½Ð½Ð¾ ÑÑ‚Ð° Ñ‚Ð¾Ñ‡ÐºÐ° ÑƒÐ¹Ð´Ñ‘Ñ‚ Ð½Ð° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ.</p>
-          <div id="suggestMap" class="suggest-map" aria-label="ÐšÐ°Ñ€Ñ‚Ð° Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ñ‚Ð¾Ñ‡ÐºÐ¸"></div>
+          <p class="panel-copy">Кликни по карте или перетащи маркер в нужное место. Именно эта точка уйдёт на проверку.</p>
+          <div id="suggestMap" class="suggest-map" aria-label="Карта выбора точки"></div>
         </div>
         <div class="grid-two">
           <label>
-            Ð˜Ð¼Ñ
+            Имя
             <input id="submitterNameInput" name="submitter_name" maxlength="80" />
           </label>
           <label>
-            ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚
+            Контакт
             <input id="submitterContactInput" name="submitter_contact" maxlength="120" />
           </label>
         </div>
         <label>
-          Ð¤Ð¾Ñ‚Ð¾ Ð¸Ð»Ð¸ Ð²Ð¸Ð´ÐµÐ¾
+          Фото или видео
           <input id="mediaInput" name="media" type="file" accept="image/*,video/*" />
         </label>
-        <p id="locationHint" class="form-hint">Ð¢Ð¾Ñ‡ÐºÐ° Ð±ÑƒÐ´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð° Ð¿Ð¾ Ñ‚Ð²Ð¾ÐµÐ¹ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸ Ð¸Ð»Ð¸ Ð¿Ð¾ Ñ†ÐµÐ½Ñ‚Ñ€Ñƒ ÐºÐ°Ñ€Ñ‚Ñ‹.</p>
+        <p id="locationHint" class="form-hint">Точка будет сохранена по твоей текущей позиции или по центру карты.</p>
         <div class="hero-actions">
-          <button class="primary-button" type="submit">ÐžÑ‚Ð¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ð½Ð° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ</button>
-          <button id="cancelSuggestBtn" class="ghost-button" type="button">ÐžÑ‚Ð¼ÐµÐ½Ð°</button>
+          <button class="primary-button" type="submit">Отправить на проверку</button>
+          <button id="cancelSuggestBtn" class="ghost-button" type="button">Отмена</button>
         </div>
         <p id="formMessage" class="form-message"></p>
       </form>
