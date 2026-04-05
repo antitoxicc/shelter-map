@@ -35,10 +35,6 @@
       <div class="map-frame">
         <div id="map"></div>
 
-        <div class="map-overlay top-left">
-          <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтвержденные точки...</p>
-        </div>
-
         <div class="map-overlay map-search-overlay">
           <form id="locationSearchForm" class="search-form map-search-form">
             <label class="search-label visually-hidden" for="locationSearchInput">Город</label>
@@ -50,10 +46,17 @@
           </form>
         </div>
 
-        <div class="map-overlay top-right map-tools">
-          <button id="refreshLocationBtn" class="map-fab" type="button" aria-label="Найти меня">◎</button>
+        <div class="map-overlay top-left">
+          <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтвержденные точки...</p>
+        </div>
+
+        <div class="map-overlay map-actions-overlay">
           <button id="mapSearchAreaBtn" class="map-fab" type="button">Обновить карту</button>
           <button id="openSuggestBtn" class="map-fab accent" type="button">Добавить точку</button>
+        </div>
+
+        <div class="map-overlay map-geolocate-overlay">
+          <button id="refreshLocationBtn" class="map-fab" type="button" aria-label="Найти меня">◎</button>
         </div>
 
         <div class="map-legend">

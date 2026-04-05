@@ -181,7 +181,7 @@ select {
 }
 
 .map-overlay.top-left {
-  top: 18px;
+  top: 92px;
   left: 18px;
   max-width: min(420px, calc(100% - 36px));
 }
@@ -192,9 +192,24 @@ select {
 }
 
 .map-search-overlay {
-  top: 92px;
+  top: 18px;
   left: 18px;
   right: 18px;
+}
+
+.map-actions-overlay {
+  left: 18px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 500;
+}
+
+.map-geolocate-overlay {
+  right: 18px;
+  bottom: 92px;
+  z-index: 500;
 }
 
 .map-status-card {
@@ -204,13 +219,6 @@ select {
   background: rgba(255, 250, 242, 0.92);
   border: 1px solid var(--border);
   box-shadow: 0 12px 30px rgba(31, 42, 31, 0.1);
-}
-
-.map-tools {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
 }
 
 .map-search-form {
@@ -235,6 +243,12 @@ select {
 
 .search-submit-button {
   min-width: 112px;
+}
+
+#refreshLocationBtn {
+  min-width: 48px;
+  width: 48px;
+  padding: 0;
 }
 
 .map-fab {
@@ -902,29 +916,28 @@ select {
   }
 
   .map-overlay.top-left {
-    top: 12px;
+    top: 84px;
   }
 
   .map-search-overlay {
-    top: 92px;
+    top: 12px;
     left: 12px;
     right: 12px;
   }
 
-  .map-overlay.top-right {
-    top: auto;
+  .map-actions-overlay {
     left: 12px;
-    right: 12px;
+    right: auto;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
-    width: auto;
-    max-width: none;
-  }
-
-  .map-tools {
-    flex-direction: row;
-    align-items: center;
+    display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+
+  .map-geolocate-overlay {
+    left: auto;
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 120px);
   }
 
   .map-fab {
