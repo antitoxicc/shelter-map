@@ -183,6 +183,75 @@ function formatAddress(address, city) {
   return addressText || cityText;
 }
 
+function normalizeDescriptionText(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .replace(/\s*\.\s*/g, ". ")
+    .trim();
+}
+
+function toSentenceCase(value) {
+  const text = String(value || "").trim();
+  if (!text) {
+    return "";
+  }
+
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function getReadableDescription(rawDescription) {
+  const normalized = normalizeDescriptionText(rawDescription);
+  if (!normalized) {
+    return "Описание не указано.";
+  }
+
+  const preferredPatterns = [
+    /(?:notes?|הערות|примечани[ея])\s*:\s*([^.]*(?:\.[^.]*){0,2})/i,
+    /(?:opening times?|is open|operational status|accessibility)\s*:\s*([^.]*(?:\.[^.]*){0,1})/i
+  ];
+
+  const preferredParts = preferredPatterns
+    .map((pattern) => normalized.match(pattern)?.[1]?.trim())
+    .filter(Boolean)
+    .map((part) => toSentenceCase(part));
+
+  if (preferredParts.length) {
+    return preferredParts.join(". ");
+  }
+
+  const stripped = normalized
+    .replace(/https?:\/\/\S+/gi, "")
+    .split(/\.\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => !/^(Imported at source|Source object id|Source unique id|Source shelter number|Source category|Source type|Manager|Mobile|Filter system|Internal education shelter|Operational status|Accessibility|Is open|Opening times?)\b/i.test(part));
+
+  if (!stripped.length) {
+    return "Описание не указано.";
+  }
+
+  const joined = stripped.slice(0, 2).join(". ");
+  return joined.length > 260 ? `${joined.slice(0, 257).trim()}...` : joined;
+}
+
+function getCompactSource(source) {
+  const sourceText = String(source || "").trim();
+  if (!sourceText) {
+    return null;
+  }
+
+  const urlMatch = sourceText.match(/https?:\/\/\S+/i);
+  const url = urlMatch?.[0] || null;
+  const labelBase = url ? sourceText.replace(url, "").replace(/\s*-\s*$/, "").trim() : sourceText;
+  const label = labelBase.length > 80 ? `${labelBase.slice(0, 77).trim()}...` : labelBase;
+
+  return {
+    label: label || "Открыть источник",
+    url,
+    fullText: sourceText
+  };
+}
+
 function getBoundsAroundCoords(coords, radiusKm = DEFAULT_NEARBY_RADIUS_KM) {
   const latDelta = radiusKm / 111;
   const lngDelta = radiusKm / (111 * Math.max(Math.cos((coords.lat * Math.PI) / 180), 0.2));
@@ -382,9 +451,9 @@ function renderShelters(points) {
   clearShelterMarkers();
 
   points.forEach((point) => {
-    const description = String(point.description || "").trim();
+    const description = getReadableDescription(point.description);
     const address = formatAddress(point.address, point.city);
-    const source = String(point.source || "").trim();
+    const sourceMeta = getCompactSource(point.source);
     const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
     const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
       ? rawVerificationStatus
@@ -396,12 +465,17 @@ function renderShelters(points) {
     const mediaAction = point.media_url
       ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
+    const sourceLine = sourceMeta
+      ? sourceMeta.url
+        ? `<div class="meta-line">Источник: <a class="source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">${escapeHtml(sourceMeta.label)}</a></div>`
+        : `<div class="meta-line">Источник: ${escapeHtml(sourceMeta.label)}</div>`
+      : "";
     const popupHtml = `
       <article class="map-popup-card">
         <h3>${escapeHtml(point.title)}</h3>
+        ${address ? `<div class="meta-line card-address">${escapeHtml(address)}</div>` : ""}
         <p>${popupDescription}</p>
-        ${address ? `<div class="meta-line">${escapeHtml(address)}</div>` : ""}
-        ${source ? `<div class="meta-line">Источник: ${escapeHtml(source)}</div>` : ""}
+        ${sourceLine}
         <div class="badge-row popup-badge-row">
           <span class="type-badge">${escapeHtml(shelterTypeLabel)}</span>
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
@@ -581,8 +655,8 @@ function openDetailsModal(pointId) {
     return;
   }
 
-  const description = String(point.description || "").trim() || "Описание не указано.";
-  const source = String(point.source || "").trim();
+  const description = getReadableDescription(point.description);
+  const sourceMeta = getCompactSource(point.source);
   const address = formatAddress(point.address, point.city);
   const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
   const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
@@ -609,10 +683,11 @@ function openDetailsModal(pointId) {
         <h4>Описание</h4>
         <p>${escapeHtml(description)}</p>
       </section>
-      ${source ? `
+      ${sourceMeta ? `
         <section class="details-section">
           <h4>Источник</h4>
-          <p>${escapeHtml(source)}</p>
+          <p>${escapeHtml(sourceMeta.label)}</p>
+          ${sourceMeta.url ? `<div class="card-actions popup-actions"><a class="card-link source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">Открыть полный источник</a></div>` : ""}
         </section>
       ` : ""}
       <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>

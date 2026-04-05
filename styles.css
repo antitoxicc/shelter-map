@@ -712,6 +712,12 @@ select {
   font-weight: 700;
 }
 
+.source-link {
+  color: var(--accent);
+  font-weight: 700;
+  word-break: break-word;
+}
+
 .admin-edit-form {
   margin-top: 16px;
   padding-top: 16px;
