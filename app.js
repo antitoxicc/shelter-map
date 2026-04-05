@@ -849,7 +849,7 @@ async function handleSuggestSubmit(event) {
     title: String(formData.get("title") || "").trim(),
     address: String(formData.get("address") || "").trim() || null,
     city: String(formData.get("city") || "").trim() || null,
-    source: String(formData.get("source") || "").trim() || null,
+    source: "Пользовательское предложение",
     description: String(formData.get("description") || "").trim() || null,
     shelter_type: String(formData.get("shelter_type") || "").trim() || null,
     location_verification_status: "needs_review",
