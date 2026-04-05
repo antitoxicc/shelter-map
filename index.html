@@ -13,37 +13,12 @@
 <body>
   <div class="page-shell">
     <aside class="sidebar">
-      <div class="hero-card">
-        <p class="eyebrow">Shelter Map</p>
-        <h1>Ближайшие укрытия рядом с тобой</h1>
-        <p class="hero-copy">Карта показывает ближайшие точки рядом с тобой и помогает быстро понять, какие из них проще найти по описанию.</p>
-        <p class="status-text hero-status-note">Геопозиция обновляется через кнопку на карте, а новые точки можно отправить во всплывающей форме.</p>
-      </div>
-
       <section class="panel">
         <div class="panel-heading">
-          <h2>Где искать</h2>
-        </div>
-        <p class="panel-copy">Разреши геолокацию для точек рядом с тобой или введи город, чтобы посмотреть другое место.</p>
-        <form id="locationSearchForm" class="search-form">
-          <label class="search-label" for="locationSearchInput">Город</label>
-          <div class="search-row">
-            <input id="locationSearchInput" name="query" type="search" placeholder="Например: Нетания или Бат-Ям" autocomplete="off" list="citySuggestions" />
-            <datalist id="citySuggestions"></datalist>
-            <button class="primary-button" type="submit">Найти</button>
-          </div>
-        </form>
-        <div class="hero-actions compact-actions">
-          <button id="searchAreaBtn" class="ghost-button" type="button">Искать в этой области</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-heading">
-          <h2 id="resultsPanelTitle">Ближайшие точки</h2>
+          <h2 id="resultsPanelTitle">Точки рядом с тобой</h2>
           <span id="nearbyCount" class="count-pill">0</span>
         </div>
-        <p id="resultsPanelCopy" class="panel-copy">Список помогает быстро оценить, какой точке проще доверять: подробное описание обычно легче проверить и найти на месте.</p>
+        <p id="resultsPanelCopy" class="panel-copy">Показываем ближайшие точки и короткую информацию о них, чтобы можно было быстро выбрать подходящее место.</p>
         <div id="nearbyList" class="card-list">
           <p class="empty-state">Пока нет данных для отображения.</p>
         </div>
@@ -51,22 +26,43 @@
     </aside>
 
     <main class="map-panel">
+      <div class="hero-card map-hero-card">
+        <p class="eyebrow">Shelter Map</p>
+        <h1>Ближайшие укрытия рядом с тобой</h1>
+        <p class="hero-copy">Карта показывает ближайшие точки рядом с тобой, содержит информацию о них и позволяет предложить убежище или защищенное место, которого еще нет на карте.</p>
+      </div>
+
       <div class="map-frame">
         <div id="map"></div>
+
         <div class="map-overlay top-left">
-          <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтверждённые точки...</p>
+          <p id="statusMessage" class="map-status-card">Ищем твою геопозицию и загружаем подтвержденные точки...</p>
         </div>
+
+        <div class="map-overlay map-search-overlay">
+          <form id="locationSearchForm" class="search-form map-search-form">
+            <label class="search-label visually-hidden" for="locationSearchInput">Город</label>
+            <div class="search-row map-search-row">
+              <input id="locationSearchInput" name="query" type="search" placeholder="Введи город" autocomplete="off" list="citySuggestions" />
+              <datalist id="citySuggestions"></datalist>
+              <button class="primary-button search-submit-button" type="submit">Найти</button>
+            </div>
+          </form>
+        </div>
+
         <div class="map-overlay top-right map-tools">
           <button id="refreshLocationBtn" class="map-fab" type="button" aria-label="Найти меня">◎</button>
-          <button id="mapSearchAreaBtn" class="map-fab" type="button">Искать здесь</button>
+          <button id="mapSearchAreaBtn" class="map-fab" type="button">Обновить карту</button>
           <button id="openSuggestBtn" class="map-fab accent" type="button">Добавить точку</button>
         </div>
+
         <div class="map-legend">
           <span><i class="legend-dot legend-user"></i> Ты</span>
           <span><i class="legend-dot legend-shelter"></i> Проверено</span>
           <span><i class="legend-dot pending"></i> Нужно проверить</span>
         </div>
       </div>
+
       <div class="map-mobile-legend" aria-label="Map legend"></div>
     </main>
   </div>
@@ -84,24 +80,24 @@
       <p class="panel-copy">Выбери точку на мини-карте ниже. По умолчанию поставим маркер по твоей геопозиции, а если она недоступна, по центру основной карты. Фото или видео можно прикрепить по желанию.</p>
       <form id="suggestForm" class="suggest-form">
         <label>
-          Название
+          Название *
           <input id="titleInput" name="title" maxlength="120" required />
         </label>
         <label>
           Адрес
-          <input id="addressInput" name="address" maxlength="200" required />
+          <input id="addressInput" name="address" maxlength="200" />
         </label>
         <label>
           Город
-          <input id="cityInput" name="city" maxlength="120" required />
+          <input id="cityInput" name="city" maxlength="120" />
         </label>
         <label>
           Источник
-          <input id="sourceInput" name="source" maxlength="200" placeholder="Например: муниципалитет, CSV, ручная проверка" required />
+          <input id="sourceInput" name="source" maxlength="200" placeholder="Например: муниципалитет, CSV, ручная проверка" />
         </label>
         <label>
           Тип точки
-          <select id="shelterTypeInput" name="shelter_type" required>
+          <select id="shelterTypeInput" name="shelter_type">
             <option value="">Не указано</option>
             <option value="school">Школа</option>
             <option value="hospital">Больница</option>
@@ -116,13 +112,13 @@
         </label>
         <label>
           Описание
-          <textarea id="descriptionInput" name="description" rows="4" maxlength="500" required></textarea>
+          <textarea id="descriptionInput" name="description" rows="4" maxlength="500"></textarea>
         </label>
         <div class="suggest-location-picker">
           <div class="panel-heading modal-heading">
-            <h2>Выбери точку на карте</h2>
+            <h2>Выбери точку на карте *</h2>
           </div>
-          <p class="panel-copy">Кликни по карте или перетащи маркер в нужное место. Именно эта точка уйдёт на проверку.</p>
+          <p class="panel-copy">Синяя точка показывает твою геопозицию. Флажок можно перетащить в точное место убежища. Именно эта точка уйдет на проверку.</p>
           <div id="suggestMap" class="suggest-map" aria-label="Карта выбора точки"></div>
         </div>
         <div class="grid-two">
@@ -166,9 +162,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script type="module" src="./app.js?v=20260405-3"></script>
+  <script type="module" src="./app.js?v=20260405-4"></script>
 </body>
 </html>
-
-
-

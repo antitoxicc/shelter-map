@@ -106,6 +106,14 @@ const userIcon = L.divIcon({
   popupAnchor: [0, -12]
 });
 
+const suggestSelectionIcon = L.divIcon({
+  className: "custom-marker",
+  html: '<div style="position:relative;width:22px;height:30px;"><div style="position:absolute;left:9px;top:2px;width:3px;height:22px;background:#3d3d3d;border-radius:2px;"></div><div style="position:absolute;left:12px;top:2px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:14px solid #c84b31;filter:drop-shadow(0 6px 12px rgba(200,75,49,0.25));"></div></div>',
+  iconSize: [22, 30],
+  iconAnchor: [11, 28],
+  popupAnchor: [0, -20]
+});
+
 const supabase = hasSupabaseConfig() ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let shelters = [];
@@ -114,6 +122,7 @@ let userMarker = null;
 let userCoords = null;
 let suggestMap = null;
 let suggestMarker = null;
+let suggestUserMarker = null;
 let availableCities = [];
 
 function setStatus(message, isError = false) {
@@ -455,7 +464,7 @@ function getSubmissionCoords() {
     return {
       lat: coords.lat,
       lng: coords.lng,
-      sourceLabel: "по выбранной точке на карте"
+      sourceLabel: "по выбранному флажку на карте"
     };
   }
 
@@ -480,6 +489,22 @@ function updateLocationHint() {
   locationHint.textContent = `Точка будет сохранена ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
 }
 
+function updateSuggestUserMarker() {
+  if (!suggestMap || !userCoords) {
+    return;
+  }
+
+  if (!suggestUserMarker) {
+    suggestUserMarker = L.marker([userCoords.lat, userCoords.lng], {
+      icon: userIcon,
+      interactive: false,
+      keyboard: false
+    }).addTo(suggestMap);
+  } else {
+    suggestUserMarker.setLatLng([userCoords.lat, userCoords.lng]);
+  }
+}
+
 function ensureSuggestMap() {
   if (suggestMap || !suggestMapElement || typeof L === "undefined") {
     return;
@@ -494,6 +519,8 @@ function ensureSuggestMap() {
   suggestMap.on("click", (event) => {
     setSuggestMarker(event.latlng, true);
   });
+
+  updateSuggestUserMarker();
 }
 
 function setSuggestMarker(latlng, shouldCenter = false) {
@@ -510,7 +537,7 @@ function setSuggestMarker(latlng, shouldCenter = false) {
   if (!suggestMarker) {
     suggestMarker = L.marker([coords.lat, coords.lng], {
       draggable: true,
-      icon: userIcon
+      icon: suggestSelectionIcon
     }).addTo(suggestMap);
 
     suggestMarker.on("dragend", () => {
@@ -532,6 +559,7 @@ function openSuggestModal() {
   document.body.style.overflow = "hidden";
   setFormMessage("");
   ensureSuggestMap();
+  updateSuggestUserMarker();
   setSuggestMarker(getSubmissionCoords(), true);
   setTimeout(() => {
     suggestMap?.invalidateSize();
@@ -631,7 +659,7 @@ async function loadSheltersInBounds(bounds, options = {}) {
   if (areBoundsTooWide(bounds)) {
     setStatus("Слишком широкий масштаб. Приблизь карту до города или района и попробуй снова.", true);
     setResultsPanelContext("Точки в выбранной области", "Сначала приблизь карту до города или района, чтобы не грузить слишком много точек.");
-    setEmptyResultsState("Приблизь карту и нажми «Искать здесь» ещё раз.");
+    setEmptyResultsState("Приблизь карту и нажми «Обновить карту» ещё раз.");
     renderShelters([]);
     shelters = [];
     return;
@@ -739,7 +767,7 @@ async function detectLocation() {
   if (!navigator.geolocation) {
     if (!shelters.length) {
       setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город вручную.");
-      setEmptyResultsState("Геолокация недоступна. Введи город или нажми «Искать здесь» после перемещения карты.");
+      setEmptyResultsState("Геолокация недоступна. Введи город или нажми «Обновить карту» после перемещения карты.");
     }
     setStatus("Геолокация не поддерживается браузером.", true);
     return;
@@ -751,6 +779,7 @@ async function detectLocation() {
     async (position) => {
       userCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
       updateUserMarker(userCoords);
+      updateSuggestUserMarker();
       if (!suggestMarker && !suggestModal.hidden) {
         setSuggestMarker(userCoords, true);
       }
@@ -762,7 +791,7 @@ async function detectLocation() {
     (error) => {
       if (!shelters.length) {
         setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город вручную.");
-        setEmptyResultsState("Пока ничего не загружено. Введи город сверху или приблизь карту и нажми «Искать здесь».");
+        setEmptyResultsState("Пока ничего не загружено. Введи город на карте или приблизь её и нажми «Обновить карту».");
       }
       setStatus(`Не удалось определить позицию: ${error.message}`, true);
       updateLocationHint();
@@ -818,11 +847,11 @@ async function handleSuggestSubmit(event) {
   const coords = getSubmissionCoords();
   const payload = {
     title: String(formData.get("title") || "").trim(),
-    address: String(formData.get("address") || "").trim(),
-    city: String(formData.get("city") || "").trim(),
-    source: String(formData.get("source") || "").trim(),
-    description: String(formData.get("description") || "").trim(),
-    shelter_type: String(formData.get("shelter_type") || "").trim(),
+    address: String(formData.get("address") || "").trim() || null,
+    city: String(formData.get("city") || "").trim() || null,
+    source: String(formData.get("source") || "").trim() || null,
+    description: String(formData.get("description") || "").trim() || null,
+    shelter_type: String(formData.get("shelter_type") || "").trim() || null,
     location_verification_status: "needs_review",
     latitude: Number(coords.lat),
     longitude: Number(coords.lng),
@@ -834,8 +863,8 @@ async function handleSuggestSubmit(event) {
     media_name: null
   };
 
-  if (!payload.title || !payload.address || !payload.city || !payload.source || !payload.description || !payload.shelter_type) {
-    setFormMessage("Заполни название, адрес, источник, тип и описание точки.", true);
+  if (!payload.title) {
+    setFormMessage("Заполни название точки.", true);
     return;
   }
 
@@ -916,8 +945,8 @@ if (mapLegend && mapMobileLegend) {
 }
 
 updateLocationHint();
-setResultsPanelContext("Ищем рядом с тобой", "Если разрешишь геолокацию, покажем точки рядом. Иначе можно выбрать другой город вручную.");
-setEmptyResultsState("Разреши геолокацию, введи город или приблизь карту и нажми «Искать здесь».");
+setResultsPanelContext("Точки рядом с тобой", "Показываем ближайшие точки и короткую информацию о них, чтобы можно было быстро выбрать подходящее место.");
+setEmptyResultsState("Разреши геолокацию, введи город на карте или приблизь её и нажми «Обновить карту».");
 loadCitySuggestions();
 detectLocation();
 
