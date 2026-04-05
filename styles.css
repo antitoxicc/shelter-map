@@ -29,6 +29,7 @@ body {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 a {
@@ -52,6 +53,7 @@ select {
   grid-template-columns: minmax(340px, 420px) 1fr;
   gap: 20px;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 20px;
 }
 
@@ -144,12 +146,14 @@ select {
   position: relative;
   overflow: hidden;
   min-height: calc(100vh - 40px);
+  min-height: calc(100dvh - 40px);
 }
 
 #map {
   width: 100%;
   height: 100%;
   min-height: calc(100vh - 40px);
+  min-height: calc(100dvh - 40px);
 }
 
 .map-overlay {
@@ -217,6 +221,18 @@ select {
   background: rgba(255, 250, 242, 0.92);
   border: 1px solid var(--border);
   z-index: 500;
+}
+
+.map-mobile-legend {
+  display: none;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 250, 242, 0.92);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 24px rgba(31, 42, 31, 0.08);
 }
 
 .legend-dot {
@@ -578,6 +594,7 @@ select {
   z-index: 1;
   width: min(100%, 560px);
   max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
   overflow-y: auto;
 }
 
@@ -777,11 +794,12 @@ select {
 
   .map-panel {
     order: -1;
+    min-height: auto;
   }
 
   .map-frame,
   #map {
-    min-height: 55vh;
+    min-height: min(62dvh, 560px);
   }
 
   .admin-workspace-grid {
@@ -816,6 +834,7 @@ select {
 
   .modal-card {
     max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
   }
 
   .grid-two {
@@ -839,23 +858,81 @@ select {
 
   .map-overlay.top-right {
     top: auto;
-    bottom: 74px;
+    left: 12px;
+    right: auto;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+    width: auto;
+    max-width: calc(100% - 84px);
   }
 
   .map-tools {
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .map-fab {
-    flex: 1 1 0;
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 14px;
+  }
+
+  #refreshLocationBtn {
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
+  }
+
+  #mapSearchAreaBtn {
+    display: none;
+  }
+
+  #openSuggestBtn {
+    box-shadow: 0 16px 30px rgba(23, 89, 74, 0.24);
   }
 
   .map-legend {
-    left: 12px;
+    display: none;
+  }
+
+  .map-mobile-legend {
+    display: flex;
+  }
+
+  .map-panel {
+    min-height: auto;
+  }
+
+  .map-frame {
+    min-height: min(52dvh, 460px);
+  }
+
+  #map {
+    min-height: min(52dvh, 460px);
+  }
+
+  .map-status-card {
+    padding: 12px 14px;
+    border-radius: 18px;
+    font-size: 0.98rem;
+    line-height: 1.35;
+  }
+
+  .sidebar {
+    gap: 12px;
+  }
+
+  .leaflet-bottom.leaflet-right {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
     right: 12px;
-    justify-content: space-between;
-    border-radius: 16px;
-    bottom: 12px;
+  }
+
+  .leaflet-right .leaflet-control {
+    margin-right: 0;
+  }
+
+  .leaflet-bottom .leaflet-control {
+    margin-bottom: 0;
   }
 
   .admin-map-legend {

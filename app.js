@@ -54,6 +54,8 @@ const locationHint = document.getElementById("locationHint");
 const titleInput = document.getElementById("titleInput");
 const mediaInput = document.getElementById("mediaInput");
 const suggestMapElement = document.getElementById("suggestMap");
+const mapLegend = document.querySelector(".map-legend");
+const mapMobileLegend = document.querySelector(".map-mobile-legend");
 
 const map = L.map("map", { zoomControl: false }).setView(DEFAULT_CENTER, 13);
 L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -535,7 +537,9 @@ function openSuggestModal() {
     suggestMap?.invalidateSize();
   }, 0);
   updateLocationHint();
-  titleInput.focus();
+  if (window.matchMedia("(min-width: 641px)").matches) {
+    titleInput.focus();
+  }
 }
 
 function closeSuggestModal() {
@@ -906,6 +910,10 @@ document.addEventListener("keydown", (event) => {
 });
 
 map.on("moveend", updateLocationHint);
+
+if (mapLegend && mapMobileLegend) {
+  mapMobileLegend.innerHTML = mapLegend.innerHTML;
+}
 
 updateLocationHint();
 setResultsPanelContext("Ищем рядом с тобой", "Если разрешишь геолокацию, покажем точки рядом. Иначе можно выбрать другой город вручную.");
