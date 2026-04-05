@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Админка укрытий</title>
+  <title>ÐÐ´Ð¼Ð¸Ð½ÐºÐ° ÑƒÐºÑ€Ñ‹Ñ‚Ð¸Ð¹</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
@@ -14,14 +14,14 @@
   <main class="admin-shell">
     <section class="hero-card admin-hero">
       <p class="eyebrow">Moderation</p>
-      <h1>Проверка пользовательских точек</h1>
-      <p class="hero-copy">После входа администратор может просматривать вложения, править описание и тип точки, а также вручную уточнять координаты прямо на карте перед публикацией.</p>
-      <a class="secondary-link" href="./index.html">Назад к карте</a>
+      <h1>ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒÑÐºÐ¸Ñ… Ñ‚Ð¾Ñ‡ÐµÐº</h1>
+      <p class="hero-copy">ÐŸÐ¾ÑÐ»Ðµ Ð²Ñ…Ð¾Ð´Ð° Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€ Ð¼Ð¾Ð¶ÐµÑ‚ Ð¿Ñ€Ð¾ÑÐ¼Ð°Ñ‚Ñ€Ð¸Ð²Ð°Ñ‚ÑŒ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ñ, Ð¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¸ Ñ‚Ð¸Ð¿ Ñ‚Ð¾Ñ‡ÐºÐ¸, Ð° Ñ‚Ð°ÐºÐ¶Ðµ Ð²Ñ€ÑƒÑ‡Ð½ÑƒÑŽ ÑƒÑ‚Ð¾Ñ‡Ð½ÑÑ‚ÑŒ ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹ Ð¿Ñ€ÑÐ¼Ð¾ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ Ð¿ÐµÑ€ÐµÐ´ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸ÐµÐ¹.</p>
+      <a class="secondary-link" href="./index.html">ÐÐ°Ð·Ð°Ð´ Ðº ÐºÐ°Ñ€Ñ‚Ðµ</a>
     </section>
 
     <section class="panel auth-panel">
       <div class="panel-heading">
-        <h2>Вход</h2>
+        <h2>Ð’Ñ…Ð¾Ð´</h2>
         <span id="sessionBadge" class="count-pill muted">guest</span>
       </div>
       <form id="loginForm" class="suggest-form">
@@ -30,12 +30,12 @@
           <input id="emailInput" type="email" autocomplete="username" required />
         </label>
         <label>
-          Пароль
+          ÐŸÐ°Ñ€Ð¾Ð»ÑŒ
           <input id="passwordInput" type="password" autocomplete="current-password" required />
         </label>
         <div class="hero-actions">
-          <button class="primary-button" type="submit">Войти</button>
-          <button id="logoutBtn" class="ghost-button" type="button">Выйти</button>
+          <button class="primary-button" type="submit">Ð’Ð¾Ð¹Ñ‚Ð¸</button>
+          <button id="logoutBtn" class="ghost-button" type="button">Ð’Ñ‹Ð¹Ñ‚Ð¸</button>
         </div>
         <p id="authMessage" class="form-message"></p>
       </form>
@@ -44,30 +44,30 @@
     <section class="panel admin-workspace-panel">
       <div class="panel-heading admin-workspace-heading">
         <div>
-          <h2>Карта модерации</h2>
-          <p class="panel-copy">Выбирай точку на карте, двигай маркер и сохраняй правки без поиска в длинном списке.</p>
+          <h2>ÐšÐ°Ñ€Ñ‚Ð° Ð¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸Ð¸</h2>
+          <p class="panel-copy">Ð’Ñ‹Ð±Ð¸Ñ€Ð°Ð¹ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ, Ð´Ð²Ð¸Ð³Ð°Ð¹ Ð¼Ð°Ñ€ÐºÐµÑ€ Ð¸ ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐ¹ Ð¿Ñ€Ð°Ð²ÐºÐ¸ Ð±ÐµÐ· Ð¿Ð¾Ð¸ÑÐºÐ° Ð² Ð´Ð»Ð¸Ð½Ð½Ð¾Ð¼ ÑÐ¿Ð¸ÑÐºÐµ.</p>
         </div>
-        <div class="admin-map-filters" role="group" aria-label="Фильтр точек">
-          <button class="card-button is-active" type="button" data-map-filter="all">Все</button>
+        <div class="admin-map-filters" role="group" aria-label="Ð¤Ð¸Ð»ÑŒÑ‚Ñ€ Ñ‚Ð¾Ñ‡ÐµÐº">
+          <button class="card-button is-active" type="button" data-map-filter="all">Ð’ÑÐµ</button>
           <button class="card-button" type="button" data-map-filter="pending">Pending</button>
           <button class="card-button" type="button" data-map-filter="approved">Approved</button>
         </div>
       </div>
       <div class="admin-workspace-grid">
         <div class="admin-map-shell">
-          <div id="adminMap" class="admin-master-map" aria-label="Карта убежищ" style="height:clamp(520px,72vh,900px);min-height:520px;"></div>
+          <div id="adminMap" class="admin-master-map" aria-label="ÐšÐ°Ñ€Ñ‚Ð° ÑƒÐ±ÐµÐ¶Ð¸Ñ‰" style="height:clamp(520px,72vh,900px);min-height:520px;"></div>
           <div class="admin-map-legend">
-            <span><i class="legend-dot pending"></i>Нужно проверить</span>
-            <span><i class="legend-dot approved"></i>Проверено</span>
-            <span><i class="legend-dot selected"></i>Выбрана</span>
+            <span><i class="legend-dot pending"></i>ÐÑƒÐ¶Ð½Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ</span>
+            <span><i class="legend-dot approved"></i>ÐŸÑ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾</span>
+            <span><i class="legend-dot selected"></i>Ð’Ñ‹Ð±Ñ€Ð°Ð½Ð°</span>
           </div>
         </div>
         <aside class="admin-details-panel">
           <div class="panel-heading">
-            <h2>Выбранная точка</h2>
+            <h2>Ð’Ñ‹Ð±Ñ€Ð°Ð½Ð½Ð°Ñ Ñ‚Ð¾Ñ‡ÐºÐ°</h2>
           </div>
           <div id="selectedShelterPanel" class="selected-shelter-panel">
-            <p class="empty-state">Войди и выбери точку на карте, чтобы редактировать её здесь.</p>
+            <p class="empty-state">Ð’Ð¾Ð¹Ð´Ð¸ Ð¸ Ð²Ñ‹Ð±ÐµÑ€Ð¸ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÐµÑ‘ Ð·Ð´ÐµÑÑŒ.</p>
           </div>
         </aside>
       </div>
@@ -75,26 +75,28 @@
 
     <section class="panel">
       <div class="panel-heading">
-        <h2>Pending точки</h2>
+        <h2>Pending Ñ‚Ð¾Ñ‡ÐºÐ¸</h2>
         <span id="pendingCount" class="count-pill">0</span>
       </div>
       <div id="pendingList" class="card-list">
-        <p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>
+        <p class="empty-state">Ð’Ð¾Ð¹Ð´Ð¸ ÐºÐ°Ðº Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€, Ñ‡Ñ‚Ð¾Ð±Ñ‹ ÑƒÐ²Ð¸Ð´ÐµÑ‚ÑŒ Ð¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸ÑŽ.</p>
       </div>
     </section>
 
     <section class="panel">
       <div class="panel-heading">
-        <h2>Уже опубликованные</h2>
+        <h2>Ð£Ð¶Ðµ Ð¾Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ¾Ð²Ð°Ð½Ð½Ñ‹Ðµ</h2>
         <span id="approvedCount" class="count-pill">0</span>
       </div>
       <div id="approvedList" class="card-list">
-        <p class="empty-state">После входа здесь появится список подтверждённых точек.</p>
+        <p class="empty-state">ÐŸÐ¾ÑÐ»Ðµ Ð²Ñ…Ð¾Ð´Ð° Ð·Ð´ÐµÑÑŒ Ð¿Ð¾ÑÐ²Ð¸Ñ‚ÑÑ ÑÐ¿Ð¸ÑÐ¾Ðº Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ñ‘Ð½Ð½Ñ‹Ñ… Ñ‚Ð¾Ñ‡ÐµÐº.</p>
       </div>
     </section>
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script type="module" src="./admin.js"></script>
+  <script type="module" src="./admin.js?v=20260405-2"></script>
 </body>
 </html>
+
+
