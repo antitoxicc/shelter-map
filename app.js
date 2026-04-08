@@ -12,22 +12,22 @@ const MAX_BOUNDS_LAT_SPAN = 0.45;
 const MAX_BOUNDS_LNG_SPAN = 0.45;
 const MAX_LIST_RESULTS = 12;
 const SHELTER_TYPE_LABELS = {
-  school: "\\u0428\\u043a\\u043e\\u043b\\u0430",
-  hospital: "\\u0411\\u043e\\u043b\\u044c\\u043d\\u0438\\u0446\\u0430",
-  synagogue: "\\u0421\\u0438\\u043d\\u0430\\u0433\\u043e\\u0433\\u0430",
-  kindergarten: "\\u0414\\u0435\\u0442\\u0441\\u043a\\u0438\\u0439 \\u0441\\u0430\\u0434",
-  shopping_center: "\\u0422\\u043e\\u0440\\u0433\\u043e\\u0432\\u044b\\u0439 \\u0446\\u0435\\u043d\\u0442\\u0440",
-  public_shelter: "\\u041e\\u0431\\u044b\\u0447\\u043d\\u044b\\u0439 \\u043c\\u0438\\u043a\\u043b\\u0430\\u0442 \\u043e\\u0431\\u0449\\u0435\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u044b\\u0439",
+  school: "Школа",
+  hospital: "Больница",
+  synagogue: "Синагога",
+  kindergarten: "Детский сад",
+  shopping_center: "Торговый центр",
+  public_shelter: "Обычный миклат общественный",
   parking: "Parking",
-  migunit: "\\u041c\\u0438\\u0433\\u0443\\u043d\\u0438\\u0442",
-  building_shelter: "\\u041c\\u0438\\u043a\\u043b\\u0430\\u0442 \\u0432 \\u0434\\u043e\\u043c\\u0435",
-  public_mamad: "\\u041c\\u0410\\u041c\\u0410\\u0414 \\u043e\\u0431\\u0449\\u0435\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u044b\\u0439"
+  migunit: "Мигунит",
+  building_shelter: "Миклат в доме",
+  public_mamad: "МАМАД общественный"
 };
 
 const LOCATION_VERIFICATION_LABELS = {
-  verified: "\\u041f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0435\\u043d\\u043e",
-  approximate: "\\u0421\\u043a\\u043e\\u0440\\u0435\\u0435 \\u0432\\u0441\\u0435\\u0433\\u043e \\u0432\\u0435\\u0440\\u043d\\u043e",
-  needs_review: "\\u041d\\u0435 \\u043f\\u0440\\u043e\\u0432\\u0435\\u0440\\u0435\\u043d\\u043e"
+  verified: "Подтверждено",
+  approximate: "Скорее всего верно",
+  needs_review: "Не проверено"
 };
 
 const statusMessage = document.getElementById("statusMessage");
@@ -91,13 +91,13 @@ function createShelterIcon(verificationStatus) {
 function getNormalizedVerificationLabel(value) {
   const normalizedValue = String(value || "").trim().toLowerCase();
   if (normalizedValue === "verified") {
-    return "\\u041f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0435\\u043d\\u043e";
+    return "Подтверждено";
   }
   if (normalizedValue === "approximate") {
-    return "\\u0421\\u043a\\u043e\\u0440\\u0435\\u0435 \\u0432\\u0441\\u0435\\u0433\\u043e \\u0432\\u0435\\u0440\\u043d\\u043e";
+    return "Скорее всего верно";
   }
 
-  return "\\u041d\\u0435 \\u043f\\u0440\\u043e\\u0432\\u0435\\u0440\\u0435\\u043d\\u043e";
+  return "Не проверено";
 }
 
 const userIcon = L.divIcon({
@@ -140,10 +140,10 @@ function setFormMessage(message, isError = false) {
 
 function formatDistance(distanceMeters) {
   if (distanceMeters < 1000) {
-    return `${Math.round(distanceMeters)} \\u043c`;
+    return `${Math.round(distanceMeters)} м`;
   }
 
-  return `${(distanceMeters / 1000).toFixed(1)} \\u043a\\u043c`;
+  return `${(distanceMeters / 1000).toFixed(1)} км`;
 }
 
 function setResultsPanelContext(title, copy) {
@@ -205,11 +205,11 @@ function toSentenceCase(value) {
 function getReadableDescription(rawDescription) {
   const normalized = normalizeDescriptionText(rawDescription);
   if (!normalized) {
-    return "\\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435 \\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e.";
+    return "Описание не указано.";
   }
 
   const preferredPatterns = [
-    /(?:notes?|\\u05d4\\u05e2\\u05e8\\u05d5\\u05ea|\\u043f\\u0440\\u0438\\u043c\\u0435\\u0447\\u0430\\u043d\\u0438[\\u0435\\u044f])\s*:\s*([^.]*(?:\.[^.]*){0,2})/i,
+    /(?:notes?|הערות|примечани[ея])\s*:\s*([^.]*(?:\.[^.]*){0,2})/i,
     /(?:opening times?|is open|operational status|accessibility)\s*:\s*([^.]*(?:\.[^.]*){0,1})/i
   ];
 
@@ -230,7 +230,7 @@ function getReadableDescription(rawDescription) {
     .filter((part) => !/^(Imported at source|Source object id|Source unique id|Source shelter number|Source category|Source type|Manager|Mobile|Filter system|Internal education shelter|Operational status|Accessibility|Is open|Opening times?)\b/i.test(part));
 
   if (!stripped.length) {
-    return "\\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435 \\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e.";
+    return "Описание не указано.";
   }
 
   const joined = stripped.slice(0, 2).join(". ");
@@ -249,7 +249,7 @@ function getCompactSource(source) {
   const label = labelBase.length > 80 ? `${labelBase.slice(0, 77).trim()}...` : labelBase;
 
   return {
-    label: label || "\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0438\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a",
+    label: label || "Открыть источник",
     url,
     fullText: sourceText
   };
@@ -290,11 +290,11 @@ function getBoundsCenter(bounds) {
 }
 
 function getShelterTypeLabel(type) {
-  return SHELTER_TYPE_LABELS[type] || "\\u0422\\u0438\\u043f \\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d";
+  return SHELTER_TYPE_LABELS[type] || "Тип не указан";
 }
 
 function getLocationVerificationLabel(value) {
-  return LOCATION_VERIFICATION_LABELS[value] || "\\u0422\\u0440\\u0435\\u0431\\u0443\\u0435\\u0442 \\u0440\\u0443\\u0447\\u043d\\u043e\\u0439 \\u043f\\u0440\\u043e\\u0432\\u0435\\u0440\\u043a\\u0438";
+  return LOCATION_VERIFICATION_LABELS[value] || "Требует ручной проверки";
 }
 
 function normalizeShelterRows(rows) {
@@ -412,12 +412,12 @@ async function loadCitySuggestions() {
 function renderNearbyCards(points, totalCount = points.length) {
   nearbyCount.textContent = String(totalCount);
   if (!points.length) {
-    nearbyList.innerHTML = '<p class="empty-state">\\u041f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0451\\u043d\\u043d\\u044b\\u0435 \\u0442\\u043e\\u0447\\u043a\\u0438 \\u043f\\u043e\\u043a\\u0430 \\u043d\\u0435 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u044b.</p>';
+    nearbyList.innerHTML = '<p class="empty-state">Подтверждённые точки пока не найдены.</p>';
     return;
   }
 
   nearbyList.innerHTML = points.map((point) => {
-    const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "\\u0411\\u0435\\u0437 \\u0440\\u0430\\u0441\\u0441\\u0442\\u043e\\u044f\\u043d\\u0438\\u044f";
+    const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
     const address = formatAddress(point.address, point.city);
     const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
     const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
@@ -437,8 +437,8 @@ function renderNearbyCards(points, totalCount = points.length) {
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
         </div>
         <div class="card-actions">
-          <button class="card-button" type="button" data-action="open-details" data-id="${escapeHtml(point.id)}">\\u041f\\u043e\\u0434\\u0440\\u043e\\u0431\\u043d\\u0435\\u0435</button>
-          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432 Google Maps</a>
+          <button class="card-button" type="button" data-action="open-details" data-id="${escapeHtml(point.id)}">Подробнее</button>
+          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
         </div>
       </article>
     `;
@@ -466,15 +466,15 @@ function renderShelters(points) {
       : "needs_review";
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
     const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
-    const popupDescription = escapeHtml(description || "\\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435 \\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e");
+    const popupDescription = escapeHtml(description || "Описание не указано");
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
     const mediaAction = point.media_url
-      ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435</a>`
+      ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
     const sourceLine = sourceMeta
       ? sourceMeta.url
-        ? `<div class="meta-line">\\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a: <a class="source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">${escapeHtml(sourceMeta.label)}</a></div>`
-        : `<div class="meta-line">\\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a: ${escapeHtml(sourceMeta.label)}</div>`
+        ? `<div class="meta-line">Источник: <a class="source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">${escapeHtml(sourceMeta.label)}</a></div>`
+        : `<div class="meta-line">Источник: ${escapeHtml(sourceMeta.label)}</div>`
       : "";
     const popupHtml = `
       <article class="map-popup-card">
@@ -488,7 +488,7 @@ function renderShelters(points) {
         </div>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
         <div class="card-actions popup-actions">
-          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432 Google Maps</a>
+          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
           ${mediaAction}
         </div>
       </article>
@@ -522,7 +522,7 @@ function updateUserMarker(coords) {
     map.removeLayer(userMarker);
   }
 
-  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup("\\u0422\\u044b \\u0437\\u0434\\u0435\\u0441\\u044c");
+  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup("Ты здесь");
 }
 
 function fitMapToPoints(points, options = {}) {
@@ -557,7 +557,7 @@ function getSubmissionCoords() {
     return {
       lat: coords.lat,
       lng: coords.lng,
-      sourceLabel: "\\u043f\\u043e \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u043e\\u043c\\u0443 \\u0444\\u043b\\u0430\\u0436\\u043a\\u0443 \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435"
+      sourceLabel: "по выбранному флажку на карте"
     };
   }
 
@@ -565,7 +565,7 @@ function getSubmissionCoords() {
     return {
       lat: userCoords.lat,
       lng: userCoords.lng,
-      sourceLabel: "\\u043f\\u043e \\u0442\\u0432\\u043e\\u0435\\u0439 \\u0442\\u0435\\u043a\\u0443\\u0449\\u0435\\u0439 \\u0433\\u0435\\u043e\\u043f\\u043e\\u0437\\u0438\\u0446\\u0438\\u0438"
+      sourceLabel: "по твоей текущей геопозиции"
     };
   }
 
@@ -573,13 +573,13 @@ function getSubmissionCoords() {
   return {
     lat: center.lat,
     lng: center.lng,
-    sourceLabel: "\\u043f\\u043e \\u0446\\u0435\\u043d\\u0442\\u0440\\u0443 \\u043a\\u0430\\u0440\\u0442\\u044b"
+    sourceLabel: "по центру карты"
   };
 }
 
 function updateLocationHint() {
   const coords = getSubmissionCoords();
-  locationHint.textContent = `\\u0422\\u043e\\u0447\\u043a\\u0430 \\u0431\\u0443\\u0434\\u0435\\u0442 \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0435\\u043d\\u0430 ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
+  locationHint.textContent = `Точка будет сохранена ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
 }
 
 function updateSuggestUserMarker() {
@@ -686,7 +686,7 @@ function openDetailsModal(pointId) {
   const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
   const distanceText = point.distanceMeters ? formatDistance(point.distanceMeters) : null;
   const mediaAction = point.media_url
-    ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435</a>`
+    ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
     : "";
 
   detailsModalContent.innerHTML = `
@@ -699,19 +699,19 @@ function openDetailsModal(pointId) {
         <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
       </div>
       <section class="details-section">
-        <h4>\\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435</h4>
+        <h4>Описание</h4>
         <p>${escapeHtml(description)}</p>
       </section>
       ${sourceMeta ? `
         <section class="details-section">
-          <h4>\\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a</h4>
+          <h4>Источник</h4>
           <p>${escapeHtml(sourceMeta.label)}</p>
-          ${sourceMeta.url ? `<div class="card-actions popup-actions"><a class="card-link source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u043f\\u043e\\u043b\\u043d\\u044b\\u0439 \\u0438\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a</a></div>` : ""}
+          ${sourceMeta.url ? `<div class="card-actions popup-actions"><a class="card-link source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">Открыть полный источник</a></div>` : ""}
         </section>
       ` : ""}
       <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
       <div class="card-actions popup-actions">
-        <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432 Google Maps</a>
+        <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">Открыть в Google Maps</a>
         ${mediaAction}
       </div>
     </article>
@@ -734,26 +734,26 @@ function closeDetailsModal() {
 
 async function loadSheltersInBounds(bounds, options = {}) {
   const {
-    title = "\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0432 \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438",
-    copy = "\\u041f\\u043e\\u043a\\u0430\\u0437\\u044b\\u0432\\u0430\\u0435\\u043c \\u0442\\u043e\\u043b\\u044c\\u043a\\u043e \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0432\\u043d\\u0443\\u0442\\u0440\\u0438 \\u0442\\u0435\\u043a\\u0443\\u0449\\u0435\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438 \\u043a\\u0430\\u0440\\u0442\\u044b.",
-    statusText = "\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0432 \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438 \\u0437\\u0430\\u0433\\u0440\\u0443\\u0436\\u0435\\u043d\\u044b.",
+    title = "Точки в выбранной области",
+    copy = "Показываем только точки внутри текущей области карты.",
+    statusText = "Точки в выбранной области загружены.",
     fitToResults = false,
     referenceCoords = null,
-    emptyMessage = "\\u0412 \\u044d\\u0442\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438 \\u043f\\u043e\\u043a\\u0430 \\u043d\\u0435\\u0442 \\u043f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0451\\u043d\\u043d\\u044b\\u0445 \\u0442\\u043e\\u0447\\u0435\\u043a."
+    emptyMessage = "В этой области пока нет подтверждённых точек."
   } = options;
 
   if (!supabase) {
     shelters = [];
     renderShelters([]);
-    setEmptyResultsState("\\u0417\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 ./supabase-config.js, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0438\\u0437 \\u0431\\u0430\\u0437\\u044b.");
-    setStatus("\\u0417\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 ./supabase-config.js, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0438\\u0437 \\u0431\\u0430\\u0437\\u044b.", true);
+    setEmptyResultsState("Заполни ./supabase-config.js, чтобы загрузить точки из базы.");
+    setStatus("Заполни ./supabase-config.js, чтобы загрузить точки из базы.", true);
     return;
   }
 
   if (areBoundsTooWide(bounds)) {
-    setStatus("\\u0421\\u043b\\u0438\\u0448\\u043a\\u043e\\u043c \\u0448\\u0438\\u0440\\u043e\\u043a\\u0438\\u0439 \\u043c\\u0430\\u0441\\u0448\\u0442\\u0430\\u0431. \\u041f\\u0440\\u0438\\u0431\\u043b\\u0438\\u0437\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443 \\u0434\\u043e \\u0433\\u043e\\u0440\\u043e\\u0434\\u0430 \\u0438\\u043b\\u0438 \\u0440\\u0430\\u0439\\u043e\\u043d\\u0430 \\u0438 \\u043f\\u043e\\u043f\\u0440\\u043e\\u0431\\u0443\\u0439 \\u0441\\u043d\\u043e\\u0432\\u0430.", true);
-    setResultsPanelContext("\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0432 \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438", "\\u0421\\u043d\\u0430\\u0447\\u0430\\u043b\\u0430 \\u043f\\u0440\\u0438\\u0431\\u043b\\u0438\\u0437\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443 \\u0434\\u043e \\u0433\\u043e\\u0440\\u043e\\u0434\\u0430 \\u0438\\u043b\\u0438 \\u0440\\u0430\\u0439\\u043e\\u043d\\u0430, \\u0447\\u0442\\u043e\\u0431\\u044b \\u043d\\u0435 \\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0441\\u043b\\u0438\\u0448\\u043a\\u043e\\u043c \\u043c\\u043d\\u043e\\u0433\\u043e \\u0442\\u043e\\u0447\\u0435\\u043a.");
-    setEmptyResultsState("\\u041f\\u0440\\u0438\\u0431\\u043b\\u0438\\u0437\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443 \\u0438 \\u043d\\u0430\\u0436\\u043c\\u0438 \\u00ab\\u041e\\u0431\\u043d\\u043e\\u0432\\u0438\\u0442\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443\\u00bb \\u0435\\u0449\\u0451 \\u0440\\u0430\\u0437.");
+    setStatus("Слишком широкий масштаб. Приблизь карту до города или района и попробуй снова.", true);
+    setResultsPanelContext("Точки в выбранной области", "Сначала приблизь карту до города или района, чтобы не грузить слишком много точек.");
+    setEmptyResultsState("Приблизь карту и нажми \«Обновить карту\» ещё раз.");
     renderShelters([]);
     shelters = [];
     return;
@@ -783,42 +783,42 @@ async function loadSheltersInBounds(bounds, options = {}) {
       fitMapToPoints(rows, { includeUser: true });
     }
 
-    setStatus(`${statusText} \\u0421\\u0435\\u0439\\u0447\\u0430\\u0441 \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435 ${rows.length} \\u0442\\u043e\\u0447\\u0435\\u043a.`);
+    setStatus(`${statusText} Сейчас на карте ${rows.length} точек.`);
   } catch (error) {
     shelters = [];
     renderShelters([]);
-    setEmptyResultsState("\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438.");
-    setStatus(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438: ${error.message}`, true);
+    setEmptyResultsState("Не удалось загрузить точки.");
+    setStatus(`Не удалось загрузить точки: ${error.message}`, true);
   }
 }
 
 async function loadSheltersNearUser(coords) {
   const bounds = getBoundsAroundCoords(coords, DEFAULT_NEARBY_RADIUS_KM);
   await loadSheltersInBounds(bounds, {
-    title: "\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0440\\u044f\\u0434\\u043e\\u043c \\u0441 \\u0442\\u043e\\u0431\\u043e\\u0439",
-    copy: `\\u041f\\u043e\\u043a\\u0430\\u0437\\u044b\\u0432\\u0430\\u0435\\u043c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u043f\\u0440\\u0438\\u043c\\u0435\\u0440\\u043d\\u043e \\u0432 \\u0440\\u0430\\u0434\\u0438\\u0443\\u0441\\u0435 ${DEFAULT_NEARBY_RADIUS_KM} \\u043a\\u043c \\u043e\\u0442 \\u0442\\u0432\\u043e\\u0435\\u0439 \\u0433\\u0435\\u043e\\u043f\\u043e\\u0437\\u0438\\u0446\\u0438\\u0438.`,
-    statusText: "\\u0411\\u043b\\u0438\\u0436\\u0430\\u0439\\u0448\\u0438\\u0435 \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0437\\u0430\\u0433\\u0440\\u0443\\u0436\\u0435\\u043d\\u044b.",
+    title: "Точки рядом с тобой",
+    copy: `Показываем точки примерно в радиусе ${DEFAULT_NEARBY_RADIUS_KM} км от твоей геопозиции.`,
+    statusText: "Ближайшие точки загружены.",
     fitToResults: true,
     referenceCoords: coords,
-    emptyMessage: "\\u0420\\u044f\\u0434\\u043e\\u043c \\u0441 \\u0442\\u043e\\u0431\\u043e\\u0439 \\u043f\\u043e\\u043a\\u0430 \\u043d\\u0435\\u0442 \\u043f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0451\\u043d\\u043d\\u044b\\u0445 \\u0442\\u043e\\u0447\\u0435\\u043a."
+    emptyMessage: "Рядом с тобой пока нет подтверждённых точек."
   });
 }
 
 async function searchShelters(queryText) {
   const queryValue = String(queryText || "").trim();
   if (!queryValue) {
-    setStatus("\\u0412\\u0432\\u0435\\u0434\\u0438 \\u0433\\u043e\\u0440\\u043e\\u0434 \\u0434\\u043b\\u044f \\u043f\\u043e\\u0438\\u0441\\u043a\\u0430.", true);
+    setStatus("Введи город для поиска.", true);
     return;
   }
 
   if (queryValue.length < 2) {
-    setStatus("\\u0414\\u043b\\u044f \\u043f\\u043e\\u0438\\u0441\\u043a\\u0430 \\u0432\\u0432\\u0435\\u0434\\u0438 \\u0445\\u043e\\u0442\\u044f \\u0431\\u044b 2 \\u0441\\u0438\\u043c\\u0432\\u043e\\u043b\\u0430.", true);
+    setStatus("Для поиска введи хотя бы 2 символа.", true);
     return;
   }
 
   if (!supabase) {
-    setEmptyResultsState("\\u0417\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 ./supabase-config.js, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0438\\u0441\\u043a\\u0430\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u043f\\u043e \\u0431\\u0430\\u0437\\u0435.");
-    setStatus("\\u0417\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 ./supabase-config.js, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0438\\u0441\\u043a\\u0430\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u043f\\u043e \\u0431\\u0430\\u0437\\u0435.", true);
+    setEmptyResultsState("Заполни ./supabase-config.js, чтобы искать точки по базе.");
+    setStatus("Заполни ./supabase-config.js, чтобы искать точки по базе.", true);
     return;
   }
 
@@ -829,13 +829,13 @@ async function searchShelters(queryText) {
     shelters = rows;
     renderShelters(rows);
     setResultsPanelContext(
-      `\\u0420\\u0435\\u0437\\u0443\\u043b\\u044c\\u0442\\u0430\\u0442\\u044b \\u0434\\u043b\\u044f \\u00ab${queryValue}\\u00bb`,
-      "\\u041f\\u043e\\u0438\\u0441\\u043a \\u0440\\u0430\\u0431\\u043e\\u0442\\u0430\\u0435\\u0442 \\u0442\\u043e\\u043b\\u044c\\u043a\\u043e \\u043f\\u043e \\u0433\\u043e\\u0440\\u043e\\u0434\\u0430\\u043c \\u0438\\u0437 \\u0431\\u0430\\u0437\\u044b. \\u041f\\u043e\\u0441\\u043b\\u0435 \\u0432\\u044b\\u0431\\u043e\\u0440\\u0430 \\u0433\\u043e\\u0440\\u043e\\u0434\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0430 \\u043f\\u043e\\u043a\\u0430\\u0437\\u044b\\u0432\\u0430\\u0435\\u0442 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u043d\\u044b\\u0435 \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0432 \\u044d\\u0442\\u043e\\u043c \\u0433\\u043e\\u0440\\u043e\\u0434\\u0435."
+      `Результаты для \«${queryValue}\»`,
+      "Поиск работает только по городам из базы. После выбора города карта показывает найденные точки в этом городе."
     );
 
     if (!rows.length) {
-      setEmptyResultsState(`\\u041f\\u043e \\u0437\\u0430\\u043f\\u0440\\u043e\\u0441\\u0443 \\u00ab${queryValue}\\u00bb \\u043d\\u0438\\u0447\\u0435\\u0433\\u043e \\u043d\\u0435 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u043e.`);
-      setStatus(`\\u041f\\u043e \\u0437\\u0430\\u043f\\u0440\\u043e\\u0441\\u0443 \\u00ab${queryValue}\\u00bb \\u043d\\u0438\\u0447\\u0435\\u0433\\u043e \\u043d\\u0435 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u043e.`);
+      setEmptyResultsState(`По запросу \«${queryValue}\» ничего не найдено.`);
+      setStatus(`По запросу \«${queryValue}\» ничего не найдено.`);
       return;
     }
 
@@ -848,26 +848,26 @@ async function searchShelters(queryText) {
 
     renderNearbyCards(getPointsForList(rows, searchCenter), rows.length);
     fitMapToPoints(rows);
-    setStatus(`\\u041d\\u0430\\u0439\\u0434\\u0435\\u043d\\u043e ${rows.length} \\u0442\\u043e\\u0447\\u0435\\u043a \\u043f\\u043e \\u0437\\u0430\\u043f\\u0440\\u043e\\u0441\\u0443 \\u00ab${queryValue}\\u00bb.`);
+    setStatus(`Найдено ${rows.length} точек по запросу \«${queryValue}\».`);
   } catch (error) {
     shelters = [];
     renderShelters([]);
-    setEmptyResultsState("\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0432\\u044b\\u043f\\u043e\\u043b\\u043d\\u0438\\u0442\\u044c \\u043f\\u043e\\u0438\\u0441\\u043a.");
-    setStatus(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0432\\u044b\\u043f\\u043e\\u043b\\u043d\\u0438\\u0442\\u044c \\u043f\\u043e\\u0438\\u0441\\u043a: ${error.message}`, true);
+    setEmptyResultsState("Не удалось выполнить поиск.");
+    setStatus(`Не удалось выполнить поиск: ${error.message}`, true);
   }
 }
 
 async function detectLocation() {
   if (!navigator.geolocation) {
     if (!shelters.length) {
-      setResultsPanelContext("\\u0412\\u044b\\u0431\\u0435\\u0440\\u0438 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u044c \\u043f\\u043e\\u0438\\u0441\\u043a\\u0430", "\\u0420\\u0430\\u0437\\u0440\\u0435\\u0448\\u0438 \\u0433\\u0435\\u043e\\u043b\\u043e\\u043a\\u0430\\u0446\\u0438\\u044e \\u0438\\u043b\\u0438 \\u0432\\u0432\\u0435\\u0434\\u0438 \\u0433\\u043e\\u0440\\u043e\\u0434 \\u0432\\u0440\\u0443\\u0447\\u043d\\u0443\\u044e.");
-      setEmptyResultsState("\\u0413\\u0435\\u043e\\u043b\\u043e\\u043a\\u0430\\u0446\\u0438\\u044f \\u043d\\u0435\\u0434\\u043e\\u0441\\u0442\\u0443\\u043f\\u043d\\u0430. \\u0412\\u0432\\u0435\\u0434\\u0438 \\u0433\\u043e\\u0440\\u043e\\u0434 \\u0438\\u043b\\u0438 \\u043d\\u0430\\u0436\\u043c\\u0438 \\u00ab\\u041e\\u0431\\u043d\\u043e\\u0432\\u0438\\u0442\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443\\u00bb \\u043f\\u043e\\u0441\\u043b\\u0435 \\u043f\\u0435\\u0440\\u0435\\u043c\\u0435\\u0449\\u0435\\u043d\\u0438\\u044f \\u043a\\u0430\\u0440\\u0442\\u044b.");
+      setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город вручную.");
+      setEmptyResultsState("Геолокация недоступна. Введи город или нажми \«Обновить карту\» после перемещения карты.");
     }
-    setStatus("\\u0413\\u0435\\u043e\\u043b\\u043e\\u043a\\u0430\\u0446\\u0438\\u044f \\u043d\\u0435 \\u043f\\u043e\\u0434\\u0434\\u0435\\u0440\\u0436\\u0438\\u0432\\u0430\\u0435\\u0442\\u0441\\u044f \\u0431\\u0440\\u0430\\u0443\\u0437\\u0435\\u0440\\u043e\\u043c.", true);
+    setStatus("Геолокация не поддерживается браузером.", true);
     return;
   }
 
-  setStatus("\\u041e\\u043f\\u0440\\u0435\\u0434\\u0435\\u043b\\u044f\\u0435\\u043c \\u0442\\u0432\\u043e\\u0451 \\u043c\\u0435\\u0441\\u0442\\u043e\\u043f\\u043e\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435...");
+  setStatus("Определяем твоё местоположение...");
 
   navigator.geolocation.getCurrentPosition(
     async (position) => {
@@ -884,10 +884,10 @@ async function detectLocation() {
     },
     (error) => {
       if (!shelters.length) {
-        setResultsPanelContext("\\u0412\\u044b\\u0431\\u0435\\u0440\\u0438 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u044c \\u043f\\u043e\\u0438\\u0441\\u043a\\u0430", "\\u0420\\u0430\\u0437\\u0440\\u0435\\u0448\\u0438 \\u0433\\u0435\\u043e\\u043b\\u043e\\u043a\\u0430\\u0446\\u0438\\u044e \\u0438\\u043b\\u0438 \\u0432\\u0432\\u0435\\u0434\\u0438 \\u0433\\u043e\\u0440\\u043e\\u0434 \\u0432\\u0440\\u0443\\u0447\\u043d\\u0443\\u044e.");
-        setEmptyResultsState("\\u041f\\u043e\\u043a\\u0430 \\u043d\\u0438\\u0447\\u0435\\u0433\\u043e \\u043d\\u0435 \\u0437\\u0430\\u0433\\u0440\\u0443\\u0436\\u0435\\u043d\\u043e. \\u0412\\u0432\\u0435\\u0434\\u0438 \\u0433\\u043e\\u0440\\u043e\\u0434 \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435 \\u0438\\u043b\\u0438 \\u043f\\u0440\\u0438\\u0431\\u043b\\u0438\\u0437\\u044c \\u0435\\u0451 \\u0438 \\u043d\\u0430\\u0436\\u043c\\u0438 \\u00ab\\u041e\\u0431\\u043d\\u043e\\u0432\\u0438\\u0442\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443\\u00bb.");
+        setResultsPanelContext("Выбери область поиска", "Разреши геолокацию или введи город вручную.");
+        setEmptyResultsState("Пока ничего не загружено. Введи город на карте или приблизь её и нажми \«Обновить карту\».");
       }
-      setStatus(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u043e\\u043f\\u0440\\u0435\\u0434\\u0435\\u043b\\u0438\\u0442\\u044c \\u043f\\u043e\\u0437\\u0438\\u0446\\u0438\\u044e: ${error.message}`, true);
+      setStatus(`Не удалось определить позицию: ${error.message}`, true);
       updateLocationHint();
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -907,7 +907,7 @@ async function uploadMediaFile(file) {
   }
 
   if (file.size > MAX_MEDIA_SIZE_BYTES) {
-    throw new Error("\\u0424\\u0430\\u0439\\u043b \\u0441\\u043b\\u0438\\u0448\\u043a\\u043e\\u043c \\u0431\\u043e\\u043b\\u044c\\u0448\\u043e\\u0439. \\u0421\\u0435\\u0439\\u0447\\u0430\\u0441 \\u043b\\u0438\\u043c\\u0438\\u0442 25 \\u041c\\u0411.");
+    throw new Error("Файл слишком большой. Сейчас лимит 25 МБ.");
   }
 
   const extension = sanitizeFilename(file.name).split(".").pop();
@@ -918,7 +918,7 @@ async function uploadMediaFile(file) {
   });
 
   if (error) {
-    throw new Error(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0444\\u0430\\u0439\\u043b: ${error.message}`);
+    throw new Error(`Не удалось загрузить файл: ${error.message}`);
   }
 
   const { data: publicUrlData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(data.path);
@@ -933,7 +933,7 @@ async function handleSuggestSubmit(event) {
   event.preventDefault();
 
   if (!supabase) {
-    setFormMessage("\\u0421\\u043d\\u0430\\u0447\\u0430\\u043b\\u0430 \\u0437\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 ./supabase-config.js \\u0434\\u043b\\u044f \\u043f\\u043e\\u0434\\u043a\\u043b\\u044e\\u0447\\u0435\\u043d\\u0438\\u044f \\u043a \\u0431\\u0430\\u0437\\u0435.", true);
+    setFormMessage("Сначала заполни ./supabase-config.js для подключения к базе.", true);
     return;
   }
 
@@ -943,7 +943,7 @@ async function handleSuggestSubmit(event) {
     title: String(formData.get("title") || "").trim(),
     address: String(formData.get("address") || "").trim() || null,
     city: String(formData.get("city") || "").trim() || null,
-    source: "\\u041f\\u043e\\u043b\\u044c\\u0437\\u043e\\u0432\\u0430\\u0442\\u0435\\u043b\\u044c\\u0441\\u043a\\u043e\\u0435 \\u043f\\u0440\\u0435\\u0434\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435",
+    source: "Пользовательское предложение",
     description: String(formData.get("description") || "").trim() || null,
     shelter_type: String(formData.get("shelter_type") || "").trim() || null,
     location_verification_status: "needs_review",
@@ -958,14 +958,14 @@ async function handleSuggestSubmit(event) {
   };
 
   if (!payload.title) {
-    setFormMessage("\\u0417\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 \\u043d\\u0430\\u0437\\u0432\\u0430\\u043d\\u0438\\u0435 \\u0442\\u043e\\u0447\\u043a\\u0438.", true);
+    setFormMessage("Заполни название точки.", true);
     return;
   }
 
   const file = mediaInput.files?.[0] || null;
 
   try {
-    setFormMessage("\\u041e\\u0442\\u043f\\u0440\\u0430\\u0432\\u043b\\u044f\\u0435\\u043c \\u0442\\u043e\\u0447\\u043a\\u0443 \\u043d\\u0430 \\u043c\\u043e\\u0434\\u0435\\u0440\\u0430\\u0446\\u0438\\u044e...");
+    setFormMessage("Отправляем точку на модерацию...");
     if (file) {
       const mediaPayload = await uploadMediaFile(file);
       Object.assign(payload, mediaPayload);
@@ -980,19 +980,19 @@ async function handleSuggestSubmit(event) {
     setFormMessage("");
     closeSuggestModal();
     updateLocationHint();
-    setStatus("\\u0422\\u043e\\u0447\\u043a\\u0430 \\u043e\\u0442\\u043f\\u0440\\u0430\\u0432\\u043b\\u0435\\u043d\\u0430 \\u043d\\u0430 \\u043f\\u0440\\u043e\\u0432\\u0435\\u0440\\u043a\\u0443. \\u0421\\u043f\\u0430\\u0441\\u0438\\u0431\\u043e.");
+    setStatus("Точка отправлена на проверку. Спасибо.");
   } catch (error) {
-    setFormMessage(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u043e\\u0442\\u043f\\u0440\\u0430\\u0432\\u0438\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0443: ${error.message}`, true);
+    setFormMessage(`Не удалось отправить точку: ${error.message}`, true);
   }
 }
 
 async function handleSearchArea() {
   await loadSheltersInBounds(getBoundsFromMap(), {
-    title: "\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0432 \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438",
-    copy: "\\u041f\\u043e\\u043a\\u0430\\u0437\\u044b\\u0432\\u0430\\u0435\\u043c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0442\\u043e\\u043b\\u044c\\u043a\\u043e \\u0432\\u043d\\u0443\\u0442\\u0440\\u0438 \\u0442\\u0435\\u043a\\u0443\\u0449\\u0435\\u0433\\u043e \\u0443\\u0447\\u0430\\u0441\\u0442\\u043a\\u0430 \\u043a\\u0430\\u0440\\u0442\\u044b. \\u041f\\u0435\\u0440\\u0435\\u043c\\u0435\\u0441\\u0442\\u0438 \\u043a\\u0430\\u0440\\u0442\\u0443 \\u0438 \\u043d\\u0430\\u0436\\u043c\\u0438 \\u043a\\u043d\\u043e\\u043f\\u043a\\u0443 \\u0435\\u0449\\u0451 \\u0440\\u0430\\u0437, \\u0435\\u0441\\u043b\\u0438 \\u0445\\u043e\\u0447\\u0435\\u0448\\u044c \\u0434\\u0440\\u0443\\u0433\\u043e\\u0439 \\u0440\\u0430\\u0439\\u043e\\u043d.",
-    statusText: "\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0432 \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438 \\u0437\\u0430\\u0433\\u0440\\u0443\\u0436\\u0435\\u043d\\u044b.",
+    title: "Точки в выбранной области",
+    copy: "Показываем точки только внутри текущего участка карты. Перемести карту и нажми кнопку ещё раз, если хочешь другой район.",
+    statusText: "Точки в выбранной области загружены.",
     referenceCoords: getBoundsCenter(getBoundsFromMap()),
-    emptyMessage: "\\u0412 \\u044d\\u0442\\u043e\\u0439 \\u043e\\u0431\\u043b\\u0430\\u0441\\u0442\\u0438 \\u043f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0451\\u043d\\u043d\\u044b\\u0445 \\u0442\\u043e\\u0447\\u0435\\u043a \\u043f\\u043e\\u043a\\u0430 \\u043d\\u0435 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u043e."
+    emptyMessage: "В этой области подтверждённых точек пока не найдено."
   });
 }
 
@@ -1039,8 +1039,8 @@ if (mapLegend && mapMobileLegend) {
 }
 
 updateLocationHint();
-setResultsPanelContext("\\u0422\\u043e\\u0447\\u043a\\u0438 \\u0440\\u044f\\u0434\\u043e\\u043c \\u0441 \\u0442\\u043e\\u0431\\u043e\\u0439", "\\u041f\\u043e\\u043a\\u0430\\u0437\\u044b\\u0432\\u0430\\u0435\\u043c \\u0431\\u043b\\u0438\\u0436\\u0430\\u0439\\u0448\\u0438\\u0435 \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0438 \\u043a\\u043e\\u0440\\u043e\\u0442\\u043a\\u0443\\u044e \\u0438\\u043d\\u0444\\u043e\\u0440\\u043c\\u0430\\u0446\\u0438\\u044e \\u043e \\u043d\\u0438\\u0445, \\u0447\\u0442\\u043e\\u0431\\u044b \\u043c\\u043e\\u0436\\u043d\\u043e \\u0431\\u044b\\u043b\\u043e \\u0431\\u044b\\u0441\\u0442\\u0440\\u043e \\u0432\\u044b\\u0431\\u0440\\u0430\\u0442\\u044c \\u043f\\u043e\\u0434\\u0445\\u043e\\u0434\\u044f\\u0449\\u0435\\u0435 \\u043c\\u0435\\u0441\\u0442\\u043e.");
-setEmptyResultsState("\\u0420\\u0430\\u0437\\u0440\\u0435\\u0448\\u0438 \\u0433\\u0435\\u043e\\u043b\\u043e\\u043a\\u0430\\u0446\\u0438\\u044e, \\u0432\\u0432\\u0435\\u0434\\u0438 \\u0433\\u043e\\u0440\\u043e\\u0434 \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435 \\u0438\\u043b\\u0438 \\u043f\\u0440\\u0438\\u0431\\u043b\\u0438\\u0437\\u044c \\u0435\\u0451 \\u0438 \\u043d\\u0430\\u0436\\u043c\\u0438 \\u00ab\\u041e\\u0431\\u043d\\u043e\\u0432\\u0438\\u0442\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443\\u00bb.");
+setResultsPanelContext("Точки рядом с тобой", "Показываем ближайшие точки и короткую информацию о них, чтобы можно было быстро выбрать подходящее место.");
+setEmptyResultsState("Разреши геолокацию, введи город на карте или приблизь её и нажми \«Обновить карту\».");
 loadCitySuggestions();
 detectLocation();
 
