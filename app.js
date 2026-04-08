@@ -77,7 +77,7 @@ L.control.zoom({ position: "bottomright" }).addTo(map);
 
 map.createPane("coveragePane");
 map.getPane("coveragePane").style.zIndex = "350";
-map.getPane("coveragePane").style.opacity = "0.22";
+map.getPane("coveragePane").style.opacity = "0.34";
 map.getPane("coveragePane").style.pointerEvents = "none";
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -573,7 +573,7 @@ function renderShelters(points) {
         pane: "coveragePane",
         stroke: false,
         fill: true,
-        fillColor: "#6fcd84",
+        fillColor: "#49c86a",
         fillOpacity: 1,
         interactive: false
       }).addTo(map);
