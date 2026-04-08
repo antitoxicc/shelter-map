@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Админка укрытий</title>
+  <title>&#x410;&#x434;&#x43C;&#x438;&#x43D;&#x43A;&#x430; &#x443;&#x43A;&#x440;&#x44B;&#x442;&#x438;&#x439;</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
@@ -14,14 +14,14 @@
   <main class="admin-shell">
     <section class="hero-card admin-hero">
       <p class="eyebrow">Moderation</p>
-      <h1>Проверка пользовательских точек</h1>
-      <p class="hero-copy">После входа администратор может просматривать вложения, править описание и тип точки, а также вручную уточнять координаты прямо на карте перед публикацией.</p>
-      <a class="secondary-link" href="./index.html">Назад к карте</a>
+      <h1>&#x41F;&#x440;&#x43E;&#x432;&#x435;&#x440;&#x43A;&#x430; &#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x435;&#x43B;&#x44C;&#x441;&#x43A;&#x438;&#x445; &#x442;&#x43E;&#x447;&#x435;&#x43A;</h1>
+      <p class="hero-copy">&#x41F;&#x43E;&#x441;&#x43B;&#x435; &#x432;&#x445;&#x43E;&#x434;&#x430; &#x430;&#x434;&#x43C;&#x438;&#x43D;&#x438;&#x441;&#x442;&#x440;&#x430;&#x442;&#x43E;&#x440; &#x43C;&#x43E;&#x436;&#x435;&#x442; &#x43F;&#x440;&#x43E;&#x441;&#x43C;&#x430;&#x442;&#x440;&#x438;&#x432;&#x430;&#x442;&#x44C; &#x432;&#x43B;&#x43E;&#x436;&#x435;&#x43D;&#x438;&#x44F;, &#x43F;&#x440;&#x430;&#x432;&#x438;&#x442;&#x44C; &#x43E;&#x43F;&#x438;&#x441;&#x430;&#x43D;&#x438;&#x435; &#x438; &#x442;&#x438;&#x43F; &#x442;&#x43E;&#x447;&#x43A;&#x438;, &#x430; &#x442;&#x430;&#x43A;&#x436;&#x435; &#x432;&#x440;&#x443;&#x447;&#x43D;&#x443;&#x44E; &#x443;&#x442;&#x43E;&#x447;&#x43D;&#x44F;&#x442;&#x44C; &#x43A;&#x43E;&#x43E;&#x440;&#x434;&#x438;&#x43D;&#x430;&#x442;&#x44B; &#x43F;&#x440;&#x44F;&#x43C;&#x43E; &#x43D;&#x430; &#x43A;&#x430;&#x440;&#x442;&#x435; &#x43F;&#x435;&#x440;&#x435;&#x434; &#x43F;&#x443;&#x431;&#x43B;&#x438;&#x43A;&#x430;&#x446;&#x438;&#x435;&#x439;.</p>
+      <a class="secondary-link" href="./index.html">&#x41D;&#x430;&#x437;&#x430;&#x434; &#x43A; &#x43A;&#x430;&#x440;&#x442;&#x435;</a>
     </section>
 
     <section class="panel auth-panel">
       <div class="panel-heading">
-        <h2>Вход</h2>
+        <h2>&#x412;&#x445;&#x43E;&#x434;</h2>
         <span id="sessionBadge" class="count-pill muted">guest</span>
       </div>
       <form id="loginForm" class="suggest-form">
@@ -30,12 +30,12 @@
           <input id="emailInput" type="email" autocomplete="username" required />
         </label>
         <label>
-          Пароль
+          &#x41F;&#x430;&#x440;&#x43E;&#x43B;&#x44C;
           <input id="passwordInput" type="password" autocomplete="current-password" required />
         </label>
         <div class="hero-actions">
-          <button class="primary-button" type="submit">Войти</button>
-          <button id="logoutBtn" class="ghost-button" type="button">Выйти</button>
+          <button class="primary-button" type="submit">&#x412;&#x43E;&#x439;&#x442;&#x438;</button>
+          <button id="logoutBtn" class="ghost-button" type="button">&#x412;&#x44B;&#x439;&#x442;&#x438;</button>
         </div>
         <p id="authMessage" class="form-message"></p>
       </form>
@@ -44,31 +44,31 @@
     <section class="panel admin-workspace-panel">
       <div class="panel-heading admin-workspace-heading">
         <div>
-          <h2>Карта модерации</h2>
-          <p class="panel-copy">Выбирай точку на карте, двигай маркер и сохраняй правки без поиска в длинном списке.</p>
+          <h2>&#x41A;&#x430;&#x440;&#x442;&#x430; &#x43C;&#x43E;&#x434;&#x435;&#x440;&#x430;&#x446;&#x438;&#x438;</h2>
+          <p class="panel-copy">&#x412;&#x44B;&#x431;&#x438;&#x440;&#x430;&#x439; &#x442;&#x43E;&#x447;&#x43A;&#x443; &#x43D;&#x430; &#x43A;&#x430;&#x440;&#x442;&#x435;, &#x434;&#x432;&#x438;&#x433;&#x430;&#x439; &#x43C;&#x430;&#x440;&#x43A;&#x435;&#x440; &#x438; &#x441;&#x43E;&#x445;&#x440;&#x430;&#x43D;&#x44F;&#x439; &#x43F;&#x440;&#x430;&#x432;&#x43A;&#x438; &#x431;&#x435;&#x437; &#x43F;&#x43E;&#x438;&#x441;&#x43A;&#x430; &#x432; &#x434;&#x43B;&#x438;&#x43D;&#x43D;&#x43E;&#x43C; &#x441;&#x43F;&#x438;&#x441;&#x43A;&#x435;.</p>
         </div>
-        <div class="admin-map-filters" role="group" aria-label="Фильтр точек">
-          <button class="card-button is-active" type="button" data-map-filter="all">Все</button>
+        <div class="admin-map-filters" role="group" aria-label="&#x424;&#x438;&#x43B;&#x44C;&#x442;&#x440; &#x442;&#x43E;&#x447;&#x435;&#x43A;">
+          <button class="card-button is-active" type="button" data-map-filter="all">&#x412;&#x441;&#x435;</button>
           <button class="card-button" type="button" data-map-filter="pending">Pending</button>
           <button class="card-button" type="button" data-map-filter="approved">Approved</button>
-          <button id="createShelterBtn" class="card-button" type="button">Новая точка</button>
+          <button id="createShelterBtn" class="card-button" type="button">&#x41D;&#x43E;&#x432;&#x430;&#x44F; &#x442;&#x43E;&#x447;&#x43A;&#x430;</button>
         </div>
       </div>
       <div class="admin-workspace-grid">
         <div class="admin-map-shell">
-          <div id="adminMap" class="admin-master-map" aria-label="Карта убежищ" style="height:clamp(520px,72vh,900px);min-height:520px;"></div>
+          <div id="adminMap" class="admin-master-map" aria-label="&#x41A;&#x430;&#x440;&#x442;&#x430; &#x443;&#x431;&#x435;&#x436;&#x438;&#x449;" style="height:clamp(520px,72vh,900px);min-height:520px;"></div>
           <div class="admin-map-legend">
-            <span><i class="legend-dot pending"></i>Нужно проверить</span>
-            <span><i class="legend-dot approved"></i>Проверено</span>
-            <span><i class="legend-dot selected"></i>Выбрана</span>
+            <span><i class="legend-dot pending"></i>&#x41D;&#x443;&#x436;&#x43D;&#x43E; &#x43F;&#x440;&#x43E;&#x432;&#x435;&#x440;&#x438;&#x442;&#x44C;</span>
+            <span><i class="legend-dot approved"></i>&#x41F;&#x440;&#x43E;&#x432;&#x435;&#x440;&#x435;&#x43D;&#x43E;</span>
+            <span><i class="legend-dot selected"></i>&#x412;&#x44B;&#x431;&#x440;&#x430;&#x43D;&#x430;</span>
           </div>
         </div>
         <aside class="admin-details-panel">
           <div class="panel-heading">
-            <h2>Выбранная точка</h2>
+            <h2>&#x412;&#x44B;&#x431;&#x440;&#x430;&#x43D;&#x43D;&#x430;&#x44F; &#x442;&#x43E;&#x447;&#x43A;&#x430;</h2>
           </div>
           <div id="selectedShelterPanel" class="selected-shelter-panel">
-            <p class="empty-state">Войди и выбери точку на карте, чтобы редактировать её здесь.</p>
+            <p class="empty-state">&#x412;&#x43E;&#x439;&#x434;&#x438; &#x438; &#x432;&#x44B;&#x431;&#x435;&#x440;&#x438; &#x442;&#x43E;&#x447;&#x43A;&#x443; &#x43D;&#x430; &#x43A;&#x430;&#x440;&#x442;&#x435;, &#x447;&#x442;&#x43E;&#x431;&#x44B; &#x440;&#x435;&#x434;&#x430;&#x43A;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x442;&#x44C; &#x435;&#x451; &#x437;&#x434;&#x435;&#x441;&#x44C;.</p>
           </div>
         </aside>
       </div>
@@ -76,21 +76,21 @@
 
     <section class="panel">
       <div class="panel-heading">
-        <h2>Pending точки</h2>
+        <h2>Pending &#x442;&#x43E;&#x447;&#x43A;&#x438;</h2>
         <span id="pendingCount" class="count-pill">0</span>
       </div>
       <div id="pendingList" class="card-list">
-        <p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>
+        <p class="empty-state">&#x412;&#x43E;&#x439;&#x434;&#x438; &#x43A;&#x430;&#x43A; &#x430;&#x434;&#x43C;&#x438;&#x43D;&#x438;&#x441;&#x442;&#x440;&#x430;&#x442;&#x43E;&#x440;, &#x447;&#x442;&#x43E;&#x431;&#x44B; &#x443;&#x432;&#x438;&#x434;&#x435;&#x442;&#x44C; &#x43C;&#x43E;&#x434;&#x435;&#x440;&#x430;&#x446;&#x438;&#x44E;.</p>
       </div>
     </section>
 
     <section class="panel">
       <div class="panel-heading">
-        <h2>Уже опубликованные</h2>
+        <h2>&#x423;&#x436;&#x435; &#x43E;&#x43F;&#x443;&#x431;&#x43B;&#x438;&#x43A;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x435;</h2>
         <span id="approvedCount" class="count-pill">0</span>
       </div>
       <div id="approvedList" class="card-list">
-        <p class="empty-state">После входа здесь появится список подтверждённых точек.</p>
+        <p class="empty-state">&#x41F;&#x43E;&#x441;&#x43B;&#x435; &#x432;&#x445;&#x43E;&#x434;&#x430; &#x437;&#x434;&#x435;&#x441;&#x44C; &#x43F;&#x43E;&#x44F;&#x432;&#x438;&#x442;&#x441;&#x44F; &#x441;&#x43F;&#x438;&#x441;&#x43E;&#x43A; &#x43F;&#x43E;&#x434;&#x442;&#x432;&#x435;&#x440;&#x436;&#x434;&#x451;&#x43D;&#x43D;&#x44B;&#x445; &#x442;&#x43E;&#x447;&#x435;&#x43A;.</p>
       </div>
     </section>
   </main>
