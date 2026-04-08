@@ -14,6 +14,7 @@ const SHELTER_TYPE_LABELS = {
   kindergarten: "Детский сад",
   shopping_center: "Торговый центр",
   public_shelter: "Обычный миклат общественный",
+  parking: "Parking",
   migunit: "Мигунит",
   building_shelter: "Миклат в доме",
   public_mamad: "МАМАД общественный"
@@ -32,6 +33,7 @@ const passwordInput = document.getElementById("passwordInput");
 const adminMapElement = document.getElementById("adminMap");
 const selectedShelterPanel = document.getElementById("selectedShelterPanel");
 const mapFilterButtons = Array.from(document.querySelectorAll("[data-map-filter]"));
+const createShelterBtn = document.getElementById("createShelterBtn");
 
 const supabase = hasSupabaseConfig() ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -41,6 +43,10 @@ let allShelters = [];
 let selectedShelterId = null;
 let currentMapFilter = "all";
 let hasFitMapToData = false;
+let isAuthenticated = false;
+let isCreatingShelter = false;
+let newShelterDraft = null;
+let draftMarker = null;
 
 function formatAddress(address, city) {
   const addressText = String(address || "").trim();
@@ -118,13 +124,13 @@ function getNormalizedVerificationStatus(value) {
 function getVerificationLabel(value) {
   const normalizedValue = getNormalizedVerificationStatus(value);
   if (normalizedValue === "verified") {
-    return "????????????";
+    return "Подтверждено";
   }
   if (normalizedValue === "approximate") {
-    return "?????? ????? ?????";
+    return "Скорее всего верно";
   }
 
-  return "?? ?????????";
+  return "Не проверено";
 }
 
 function getShelterById(id) {
@@ -135,6 +141,87 @@ function setFilterButtonState() {
   mapFilterButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.mapFilter === currentMapFilter);
   });
+}
+
+function setCreateButtonState() {
+  if (!createShelterBtn) {
+    return;
+  }
+
+  createShelterBtn.classList.toggle("is-active", isCreatingShelter);
+  createShelterBtn.textContent = isCreatingShelter ? "Отменить создание" : "Новая точка";
+}
+
+function createEmptyShelterDraft(latitude = DEFAULT_CENTER[0], longitude = DEFAULT_CENTER[1]) {
+  return {
+    title: "",
+    address: "",
+    city: "",
+    source: "Добавлено через админку",
+    description: "",
+    shelter_type: "",
+    location_verification_status: "needs_review",
+    latitude,
+    longitude,
+    submitter_name: "",
+    submitter_contact: "",
+    media_url: null,
+    media_name: null,
+    status: "pending"
+  };
+}
+
+function updateDraftCoordinates(lat, lng, options = {}) {
+  if (!newShelterDraft || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return;
+  }
+
+  newShelterDraft.latitude = lat;
+  newShelterDraft.longitude = lng;
+  updateActiveCoordsInputs(lat, lng);
+
+  if (options.render !== false) {
+    renderAdminMap();
+  }
+
+  if (options.center !== false && adminMap) {
+    adminMap.setView([lat, lng], Math.max(adminMap.getZoom(), 15));
+  }
+}
+
+function startCreateShelter(latlng) {
+  if (!supabase) {
+    setAuthMessage("Сначала настрой Supabase в ./supabase-config.js.", true);
+    return;
+  }
+
+  if (!isAuthenticated) {
+    setAuthMessage("Войди как администратор, чтобы добавлять новые точки.", true);
+    return;
+  }
+
+  const latitude = Number.isFinite(latlng?.lat) ? latlng.lat : adminMap?.getCenter().lat ?? DEFAULT_CENTER[0];
+  const longitude = Number.isFinite(latlng?.lng) ? latlng.lng : adminMap?.getCenter().lng ?? DEFAULT_CENTER[1];
+
+  selectedShelterId = null;
+  isCreatingShelter = true;
+  newShelterDraft = createEmptyShelterDraft(latitude, longitude);
+  setCreateButtonState();
+  renderLists();
+  renderSelectedShelterPanel();
+  renderAdminMap();
+
+  if (adminMap) {
+    adminMap.setView([latitude, longitude], Math.max(adminMap.getZoom(), 15));
+  }
+}
+
+function cancelCreateShelter() {
+  isCreatingShelter = false;
+  newShelterDraft = null;
+  setCreateButtonState();
+  renderSelectedShelterPanel();
+  renderAdminMap();
 }
 
 function getFilteredShelters() {
@@ -182,6 +269,14 @@ function initAdminMap() {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(adminMap);
 
+  adminMap.on("click", (event) => {
+    if (!isCreatingShelter) {
+      return;
+    }
+
+    updateDraftCoordinates(event.latlng.lat, event.latlng.lng);
+  });
+
   setTimeout(() => {
     adminMap?.invalidateSize();
   }, 0);
@@ -209,6 +304,10 @@ function renderAdminMap() {
 
   adminMap.invalidateSize();
   clearAdminMarkers();
+  if (draftMarker) {
+    draftMarker.remove();
+    draftMarker = null;
+  }
 
   const visibleShelters = getFilteredShelters();
   visibleShelters.forEach((row) => {
@@ -238,8 +337,30 @@ function renderAdminMap() {
     adminMarkers.push(marker);
   });
 
+  if (isCreatingShelter && newShelterDraft) {
+    draftMarker = L.marker([newShelterDraft.latitude, newShelterDraft.longitude], {
+      icon: createMarkerIcon(newShelterDraft.location_verification_status, true),
+      draggable: true
+    }).addTo(adminMap);
+
+    draftMarker.on("dragend", () => {
+      const { lat, lng } = draftMarker.getLatLng();
+      updateDraftCoordinates(lat, lng, { render: false, center: false });
+    });
+
+    draftMarker.bindPopup(`
+      <strong>Новая точка</strong>
+      <br />Кликни по карте или перетащи маркер
+      <br />и затем заполни форму справа.
+    `);
+  }
+
   if (!visibleShelters.length) {
-    adminMap.setView(DEFAULT_CENTER, DEFAULT_ADMIN_MAP_ZOOM);
+    if (isCreatingShelter && newShelterDraft) {
+      adminMap.setView([newShelterDraft.latitude, newShelterDraft.longitude], Math.max(adminMap.getZoom(), 15));
+    } else {
+      adminMap.setView(DEFAULT_CENTER, DEFAULT_ADMIN_MAP_ZOOM);
+    }
     return;
   }
 
@@ -264,9 +385,87 @@ function renderTypeOptions(selectedType) {
 function renderLocationVerificationOptions(selectedValue) {
   const normalizedValue = getNormalizedVerificationStatus(selectedValue);
   return `
-    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>????????????</option>
-    <option value="approximate"${normalizedValue === "approximate" ? " selected" : ""}>?????? ????? ?????</option>
-    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>?? ?????????</option>
+    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>Подтверждено</option>
+    <option value="approximate"${normalizedValue === "approximate" ? " selected" : ""}>Скорее всего верно</option>
+    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>Не проверено</option>
+  `;
+}
+
+function renderCreateShelterPanel() {
+  const row = newShelterDraft || createEmptyShelterDraft();
+
+  selectedShelterPanel.innerHTML = `
+    <article class="selected-shelter-card">
+      <h3>Новая точка на карте</h3>
+      <p class="panel-copy">Кликни по большой карте или перетащи маркер, затем заполни карточку и сохрани новую точку.</p>
+      <div class="badge-row">
+        <span class="status-badge pending">pending</span>
+      </div>
+      <form class="admin-edit-form selected-edit-form" data-create-form="true">
+        <label>
+          Название
+          <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
+        </label>
+        <label>
+          Адрес
+          <input name="address" value="${escapeHtml(row.address || "")}" maxlength="200" required />
+        </label>
+        <label>
+          Город
+          <input name="city" value="${escapeHtml(row.city || "")}" maxlength="120" required />
+        </label>
+        <label>
+          Источник
+          <input name="source" value="${escapeHtml(row.source || "")}" maxlength="200" required />
+        </label>
+        <label>
+          Тип точки
+          <select name="shelter_type" required>
+            <option value="">Не указано</option>
+            ${renderTypeOptions(row.shelter_type || "")}
+          </select>
+        </label>
+        <label>
+          Точность местоположения
+          <select name="location_verification_status" required>
+            ${renderLocationVerificationOptions(row.location_verification_status)}
+          </select>
+        </label>
+        <label>
+          Описание
+          <textarea name="description" rows="5" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
+        </label>
+        <div class="grid-two">
+          <label>
+            Широта
+            <input name="latitude" value="${escapeHtml(row.latitude)}" inputmode="decimal" required />
+          </label>
+          <label>
+            Долгота
+            <input name="longitude" value="${escapeHtml(row.longitude)}" inputmode="decimal" required />
+          </label>
+        </div>
+        <p class="form-hint">Новая точка создаётся со статусом pending. После сохранения её можно будет сразу отредактировать или опубликовать.</p>
+        <div class="grid-two">
+          <label>
+            Имя
+            <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
+          </label>
+          <label>
+            Контакт
+            <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
+          </label>
+        </div>
+        <label>
+          Вложение
+          <input name="media" type="file" accept="image/*,video/*" />
+        </label>
+        <div class="card-actions">
+          <button class="card-button approve" type="submit">Создать точку</button>
+          <button class="card-button" type="button" data-action="cancel-create">Отменить</button>
+        </div>
+      </form>
+    </article>
   `;
 }
 
@@ -276,9 +475,19 @@ function renderSelectedShelterPanel() {
     return;
   }
 
+  if (!isAuthenticated) {
+    selectedShelterPanel.innerHTML = '<p class="empty-state">Войди как администратор, чтобы открыть карту модерации, добавлять точки и редактировать существующие.</p>';
+    return;
+  }
+
+  if (isCreatingShelter) {
+    renderCreateShelterPanel();
+    return;
+  }
+
   const row = getShelterById(selectedShelterId);
   if (!row) {
-    selectedShelterPanel.innerHTML = '<p class="empty-state">Выбери точку на карте или из списка ниже. После выбора здесь появится форма редактирования.</p>';
+    selectedShelterPanel.innerHTML = '<p class="empty-state">Выбери точку на карте или из списка ниже либо нажми "Новая точка", чтобы добавить убежище вручную.</p>';
     return;
   }
 
@@ -422,7 +631,7 @@ function renderLists() {
   renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "Подтверждённых точек пока нет." });
 }
 
-function updateSelectedCoordsInputs(lat, lng) {
+function updateActiveCoordsInputs(lat, lng) {
   const latInput = selectedShelterPanel.querySelector('input[name="latitude"]');
   const lngInput = selectedShelterPanel.querySelector('input[name="longitude"]');
 
@@ -434,8 +643,8 @@ function updateSelectedCoordsInputs(lat, lng) {
   lngInput.value = lng.toFixed(7);
 }
 
-function syncSelectedMarkerFromInputs() {
-  if (!adminMap || !selectedShelterId) {
+function syncActiveMarkerFromInputs() {
+  if (!adminMap) {
     return;
   }
 
@@ -445,6 +654,15 @@ function syncSelectedMarkerFromInputs() {
   const nextLng = Number(String(lngInput?.value || "").replace(",", "."));
 
   if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng)) {
+    return;
+  }
+
+  if (isCreatingShelter && newShelterDraft) {
+    updateDraftCoordinates(nextLat, nextLng, { center: false });
+    return;
+  }
+
+  if (!selectedShelterId) {
     return;
   }
 
@@ -464,7 +682,10 @@ function selectShelter(id, options = {}) {
     return;
   }
 
+  isCreatingShelter = false;
+  newShelterDraft = null;
   selectedShelterId = id;
+  setCreateButtonState();
   renderLists();
   renderSelectedShelterPanel();
   renderAdminMap();
@@ -522,9 +743,17 @@ async function loadShelters() {
 
 function resetAdminViewForGuest() {
   clearAdminMarkers();
+  if (draftMarker) {
+    draftMarker.remove();
+    draftMarker = null;
+  }
+  isAuthenticated = false;
+  isCreatingShelter = false;
+  newShelterDraft = null;
   selectedShelterId = null;
   allShelters = [];
   hasFitMapToData = false;
+  setCreateButtonState();
   selectedShelterPanel.innerHTML = '<p class="empty-state">Войди как администратор, чтобы открыть карту модерации и редактирование точек.</p>';
   pendingList.innerHTML = '<p class="empty-state">Войди как администратор, чтобы увидеть модерацию.</p>';
   approvedList.innerHTML = '<p class="empty-state">После входа здесь появится список подтверждённых точек.</p>';
@@ -548,6 +777,8 @@ async function refreshSession() {
     return;
   }
 
+  isAuthenticated = true;
+  setCreateButtonState();
   sessionBadge.textContent = session.user.email || "admin";
   await loadShelters();
 }
@@ -615,6 +846,7 @@ async function saveShelterEdits(form) {
     return;
   }
 
+  const isCreateForm = form.hasAttribute("data-create-form");
   const shelterId = form.dataset.selectedEditForm || form.dataset.editForm;
   const formData = new FormData(form);
   const latitude = Number(String(formData.get("latitude") || "").trim().replace(",", "."));
@@ -645,28 +877,63 @@ async function saveShelterEdits(form) {
   }
 
   try {
-    setAuthMessage(file ? "Загружаем вложение и сохраняем изменения..." : "Сохраняем изменения...");
+    setAuthMessage(file
+      ? isCreateForm
+        ? "Загружаем вложение и создаём точку..."
+        : "Загружаем вложение и сохраняем изменения..."
+      : isCreateForm
+        ? "Создаём новую точку..."
+        : "Сохраняем изменения...");
     if (file) {
       const mediaPayload = await uploadMediaFile(file);
       Object.assign(payload, mediaPayload);
     }
 
-    const { error } = await supabase.from("shelters").update(payload).eq("id", shelterId);
-    if (error) {
-      throw new Error(error.message);
+    if (isCreateForm) {
+      const { data, error } = await supabase
+        .from("shelters")
+        .insert({
+          ...payload,
+          status: "pending"
+        })
+        .select("id")
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      selectedShelterId = data?.id || null;
+      isCreatingShelter = false;
+      newShelterDraft = null;
+      setCreateButtonState();
+    } else {
+      const { error } = await supabase.from("shelters").update(payload).eq("id", shelterId);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      selectedShelterId = shelterId;
     }
   } catch (error) {
     setAuthMessage(`Не удалось сохранить правки: ${error.message}`, true);
     return;
   }
 
-  selectedShelterId = shelterId;
-  setAuthMessage("Изменения сохранены.");
+  setAuthMessage(isCreateForm ? "Новая точка создана." : "Изменения сохранены.");
   await loadShelters();
 }
 
 loginForm.addEventListener("submit", handleLogin);
 logoutBtn.addEventListener("click", handleLogout);
+createShelterBtn?.addEventListener("click", () => {
+  if (isCreatingShelter) {
+    cancelCreateShelter();
+    return;
+  }
+
+  startCreateShelter();
+});
 
 mapFilterButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -678,7 +945,7 @@ mapFilterButtons.forEach((button) => {
 });
 
 document.addEventListener("submit", async (event) => {
-  const form = event.target.closest("[data-selected-edit-form], [data-edit-form]");
+  const form = event.target.closest("[data-selected-edit-form], [data-edit-form], [data-create-form]");
   if (!form) {
     return;
   }
@@ -689,12 +956,12 @@ document.addEventListener("submit", async (event) => {
 
 document.addEventListener("input", (event) => {
   const field = event.target;
-  if (!field.closest("[data-selected-edit-form]")) {
+  if (!field.closest("[data-selected-edit-form], [data-create-form]")) {
     return;
   }
 
   if (field.name === "latitude" || field.name === "longitude") {
-    syncSelectedMarkerFromInputs();
+    syncActiveMarkerFromInputs();
   }
 });
 
@@ -712,6 +979,11 @@ document.addEventListener("click", async (event) => {
 
   if (button.dataset.action === "edit" || button.dataset.action === "select-from-popup") {
     selectShelter(button.dataset.id);
+    return;
+  }
+
+  if (button.dataset.action === "cancel-create") {
+    cancelCreateShelter();
     return;
   }
 
@@ -741,9 +1013,12 @@ window.addEventListener("resize", () => {
 });
 
 setFilterButtonState();
+setCreateButtonState();
 initAdminMap();
 renderSelectedShelterPanel();
 refreshSession();
+
+
 
 
 
