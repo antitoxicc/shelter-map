@@ -718,9 +718,6 @@ select {
   word-break: break-word;
 }
 
-.coverage-zone {
-  mix-blend-mode: lighten;
-}
 
 .admin-edit-form {
   margin-top: 16px;

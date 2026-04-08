@@ -6,6 +6,19 @@ const DEFAULT_ADMIN_MAP_ZOOM = 13;
 const MEDIA_BUCKET = "shelter-media";
 const MAX_MEDIA_SIZE_BYTES = 25 * 1024 * 1024;
 const SUPABASE_PAGE_SIZE = 1000;
+const MARKER_ICON_BASE_PATH = "marker-icons";
+const MARKER_ICON_TYPES = new Set([
+  "building_shelter",
+  "hospital",
+  "kindergarten",
+  "migunit",
+  "parking",
+  "public_mamad",
+  "public_shelter",
+  "school",
+  "shopping_center",
+  "synagogue"
+]);
 
 const SHELTER_TYPE_LABELS = {
   school: "\\u0428\\u043a\\u043e\\u043b\\u0430",
@@ -232,8 +245,18 @@ function getFilteredShelters() {
   return allShelters.filter((row) => row.status === currentMapFilter);
 }
 
-function createMarkerIcon(status, isSelected) {
+function getMarkerIconPath(shelterType, verificationStatus) {
+  const normalizedType = String(shelterType || "").trim().toLowerCase();
+  if (!MARKER_ICON_TYPES.has(normalizedType)) {
+    return null;
+  }
+
+  return `${MARKER_ICON_BASE_PATH}/${normalizedType}-${getNormalizedVerificationStatus(verificationStatus)}.png`;
+}
+
+function createMarkerIcon(shelterType, status, isSelected) {
   const normalizedStatus = getNormalizedVerificationStatus(status);
+  const iconPath = getMarkerIconPath(shelterType, status);
   const color = isSelected
     ? "#1f6feb"
     : normalizedStatus === "verified"
@@ -248,6 +271,16 @@ function createMarkerIcon(status, isSelected) {
       : normalizedStatus === "approximate"
         ? "0 10px 24px rgba(183,129,3,0.2)"
         : "0 10px 24px rgba(200,75,49,0.2)";
+
+  if (iconPath) {
+    return L.divIcon({
+      className: "custom-marker",
+      html: `<div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;"><img src="${iconPath}" alt="" style="width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(20,24,28,0.22));${isSelected ? "box-shadow:0 0 0 6px rgba(31,111,235,0.18);border-radius:999px;" : ""}" /></div>`,
+      iconSize: [48, 48],
+      iconAnchor: [24, 40],
+      popupAnchor: [0, -30]
+    });
+  }
 
   return L.divIcon({
     className: "custom-marker",
@@ -313,7 +346,7 @@ function renderAdminMap() {
   visibleShelters.forEach((row) => {
     const isSelected = row.id === selectedShelterId;
     const marker = L.marker([row.latitude, row.longitude], {
-      icon: createMarkerIcon(row.location_verification_status, isSelected),
+      icon: createMarkerIcon(row.shelter_type, row.location_verification_status, isSelected),
       draggable: isSelected
     }).addTo(adminMap);
 
@@ -339,7 +372,7 @@ function renderAdminMap() {
 
   if (isCreatingShelter && newShelterDraft) {
     draftMarker = L.marker([newShelterDraft.latitude, newShelterDraft.longitude], {
-      icon: createMarkerIcon(newShelterDraft.location_verification_status, true),
+      icon: createMarkerIcon(newShelterDraft.shelter_type, newShelterDraft.location_verification_status, true),
       draggable: true
     }).addTo(adminMap);
 

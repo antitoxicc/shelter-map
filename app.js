@@ -11,6 +11,19 @@ const VERIFIED_SHELTER_COVERAGE_RADIUS_METERS = 200;
 const MAX_BOUNDS_LAT_SPAN = 0.45;
 const MAX_BOUNDS_LNG_SPAN = 0.45;
 const MAX_LIST_RESULTS = 12;
+const MARKER_ICON_BASE_PATH = "marker-icons";
+const MARKER_ICON_TYPES = new Set([
+  "building_shelter",
+  "hospital",
+  "kindergarten",
+  "migunit",
+  "parking",
+  "public_mamad",
+  "public_shelter",
+  "school",
+  "shopping_center",
+  "synagogue"
+]);
 const SHELTER_TYPE_LABELS = {
   school: "Школа",
   hospital: "Больница",
@@ -62,6 +75,11 @@ const mapMobileLegend = document.querySelector(".map-mobile-legend");
 const map = L.map("map", { zoomControl: false }).setView(DEFAULT_CENTER, 13);
 L.control.zoom({ position: "bottomright" }).addTo(map);
 
+map.createPane("coveragePane");
+map.getPane("coveragePane").style.zIndex = "350";
+map.getPane("coveragePane").style.opacity = "0.22";
+map.getPane("coveragePane").style.pointerEvents = "none";
+
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
@@ -85,6 +103,39 @@ function createShelterIcon(verificationStatus) {
     iconSize: [22, 22],
     iconAnchor: [11, 22],
     popupAnchor: [0, -18]
+  });
+}
+
+function getNormalizedVerificationStatus(value) {
+  const normalizedValue = String(value || "").trim().toLowerCase();
+  if (normalizedValue === "verified" || normalizedValue === "approximate") {
+    return normalizedValue;
+  }
+
+  return "needs_review";
+}
+
+function getMarkerIconPath(shelterType, verificationStatus) {
+  const normalizedType = String(shelterType || "").trim().toLowerCase();
+  if (!MARKER_ICON_TYPES.has(normalizedType)) {
+    return null;
+  }
+
+  return `${MARKER_ICON_BASE_PATH}/${normalizedType}-${getNormalizedVerificationStatus(verificationStatus)}.png`;
+}
+
+function createShelterImageIcon(shelterType, verificationStatus) {
+  const iconPath = getMarkerIconPath(shelterType, verificationStatus);
+  if (!iconPath) {
+    return null;
+  }
+
+  return L.divIcon({
+    className: "custom-marker",
+    html: `<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;"><img src="${iconPath}" alt="" style="width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(20,24,28,0.22));" /></div>`,
+    iconSize: [44, 44],
+    iconAnchor: [22, 38],
+    popupAnchor: [0, -30]
   });
 }
 
@@ -495,7 +546,7 @@ function renderShelters(points) {
     `;
 
     const marker = L.marker([point.latitude, point.longitude], {
-      icon: createShelterIcon(verificationStatus)
+      icon: createShelterImageIcon(point.shelter_type, verificationStatus) || createShelterIcon(verificationStatus)
     })
       .addTo(map)
       .bindPopup(popupHtml, { className: "shelter-popup" });
@@ -505,11 +556,11 @@ function renderShelters(points) {
     if (verificationStatus === "verified") {
       const coverageCircle = L.circle([point.latitude, point.longitude], {
         radius: VERIFIED_SHELTER_COVERAGE_RADIUS_METERS,
-        className: "coverage-zone",
+        pane: "coveragePane",
         stroke: false,
         fill: true,
         fillColor: "#6fcd84",
-        fillOpacity: 0.22,
+        fillOpacity: 1,
         interactive: false
       }).addTo(map);
 
