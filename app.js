@@ -269,7 +269,7 @@ function toSentenceCase(value) {
 function getReadableDescription(rawDescription) {
   const normalized = normalizeDescriptionText(rawDescription);
   if (!normalized) {
-    return "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾.";
+    return "Описание не указано.";
   }
 
   const preferredPatterns = [
@@ -294,7 +294,7 @@ function getReadableDescription(rawDescription) {
     .filter((part) => !/^(Imported at source|Source object id|Source unique id|Source shelter number|Source category|Source type|Manager|Mobile|Filter system|Internal education shelter|Operational status|Accessibility|Is open|Opening times?)\b/i.test(part));
 
   if (!stripped.length) {
-    return "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾.";
+    return "Описание не указано.";
   }
 
   const joined = stripped.slice(0, 2).join(". ");
@@ -313,7 +313,7 @@ function getCompactSource(source) {
   const label = labelBase.length > 80 ? `${labelBase.slice(0, 77).trim()}...` : labelBase;
 
   return {
-    label: label || "ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº",
+    label: label || "Открыть источник",
     url,
     fullText: sourceText
   };
@@ -477,12 +477,12 @@ async function loadCitySuggestions() {
 function renderNearbyCards(points, totalCount = points.length) {
   nearbyCount.textContent = String(totalCount);
   if (!points.length) {
-    nearbyList.innerHTML = '<p class="empty-state">ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ñ‘Ð½Ð½Ñ‹Ðµ Ñ‚Ð¾Ñ‡ÐºÐ¸ Ð¿Ð¾ÐºÐ° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ñ‹.</p>';
+    nearbyList.innerHTML = '<p class="empty-state">Подтвержденные точки пока не найдены.</p>';
     return;
   }
 
   nearbyList.innerHTML = points.map((point) => {
-    const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Ð‘ÐµÐ· Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ñ";
+    const distance = point.distanceMeters ? formatDistance(point.distanceMeters) : "Без расстояния";
     const address = formatAddress(point.address, point.city);
     const rawVerificationStatus = String(point.location_verification_status || "needs_review").trim().toLowerCase();
     const verificationStatus = rawVerificationStatus === "verified" || rawVerificationStatus === "approximate"
@@ -531,15 +531,15 @@ function renderShelters(points) {
       : "needs_review";
     const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
     const verificationLabel = getNormalizedVerificationLabel(verificationStatus);
-    const popupDescription = escapeHtml(description || "ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾");
+    const popupDescription = escapeHtml(description || "Описание не указано");
     const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
     const mediaAction = point.media_url
-      ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ</a>`
+      ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
       : "";
     const sourceLine = sourceMeta
       ? sourceMeta.url
-        ? `<div class="meta-line">Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº: <a class="source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">${escapeHtml(sourceMeta.label)}</a></div>`
-        : `<div class="meta-line">Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº: ${escapeHtml(sourceMeta.label)}</div>`
+        ? `<div class="meta-line">Источник: <a class="source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">${escapeHtml(sourceMeta.label)}</a></div>`
+        : `<div class="meta-line">Источник: ${escapeHtml(sourceMeta.label)}</div>`
       : "";
     const popupHtml = `
       <article class="map-popup-card">
@@ -588,7 +588,7 @@ function updateUserMarker(coords) {
     map.removeLayer(userMarker);
   }
 
-  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup(normalizeUiText("Ð¢Ñ‹ Ð·Ð´ÐµÑÑŒ"));
+  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup("Ты здесь");
 }
 
 function fitMapToPoints(points, options = {}) {
@@ -620,18 +620,18 @@ function sortByDistance(points, coords, limit = MAX_NEARBY) {
 function getSubmissionCoords() {
   if (suggestMarker) {
     const coords = suggestMarker.getLatLng();
-    return {
-      lat: coords.lat,
-      lng: coords.lng,
-      sourceLabel: "Ð¿Ð¾ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½Ð¾Ð¼Ñƒ Ñ„Ð»Ð°Ð¶ÐºÑƒ Ð½Ð° ÐºÐ°Ñ€Ñ‚Ðµ"
-    };
+      return {
+        lat: coords.lat,
+        lng: coords.lng,
+        sourceLabel: "по выбранному флажку на карте"
+      };
   }
 
   if (userCoords) {
     return {
       lat: userCoords.lat,
       lng: userCoords.lng,
-      sourceLabel: "Ð¿Ð¾ Ñ‚Ð²Ð¾ÐµÐ¹ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ð³ÐµÐ¾Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸"
+      sourceLabel: "по твоей текущей геопозиции"
     };
   }
 
@@ -639,13 +639,13 @@ function getSubmissionCoords() {
   return {
     lat: center.lat,
     lng: center.lng,
-    sourceLabel: "Ð¿Ð¾ Ñ†ÐµÐ½Ñ‚Ñ€Ñƒ ÐºÐ°Ñ€Ñ‚Ñ‹"
+    sourceLabel: "по центру карты"
   };
 }
 
 function updateLocationHint() {
   const coords = getSubmissionCoords();
-  locationHint.textContent = normalizeUiText(`Ð¢Ð¾Ñ‡ÐºÐ° Ð±ÑƒÐ´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð° ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`);
+  locationHint.textContent = `Точка будет сохранена ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
 }
 
 function updateSuggestUserMarker() {
@@ -751,8 +751,8 @@ function openDetailsModal(pointId) {
   const shelterTypeLabel = getShelterTypeLabel(point.shelter_type);
   const gmUrl = `https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`;
   const distanceText = point.distanceMeters ? formatDistance(point.distanceMeters) : null;
-  const mediaAction = point.media_url
-    ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ</a>`
+    const mediaAction = point.media_url
+    ? `<a class="card-link" href="${escapeHtml(point.media_url)}" target="_blank" rel="noreferrer">Открыть вложение</a>`
     : "";
 
   detailsModalContent.innerHTML = `
@@ -765,7 +765,7 @@ function openDetailsModal(pointId) {
         <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
       </div>
       <section class="details-section">
-        <h4>ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ</h4>
+        <h4>Описание</h4>
         <p>${escapeHtml(description)}</p>
       </section>
       ${sourceMeta ? `
