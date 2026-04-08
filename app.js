@@ -505,10 +505,11 @@ function renderShelters(points) {
     if (verificationStatus === "verified") {
       const coverageCircle = L.circle([point.latitude, point.longitude], {
         radius: VERIFIED_SHELTER_COVERAGE_RADIUS_METERS,
+        className: "coverage-zone",
         stroke: false,
         fill: true,
-        fillColor: "#9ddaa7",
-        fillOpacity: 0.12,
+        fillColor: "#6fcd84",
+        fillOpacity: 0.22,
         interactive: false
       }).addTo(map);
 
