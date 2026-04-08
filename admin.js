@@ -1,4 +1,4 @@
-﻿import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from "./supabase-config.js";
 
 const DEFAULT_CENTER = [32.0853, 34.7818];
@@ -6,7 +6,7 @@ const DEFAULT_ADMIN_MAP_ZOOM = 13;
 const MEDIA_BUCKET = "shelter-media";
 const MAX_MEDIA_SIZE_BYTES = 25 * 1024 * 1024;
 const SUPABASE_PAGE_SIZE = 1000;
-const MARKER_ICON_BASE_URL = new URL("./marker-icons/", import.meta.url).href;
+const MARKER_ICON_BASE_URL = new URL("./", import.meta.url).href;
 const MARKER_ICON_TYPES = new Set([
   "building_shelter",
   "hospital",

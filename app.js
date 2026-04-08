@@ -11,7 +11,7 @@ const VERIFIED_SHELTER_COVERAGE_RADIUS_METERS = 200;
 const MAX_BOUNDS_LAT_SPAN = 0.45;
 const MAX_BOUNDS_LNG_SPAN = 0.45;
 const MAX_LIST_RESULTS = 12;
-const MARKER_ICON_BASE_URL = new URL("./marker-icons/", import.meta.url).href;
+const MARKER_ICON_BASE_URL = new URL("./", import.meta.url).href;
 const MARKER_ICON_TYPES = new Set([
   "building_shelter",
   "hospital",
@@ -25,22 +25,22 @@ const MARKER_ICON_TYPES = new Set([
   "synagogue"
 ]);
 const SHELTER_TYPE_LABELS = {
-  school: "Ð¨ÐºÐ¾Ð»Ð°",
-  hospital: "Ð‘Ð¾Ð»ÑŒÐ½Ð¸Ñ†Ð°",
-  synagogue: "Ð¡Ð¸Ð½Ð°Ð³Ð¾Ð³Ð°",
-  kindergarten: "Ð”ÐµÑ‚ÑÐºÐ¸Ð¹ ÑÐ°Ð´",
-  shopping_center: "Ð¢Ð¾Ñ€Ð³Ð¾Ð²Ñ‹Ð¹ Ñ†ÐµÐ½Ñ‚Ñ€",
-  public_shelter: "ÐžÐ±Ñ‹Ñ‡Ð½Ñ‹Ð¹ Ð¼Ð¸ÐºÐ»Ð°Ñ‚ Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹",
-  parking: "Parking",
-  migunit: "ÐœÐ¸Ð³ÑƒÐ½Ð¸Ñ‚",
-  building_shelter: "ÐœÐ¸ÐºÐ»Ð°Ñ‚ Ð² Ð´Ð¾Ð¼Ðµ",
-  public_mamad: "ÐœÐÐœÐÐ” Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹"
+  school: "\u0428\u043a\u043e\u043b\u0430",
+  hospital: "\u0411\u043e\u043b\u044c\u043d\u0438\u0446\u0430",
+  synagogue: "\u0421\u0438\u043d\u0430\u0433\u043e\u0433\u0430",
+  kindergarten: "\u0414\u0435\u0442\u0441\u043a\u0438\u0439 \u0441\u0430\u0434",
+  shopping_center: "\u0422\u043e\u0440\u0433\u043e\u0432\u044b\u0439 \u0446\u0435\u043d\u0442\u0440",
+  public_shelter: "\u041e\u0431\u044b\u0447\u043d\u044b\u0439 \u043c\u0438\u043a\u043b\u0430\u0442 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439",
+  parking: "\u041f\u0430\u0440\u043a\u043e\u0432\u043a\u0430",
+  migunit: "\u041c\u0438\u0433\u0443\u043d\u0438\u0442",
+  building_shelter: "\u041c\u0438\u043a\u043b\u0430\u0442 \u0432 \u0434\u043e\u043c\u0435",
+  public_mamad: "\u041c\u0410\u041c\u0410\u0414 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439"
 };
 
 const LOCATION_VERIFICATION_LABELS = {
-  verified: "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¾",
-  approximate: "Ð¡ÐºÐ¾Ñ€ÐµÐµ Ð²ÑÐµÐ³Ð¾ Ð²ÐµÑ€Ð½Ð¾",
-  needs_review: "ÐÐµ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾"
+  verified: "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u043e",
+  approximate: "\u0421\u043a\u043e\u0440\u0435\u0435 \u0432\u0441\u0435\u0433\u043e \u0432\u0435\u0440\u043d\u043e",
+  needs_review: "\u041d\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e"
 };
 
 const statusMessage = document.getElementById("statusMessage");
@@ -132,7 +132,7 @@ function createShelterImageIcon(shelterType, verificationStatus) {
 
   return L.divIcon({
     className: "custom-marker",
-    html: `<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;"><img src="${iconPath}" alt="" style="width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(20,24,28,0.22));" /></div>`,
+    html: `<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;"><img src="${iconPath}" alt="" style="width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(20,24,28,0.22));" onerror="this.onerror=null;this.outerHTML='<div style=&quot;width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${verificationStatus === "verified" ? "#17594a" : verificationStatus === "approximate" ? "#b78103" : "#9aa0a6"};border:3px solid #fffaf2;box-shadow:0 10px 24px rgba(20,24,28,0.22);&quot;></div>';" /></div>`,
     iconSize: [44, 44],
     iconAnchor: [22, 38],
     popupAnchor: [0, -30]
@@ -142,13 +142,13 @@ function createShelterImageIcon(shelterType, verificationStatus) {
 function getNormalizedVerificationLabel(value) {
   const normalizedValue = String(value || "").trim().toLowerCase();
   if (normalizedValue === "verified") {
-    return "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¾";
+    return "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u043e";
   }
   if (normalizedValue === "approximate") {
-    return "Ð¡ÐºÐ¾Ñ€ÐµÐµ Ð²ÑÐµÐ³Ð¾ Ð²ÐµÑ€Ð½Ð¾";
+    return "\u0421\u043a\u043e\u0440\u0435\u0435 \u0432\u0441\u0435\u0433\u043e \u0432\u0435\u0440\u043d\u043e";
   }
 
-  return "ÐÐµ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾";
+  return "\u041d\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e";
 }
 
 const userIcon = L.divIcon({
@@ -179,31 +179,44 @@ let suggestMarker = null;
 let suggestUserMarker = null;
 let availableCities = [];
 
+function normalizeUiText(value) {
+  const text = String(value ?? "");
+  if (!/[ÐÑ]/.test(text)) {
+    return text;
+  }
+
+  try {
+    return decodeURIComponent(escape(text));
+  } catch {
+    return text;
+  }
+}
+
 function setStatus(message, isError = false) {
-  statusMessage.textContent = message;
+  statusMessage.textContent = normalizeUiText(message);
   statusMessage.style.color = isError ? "var(--danger)" : "";
 }
 
 function setFormMessage(message, isError = false) {
-  formMessage.textContent = message;
+  formMessage.textContent = normalizeUiText(message);
   formMessage.style.color = isError ? "var(--danger)" : "";
 }
 
 function formatDistance(distanceMeters) {
   if (distanceMeters < 1000) {
-    return `${Math.round(distanceMeters)} Ð¼`;
+    return `${Math.round(distanceMeters)} \u043c`;
   }
 
-  return `${(distanceMeters / 1000).toFixed(1)} ÐºÐ¼`;
+  return `${(distanceMeters / 1000).toFixed(1)} \u043a\u043c`;
 }
 
 function setResultsPanelContext(title, copy) {
   if (resultsPanelTitle) {
-    resultsPanelTitle.textContent = title;
+    resultsPanelTitle.textContent = normalizeUiText(title);
   }
 
   if (resultsPanelCopy) {
-    resultsPanelCopy.textContent = copy;
+    resultsPanelCopy.textContent = normalizeUiText(copy);
   }
 }
 
@@ -218,7 +231,7 @@ function calculateDistanceMeters(from, to) {
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return normalizeUiText(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -342,11 +355,11 @@ function getBoundsCenter(bounds) {
 }
 
 function getShelterTypeLabel(type) {
-  return SHELTER_TYPE_LABELS[type] || "Ð¢Ð¸Ð¿ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½";
+  return SHELTER_TYPE_LABELS[type] || "\u0422\u0438\u043f \u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d";
 }
 
 function getLocationVerificationLabel(value) {
-  return LOCATION_VERIFICATION_LABELS[value] || "Ð¢Ñ€ÐµÐ±ÑƒÐµÑ‚ Ñ€ÑƒÑ‡Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸";
+  return LOCATION_VERIFICATION_LABELS[value] || "\u0422\u0440\u0435\u0431\u0443\u0435\u0442 \u0440\u0443\u0447\u043d\u043e\u0439 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438";
 }
 
 function normalizeShelterRows(rows) {
@@ -359,7 +372,7 @@ function normalizeShelterRows(rows) {
 
 function setEmptyResultsState(message) {
   nearbyCount.textContent = "0";
-  nearbyList.innerHTML = `<p class="empty-state">${escapeHtml(message)}</p>`;
+  nearbyList.innerHTML = `<p class="empty-state">${escapeHtml(normalizeUiText(message))}</p>`;
 }
 
 function getPointsForList(points, referenceCoords = null) {
@@ -489,8 +502,8 @@ function renderNearbyCards(points, totalCount = points.length) {
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(verificationLabel)}</span>
         </div>
         <div class="card-actions">
-          <button class="card-button" type="button" data-action="open-details" data-id="${escapeHtml(point.id)}">ÐŸÐ¾Ð´Ñ€Ð¾Ð±Ð½ÐµÐµ</button>
-          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð² Google Maps</a>
+          <button class="card-button" type="button" data-action="open-details" data-id="${escapeHtml(point.id)}">\u041f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435</button>
+          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 Google Maps</a>
         </div>
       </article>
     `;
@@ -540,7 +553,7 @@ function renderShelters(points) {
         </div>
         <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
         <div class="card-actions popup-actions">
-          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð² Google Maps</a>
+          <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 Google Maps</a>
           ${mediaAction}
         </div>
       </article>
@@ -575,7 +588,7 @@ function updateUserMarker(coords) {
     map.removeLayer(userMarker);
   }
 
-  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup("Ð¢Ñ‹ Ð·Ð´ÐµÑÑŒ");
+  userMarker = L.marker([coords.lat, coords.lng], { icon: userIcon }).addTo(map).bindPopup(normalizeUiText("Ð¢Ñ‹ Ð·Ð´ÐµÑÑŒ"));
 }
 
 function fitMapToPoints(points, options = {}) {
@@ -632,7 +645,7 @@ function getSubmissionCoords() {
 
 function updateLocationHint() {
   const coords = getSubmissionCoords();
-  locationHint.textContent = `Ð¢Ð¾Ñ‡ÐºÐ° Ð±ÑƒÐ´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð° ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`;
+  locationHint.textContent = normalizeUiText(`Ð¢Ð¾Ñ‡ÐºÐ° Ð±ÑƒÐ´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð° ${coords.sourceLabel}: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}.`);
 }
 
 function updateSuggestUserMarker() {
@@ -757,14 +770,14 @@ function openDetailsModal(pointId) {
       </section>
       ${sourceMeta ? `
         <section class="details-section">
-          <h4>Ð˜ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº</h4>
+          <h4>\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a</h4>
           <p>${escapeHtml(sourceMeta.label)}</p>
-          ${sourceMeta.url ? `<div class="card-actions popup-actions"><a class="card-link source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð¿Ð¾Ð»Ð½Ñ‹Ð¹ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº</a></div>` : ""}
+          ${sourceMeta.url ? `<div class="card-actions popup-actions"><a class="card-link source-link" href="${escapeHtml(sourceMeta.url)}" target="_blank" rel="noreferrer">\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u043f\u043e\u043b\u043d\u044b\u0439 \u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a</a></div>` : ""}
         </section>
       ` : ""}
       <div class="meta-line">${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}</div>
       <div class="card-actions popup-actions">
-        <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">ÐžÑ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð² Google Maps</a>
+        <a class="card-link" href="${gmUrl}" target="_blank" rel="noreferrer">\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 Google Maps</a>
         ${mediaAction}
       </div>
     </article>
