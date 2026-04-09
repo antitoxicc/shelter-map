@@ -21,16 +21,16 @@ const MARKER_ICON_TYPES = new Set([
 ]);
 
 const SHELTER_TYPE_LABELS = {
-  school: "\\u0428\\u043a\\u043e\\u043b\\u0430",
-  hospital: "\\u0411\\u043e\\u043b\\u044c\\u043d\\u0438\\u0446\\u0430",
-  synagogue: "\\u0421\\u0438\\u043d\\u0430\\u0433\\u043e\\u0433\\u0430",
-  kindergarten: "\\u0414\\u0435\\u0442\\u0441\\u043a\\u0438\\u0439 \\u0441\\u0430\\u0434",
-  shopping_center: "\\u0422\\u043e\\u0440\\u0433\\u043e\\u0432\\u044b\\u0439 \\u0446\\u0435\\u043d\\u0442\\u0440",
-  public_shelter: "\\u041e\\u0431\\u044b\\u0447\\u043d\\u044b\\u0439 \\u043c\\u0438\\u043a\\u043b\\u0430\\u0442 \\u043e\\u0431\\u0449\\u0435\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u044b\\u0439",
+  school: "\u0428\u043a\u043e\u043b\u0430",
+  hospital: "\u0411\u043e\u043b\u044c\u043d\u0438\u0446\u0430",
+  synagogue: "\u0421\u0438\u043d\u0430\u0433\u043e\u0433\u0430",
+  kindergarten: "\u0414\u0435\u0442\u0441\u043a\u0438\u0439 \u0441\u0430\u0434",
+  shopping_center: "\u0422\u043e\u0440\u0433\u043e\u0432\u044b\u0439 \u0446\u0435\u043d\u0442\u0440",
+  public_shelter: "\u041e\u0431\u044b\u0447\u043d\u044b\u0439 \u043c\u0438\u043a\u043b\u0430\u0442 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439",
   parking: "Parking",
-  migunit: "\\u041c\\u0438\\u0433\\u0443\\u043d\\u0438\\u0442",
-  building_shelter: "\\u041c\\u0438\\u043a\\u043b\\u0430\\u0442 \\u0432 \\u0434\\u043e\\u043c\\u0435",
-  public_mamad: "\\u041c\\u0410\\u041c\\u0410\\u0414 \\u043e\\u0431\\u0449\\u0435\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u044b\\u0439"
+  migunit: "\u041c\u0438\u0433\u0443\u043d\u0438\u0442",
+  building_shelter: "\u041c\u0438\u043a\u043b\u0430\u0442 \u0432 \u0434\u043e\u043c\u0435",
+  public_mamad: "\u041c\u0410\u041c\u0410\u0414 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439"
 };
 
 const authMessage = document.getElementById("authMessage");
@@ -99,7 +99,7 @@ async function uploadMediaFile(file) {
   }
 
   if (file.size > MAX_MEDIA_SIZE_BYTES) {
-    throw new Error("\\u0424\\u0430\\u0439\\u043b \\u0441\\u043b\\u0438\\u0448\\u043a\\u043e\\u043c \\u0431\\u043e\\u043b\\u044c\\u0448\\u043e\\u0439. \\u0421\\u0435\\u0439\\u0447\\u0430\\u0441 \\u043b\\u0438\\u043c\\u0438\\u0442 25 \\u041c\\u0411.");
+    throw new Error("\u0424\u0430\u0439\u043b \u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439. \u0421\u0435\u0439\u0447\u0430\u0441 \u043b\u0438\u043c\u0438\u0442 25 \u041c\u0411.");
   }
 
   const extension = sanitizeFilename(file.name).split(".").pop();
@@ -110,7 +110,7 @@ async function uploadMediaFile(file) {
   });
 
   if (error) {
-    throw new Error(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0444\\u0430\\u0439\\u043b: ${error.message}`);
+    throw new Error(`\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0444\u0430\u0439\u043b: ${error.message}`);
   }
 
   const { data: publicUrlData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(data.path);
@@ -122,7 +122,7 @@ async function uploadMediaFile(file) {
 }
 
 function getShelterTypeLabel(type) {
-  return SHELTER_TYPE_LABELS[type] || "\\u0422\\u0438\\u043f \\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d";
+  return SHELTER_TYPE_LABELS[type] || "\u0422\u0438\u043f \u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d";
 }
 
 function getNormalizedVerificationStatus(value) {
@@ -137,13 +137,13 @@ function getNormalizedVerificationStatus(value) {
 function getVerificationLabel(value) {
   const normalizedValue = getNormalizedVerificationStatus(value);
   if (normalizedValue === "verified") {
-    return "\\u041f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0435\\u043d\\u043e";
+    return "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u043e";
   }
   if (normalizedValue === "approximate") {
-    return "\\u0421\\u043a\\u043e\\u0440\\u0435\\u0435 \\u0432\\u0441\\u0435\\u0433\\u043e \\u0432\\u0435\\u0440\\u043d\\u043e";
+    return "\u0421\u043a\u043e\u0440\u0435\u0435 \u0432\u0441\u0435\u0433\u043e \u0432\u0435\u0440\u043d\u043e";
   }
 
-  return "\\u041d\\u0435 \\u043f\\u0440\\u043e\\u0432\\u0435\\u0440\\u0435\\u043d\\u043e";
+  return "\u041d\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e";
 }
 
 function getShelterById(id) {
@@ -162,7 +162,7 @@ function setCreateButtonState() {
   }
 
   createShelterBtn.classList.toggle("is-active", isCreatingShelter);
-  createShelterBtn.textContent = isCreatingShelter ? "\\u041e\\u0442\\u043c\\u0435\\u043d\\u0438\\u0442\\u044c \\u0441\\u043e\\u0437\\u0434\\u0430\\u043d\\u0438\\u0435" : "\\u041d\\u043e\\u0432\\u0430\\u044f \\u0442\\u043e\\u0447\\u043a\\u0430";
+  createShelterBtn.textContent = isCreatingShelter ? "\u041e\u0442\u043c\u0435\u043d\u0438\u0442\u044c \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u0435" : "\u041d\u043e\u0432\u0430\u044f \u0442\u043e\u0447\u043a\u0430";
 }
 
 function createEmptyShelterDraft(latitude = DEFAULT_CENTER[0], longitude = DEFAULT_CENTER[1]) {
@@ -170,7 +170,7 @@ function createEmptyShelterDraft(latitude = DEFAULT_CENTER[0], longitude = DEFAU
     title: "",
     address: "",
     city: "",
-    source: "\\u0414\\u043e\\u0431\\u0430\\u0432\\u043b\\u0435\\u043d\\u043e \\u0447\\u0435\\u0440\\u0435\\u0437 \\u0430\\u0434\\u043c\\u0438\\u043d\\u043a\\u0443",
+    source: "\u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e \u0447\u0435\u0440\u0435\u0437 \u0430\u0434\u043c\u0438\u043d\u043a\u0443",
     description: "",
     shelter_type: "",
     location_verification_status: "needs_review",
@@ -204,12 +204,12 @@ function updateDraftCoordinates(lat, lng, options = {}) {
 
 function startCreateShelter(latlng) {
   if (!supabase) {
-    setAuthMessage("\\u0421\\u043d\\u0430\\u0447\\u0430\\u043b\\u0430 \\u043d\\u0430\\u0441\\u0442\\u0440\\u043e\\u0439 Supabase \\u0432 ./supabase-config.js.", true);
+    setAuthMessage("\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043d\u0430\u0441\u0442\u0440\u043e\u0439 Supabase \u0432 ./supabase-config.js.", true);
     return;
   }
 
   if (!isAuthenticated) {
-    setAuthMessage("\\u0412\\u043e\\u0439\\u0434\\u0438 \\u043a\\u0430\\u043a \\u0430\\u0434\\u043c\\u0438\\u043d\\u0438\\u0441\\u0442\\u0440\\u0430\\u0442\\u043e\\u0440, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0434\\u043e\\u0431\\u0430\\u0432\\u043b\\u044f\\u0442\\u044c \\u043d\\u043e\\u0432\\u044b\\u0435 \\u0442\\u043e\\u0447\\u043a\\u0438.", true);
+    setAuthMessage("\u0412\u043e\u0439\u0434\u0438 \u043a\u0430\u043a \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440, \u0447\u0442\u043e\u0431\u044b \u0434\u043e\u0431\u0430\u0432\u043b\u044f\u0442\u044c \u043d\u043e\u0432\u044b\u0435 \u0442\u043e\u0447\u043a\u0438.", true);
     return;
   }
 
@@ -363,8 +363,8 @@ function renderAdminMap() {
       <strong>${escapeHtml(row.title)}</strong>
       <br />${escapeHtml(getShelterTypeLabel(row.shelter_type))}
       <br />${escapeHtml(getVerificationLabel(row.location_verification_status))}
-      <br />\\u0421\\u0442\\u0430\\u0442\\u0443\\u0441: ${escapeHtml(row.status)}
-      <br /><button type="button" class="admin-popup-button" data-action="select-from-popup" data-id="${escapeHtml(row.id)}">\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432 \\u043f\\u0430\\u043d\\u0435\\u043b\\u0438</button>
+      <br />\u0421\u0442\u0430\u0442\u0443\u0441: ${escapeHtml(row.status)}
+      <br /><button type="button" class="admin-popup-button" data-action="select-from-popup" data-id="${escapeHtml(row.id)}">\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 \u043f\u0430\u043d\u0435\u043b\u0438</button>
     `);
 
     adminMarkers.push(marker);
@@ -382,9 +382,9 @@ function renderAdminMap() {
     });
 
     draftMarker.bindPopup(`
-      <strong>\\u041d\\u043e\\u0432\\u0430\\u044f \\u0442\\u043e\\u0447\\u043a\\u0430</strong>
-      <br />\\u041a\\u043b\\u0438\\u043a\\u043d\\u0438 \\u043f\\u043e \\u043a\\u0430\\u0440\\u0442\\u0435 \\u0438\\u043b\\u0438 \\u043f\\u0435\\u0440\\u0435\\u0442\\u0430\\u0449\\u0438 \\u043c\\u0430\\u0440\\u043a\\u0435\\u0440
-      <br />\\u0438 \\u0437\\u0430\\u0442\\u0435\\u043c \\u0437\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 \\u0444\\u043e\\u0440\\u043c\\u0443 \\u0441\\u043f\\u0440\\u0430\\u0432\\u0430.
+      <strong>\u041d\u043e\u0432\u0430\u044f \u0442\u043e\u0447\u043a\u0430</strong>
+      <br />\u041a\u043b\u0438\u043a\u043d\u0438 \u043f\u043e \u043a\u0430\u0440\u0442\u0435 \u0438\u043b\u0438 \u043f\u0435\u0440\u0435\u0442\u0430\u0449\u0438 \u043c\u0430\u0440\u043a\u0435\u0440
+      <br />\u0438 \u0437\u0430\u0442\u0435\u043c \u0437\u0430\u043f\u043e\u043b\u043d\u0438 \u0444\u043e\u0440\u043c\u0443 \u0441\u043f\u0440\u0430\u0432\u0430.
     `);
   }
 
@@ -418,9 +418,9 @@ function renderTypeOptions(selectedType) {
 function renderLocationVerificationOptions(selectedValue) {
   const normalizedValue = getNormalizedVerificationStatus(selectedValue);
   return `
-    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>\\u041f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0435\\u043d\\u043e</option>
-    <option value="approximate"${normalizedValue === "approximate" ? " selected" : ""}>\\u0421\\u043a\\u043e\\u0440\\u0435\\u0435 \\u0432\\u0441\\u0435\\u0433\\u043e \\u0432\\u0435\\u0440\\u043d\\u043e</option>
-    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>\\u041d\\u0435 \\u043f\\u0440\\u043e\\u0432\\u0435\\u0440\\u0435\\u043d\\u043e</option>
+    <option value="verified"${normalizedValue === "verified" ? " selected" : ""}>\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u043e</option>
+    <option value="approximate"${normalizedValue === "approximate" ? " selected" : ""}>\u0421\u043a\u043e\u0440\u0435\u0435 \u0432\u0441\u0435\u0433\u043e \u0432\u0435\u0440\u043d\u043e</option>
+    <option value="needs_review"${normalizedValue === "needs_review" ? " selected" : ""}>\u041d\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e</option>
   `;
 }
 
@@ -429,73 +429,73 @@ function renderCreateShelterPanel() {
 
   selectedShelterPanel.innerHTML = `
     <article class="selected-shelter-card">
-      <h3>\\u041d\\u043e\\u0432\\u0430\\u044f \\u0442\\u043e\\u0447\\u043a\\u0430 \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435</h3>
-      <p class="panel-copy">\\u041a\\u043b\\u0438\\u043a\\u043d\\u0438 \\u043f\\u043e \\u0431\\u043e\\u043b\\u044c\\u0448\\u043e\\u0439 \\u043a\\u0430\\u0440\\u0442\\u0435 \\u0438\\u043b\\u0438 \\u043f\\u0435\\u0440\\u0435\\u0442\\u0430\\u0449\\u0438 \\u043c\\u0430\\u0440\\u043a\\u0435\\u0440, \\u0437\\u0430\\u0442\\u0435\\u043c \\u0437\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 \\u043a\\u0430\\u0440\\u0442\\u043e\\u0447\\u043a\\u0443 \\u0438 \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0438 \\u043d\\u043e\\u0432\\u0443\\u044e \\u0442\\u043e\\u0447\\u043a\\u0443.</p>
+      <h3>\u041d\u043e\u0432\u0430\u044f \u0442\u043e\u0447\u043a\u0430 \u043d\u0430 \u043a\u0430\u0440\u0442\u0435</h3>
+      <p class="panel-copy">\u041a\u043b\u0438\u043a\u043d\u0438 \u043f\u043e \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u043a\u0430\u0440\u0442\u0435 \u0438\u043b\u0438 \u043f\u0435\u0440\u0435\u0442\u0430\u0449\u0438 \u043c\u0430\u0440\u043a\u0435\u0440, \u0437\u0430\u0442\u0435\u043c \u0437\u0430\u043f\u043e\u043b\u043d\u0438 \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0443 \u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0438 \u043d\u043e\u0432\u0443\u044e \u0442\u043e\u0447\u043a\u0443.</p>
       <div class="badge-row">
         <span class="status-badge pending">pending</span>
       </div>
       <form class="admin-edit-form selected-edit-form" data-create-form="true">
         <label>
-          \\u041d\\u0430\\u0437\\u0432\\u0430\\u043d\\u0438\\u0435
+          \u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435
           <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
         </label>
         <label>
-          \\u0410\\u0434\\u0440\\u0435\\u0441
+          \u0410\u0434\u0440\u0435\u0441
           <input name="address" value="${escapeHtml(row.address || "")}" maxlength="200" required />
         </label>
         <label>
-          \\u0413\\u043e\\u0440\\u043e\\u0434
+          \u0413\u043e\u0440\u043e\u0434
           <input name="city" value="${escapeHtml(row.city || "")}" maxlength="120" required />
         </label>
         <label>
-          \\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a
+          \u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a
           <input name="source" value="${escapeHtml(row.source || "")}" maxlength="200" required />
         </label>
         <label>
-          \\u0422\\u0438\\u043f \\u0442\\u043e\\u0447\\u043a\\u0438
+          \u0422\u0438\u043f \u0442\u043e\u0447\u043a\u0438
           <select name="shelter_type" required>
-            <option value="">\\u041d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e</option>
+            <option value="">\u041d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d\u043e</option>
             ${renderTypeOptions(row.shelter_type || "")}
           </select>
         </label>
         <label>
-          \\u0422\\u043e\\u0447\\u043d\\u043e\\u0441\\u0442\\u044c \\u043c\\u0435\\u0441\\u0442\\u043e\\u043f\\u043e\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u044f
+          \u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c \u043c\u0435\u0441\u0442\u043e\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f
           <select name="location_verification_status" required>
             ${renderLocationVerificationOptions(row.location_verification_status)}
           </select>
         </label>
         <label>
-          \\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435
+          \u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435
           <textarea name="description" rows="5" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
         </label>
         <div class="grid-two">
           <label>
-            \\u0428\\u0438\\u0440\\u043e\\u0442\\u0430
+            \u0428\u0438\u0440\u043e\u0442\u0430
             <input name="latitude" value="${escapeHtml(row.latitude)}" inputmode="decimal" required />
           </label>
           <label>
-            \\u0414\\u043e\\u043b\\u0433\\u043e\\u0442\\u0430
+            \u0414\u043e\u043b\u0433\u043e\u0442\u0430
             <input name="longitude" value="${escapeHtml(row.longitude)}" inputmode="decimal" required />
           </label>
         </div>
-        <p class="form-hint">\\u041d\\u043e\\u0432\\u0430\\u044f \\u0442\\u043e\\u0447\\u043a\\u0430 \\u0441\\u043e\\u0437\\u0434\\u0430\\u0451\\u0442\\u0441\\u044f \\u0441\\u043e \\u0441\\u0442\\u0430\\u0442\\u0443\\u0441\\u043e\\u043c pending. \\u041f\\u043e\\u0441\\u043b\\u0435 \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0435\\u043d\\u0438\\u044f \\u0435\\u0451 \\u043c\\u043e\\u0436\\u043d\\u043e \\u0431\\u0443\\u0434\\u0435\\u0442 \\u0441\\u0440\\u0430\\u0437\\u0443 \\u043e\\u0442\\u0440\\u0435\\u0434\\u0430\\u043a\\u0442\\u0438\\u0440\\u043e\\u0432\\u0430\\u0442\\u044c \\u0438\\u043b\\u0438 \\u043e\\u043f\\u0443\\u0431\\u043b\\u0438\\u043a\\u043e\\u0432\\u0430\\u0442\\u044c.</p>
+        <p class="form-hint">\u041d\u043e\u0432\u0430\u044f \u0442\u043e\u0447\u043a\u0430 \u0441\u043e\u0437\u0434\u0430\u0451\u0442\u0441\u044f \u0441\u043e \u0441\u0442\u0430\u0442\u0443\u0441\u043e\u043c pending. \u041f\u043e\u0441\u043b\u0435 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f \u0435\u0451 \u043c\u043e\u0436\u043d\u043e \u0431\u0443\u0434\u0435\u0442 \u0441\u0440\u0430\u0437\u0443 \u043e\u0442\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0438\u043b\u0438 \u043e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u0442\u044c.</p>
         <div class="grid-two">
           <label>
-            \\u0418\\u043c\\u044f
+            \u0418\u043c\u044f
             <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
           </label>
           <label>
-            \\u041a\\u043e\\u043d\\u0442\\u0430\\u043a\\u0442
+            \u041a\u043e\u043d\u0442\u0430\u043a\u0442
             <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
           </label>
         </div>
         <label>
-          \\u0412\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435
+          \u0412\u043b\u043e\u0436\u0435\u043d\u0438\u0435
           <input name="media" type="file" accept="image/*,video/*" />
         </label>
         <div class="card-actions">
-          <button class="card-button approve" type="submit">\\u0421\\u043e\\u0437\\u0434\\u0430\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0443</button>
-          <button class="card-button" type="button" data-action="cancel-create">\\u041e\\u0442\\u043c\\u0435\\u043d\\u0438\\u0442\\u044c</button>
+          <button class="card-button approve" type="submit">\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0442\u043e\u0447\u043a\u0443</button>
+          <button class="card-button" type="button" data-action="cancel-create">\u041e\u0442\u043c\u0435\u043d\u0438\u0442\u044c</button>
         </div>
       </form>
     </article>
@@ -504,12 +504,12 @@ function renderCreateShelterPanel() {
 
 function renderSelectedShelterPanel() {
   if (!supabase) {
-    selectedShelterPanel.innerHTML = '<p class="empty-state">\\u0421\\u043d\\u0430\\u0447\\u0430\\u043b\\u0430 \\u0437\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 `./supabase-config.js`, \\u0447\\u0442\\u043e\\u0431\\u044b \\u043a\\u0430\\u0440\\u0442\\u0430 \\u0430\\u0434\\u043c\\u0438\\u043d\\u043a\\u0438 \\u0437\\u0430\\u0440\\u0430\\u0431\\u043e\\u0442\\u0430\\u043b\\u0430.</p>';
+    selectedShelterPanel.innerHTML = '<p class="empty-state">\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0437\u0430\u043f\u043e\u043b\u043d\u0438 `./supabase-config.js`, \u0447\u0442\u043e\u0431\u044b \u043a\u0430\u0440\u0442\u0430 \u0430\u0434\u043c\u0438\u043d\u043a\u0438 \u0437\u0430\u0440\u0430\u0431\u043e\u0442\u0430\u043b\u0430.</p>';
     return;
   }
 
   if (!isAuthenticated) {
-    selectedShelterPanel.innerHTML = '<p class="empty-state">\\u0412\\u043e\\u0439\\u0434\\u0438 \\u043a\\u0430\\u043a \\u0430\\u0434\\u043c\\u0438\\u043d\\u0438\\u0441\\u0442\\u0440\\u0430\\u0442\\u043e\\u0440, \\u0447\\u0442\\u043e\\u0431\\u044b \\u043e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443 \\u043c\\u043e\\u0434\\u0435\\u0440\\u0430\\u0446\\u0438\\u0438, \\u0434\\u043e\\u0431\\u0430\\u0432\\u043b\\u044f\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438 \\u0438 \\u0440\\u0435\\u0434\\u0430\\u043a\\u0442\\u0438\\u0440\\u043e\\u0432\\u0430\\u0442\\u044c \\u0441\\u0443\\u0449\\u0435\\u0441\\u0442\\u0432\\u0443\\u044e\\u0449\\u0438\\u0435.</p>';
+    selectedShelterPanel.innerHTML = '<p class="empty-state">\u0412\u043e\u0439\u0434\u0438 \u043a\u0430\u043a \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440, \u0447\u0442\u043e\u0431\u044b \u043e\u0442\u043a\u0440\u044b\u0442\u044c \u043a\u0430\u0440\u0442\u0443 \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u0438, \u0434\u043e\u0431\u0430\u0432\u043b\u044f\u0442\u044c \u0442\u043e\u0447\u043a\u0438 \u0438 \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044e\u0449\u0438\u0435.</p>';
     return;
   }
 
@@ -520,14 +520,14 @@ function renderSelectedShelterPanel() {
 
   const row = getShelterById(selectedShelterId);
   if (!row) {
-    selectedShelterPanel.innerHTML = '<p class="empty-state">\\u0412\\u044b\\u0431\\u0435\\u0440\\u0438 \\u0442\\u043e\\u0447\\u043a\\u0443 \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435 \\u0438\\u043b\\u0438 \\u0438\\u0437 \\u0441\\u043f\\u0438\\u0441\\u043a\\u0430 \\u043d\\u0438\\u0436\\u0435 \\u043b\\u0438\\u0431\\u043e \\u043d\\u0430\\u0436\\u043c\\u0438 "\\u041d\\u043e\\u0432\\u0430\\u044f \\u0442\\u043e\\u0447\\u043a\\u0430", \\u0447\\u0442\\u043e\\u0431\\u044b \\u0434\\u043e\\u0431\\u0430\\u0432\\u0438\\u0442\\u044c \\u0443\\u0431\\u0435\\u0436\\u0438\\u0449\\u0435 \\u0432\\u0440\\u0443\\u0447\\u043d\\u0443\\u044e.</p>';
+    selectedShelterPanel.innerHTML = '<p class="empty-state">\u0412\u044b\u0431\u0435\u0440\u0438 \u0442\u043e\u0447\u043a\u0443 \u043d\u0430 \u043a\u0430\u0440\u0442\u0435 \u0438\u043b\u0438 \u0438\u0437 \u0441\u043f\u0438\u0441\u043a\u0430 \u043d\u0438\u0436\u0435 \u043b\u0438\u0431\u043e \u043d\u0430\u0436\u043c\u0438 "\u041d\u043e\u0432\u0430\u044f \u0442\u043e\u0447\u043a\u0430", \u0447\u0442\u043e\u0431\u044b \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0443\u0431\u0435\u0436\u0438\u0449\u0435 \u0432\u0440\u0443\u0447\u043d\u0443\u044e.</p>';
     return;
   }
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${row.latitude},${row.longitude}`;
   const mediaBlock = row.media_url
-    ? `<div class="meta-line">\\u0412\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435: <a class="media-link" href="${escapeHtml(row.media_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.media_name || "\\u041e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435")}</a></div>`
-    : '<div class="meta-line">\\u0412\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435: \\u043d\\u0435 \\u0434\\u043e\\u0431\\u0430\\u0432\\u043b\\u0435\\u043d\\u043e</div>';
+    ? `<div class="meta-line">\u0412\u043b\u043e\u0436\u0435\u043d\u0438\u0435: <a class="media-link" href="${escapeHtml(row.media_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.media_name || "\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432\u043b\u043e\u0436\u0435\u043d\u0438\u0435")}</a></div>`
+    : '<div class="meta-line">\u0412\u043b\u043e\u0436\u0435\u043d\u0438\u0435: \u043d\u0435 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e</div>';
 
   selectedShelterPanel.innerHTML = `
     <article class="selected-shelter-card">
@@ -537,80 +537,80 @@ function renderSelectedShelterPanel() {
         <span class="verification-badge ${escapeHtml(getNormalizedVerificationStatus(row.location_verification_status))}">${escapeHtml(getVerificationLabel(row.location_verification_status))}</span>
         <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
       </div>
-      <div class="meta-line">\\u0410\\u0434\\u0440\\u0435\\u0441: ${escapeHtml(formatAddress(row.address, row.city) || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d")}</div>
-      <div class="meta-line">\\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a: ${escapeHtml(row.source || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d")}</div>
-      <div class="meta-line">\\u041a\\u043e\\u043e\\u0440\\u0434\\u0438\\u043d\\u0430\\u0442\\u044b: ${row.latitude.toFixed(6)}, ${row.longitude.toFixed(6)}</div>
-      <div class="meta-line">\\u0414\\u043e\\u0431\\u0430\\u0432\\u0438\\u043b: ${escapeHtml(row.submitter_name || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e")}</div>
-      <div class="meta-line">\\u041a\\u043e\\u043d\\u0442\\u0430\\u043a\\u0442: ${escapeHtml(row.submitter_contact || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d")}</div>
+      <div class="meta-line">\u0410\u0434\u0440\u0435\u0441: ${escapeHtml(formatAddress(row.address, row.city) || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d")}</div>
+      <div class="meta-line">\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a: ${escapeHtml(row.source || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d")}</div>
+      <div class="meta-line">\u041a\u043e\u043e\u0440\u0434\u0438\u043d\u0430\u0442\u044b: ${row.latitude.toFixed(6)}, ${row.longitude.toFixed(6)}</div>
+      <div class="meta-line">\u0414\u043e\u0431\u0430\u0432\u0438\u043b: ${escapeHtml(row.submitter_name || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d\u043e")}</div>
+      <div class="meta-line">\u041a\u043e\u043d\u0442\u0430\u043a\u0442: ${escapeHtml(row.submitter_contact || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d")}</div>
       ${mediaBlock}
       <div class="card-actions">
         <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
-        <button class="card-button" type="button" data-action="focus-selected-map">\\u041f\\u043e\\u043a\\u0430\\u0437\\u0430\\u0442\\u044c \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435</button>
+        <button class="card-button" type="button" data-action="focus-selected-map">\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c \u043d\u0430 \u043a\u0430\u0440\u0442\u0435</button>
       </div>
       <form class="admin-edit-form selected-edit-form" data-selected-edit-form="${escapeHtml(row.id)}">
         <label>
-          \\u041d\\u0430\\u0437\\u0432\\u0430\\u043d\\u0438\\u0435
+          \u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435
           <input name="title" value="${escapeHtml(row.title || "")}" maxlength="120" required />
         </label>
         <label>
-          \\u0410\\u0434\\u0440\\u0435\\u0441
+          \u0410\u0434\u0440\u0435\u0441
           <input name="address" value="${escapeHtml(row.address || "")}" maxlength="200" required />
         </label>
         <label>
-          \\u0413\\u043e\\u0440\\u043e\\u0434
+          \u0413\u043e\u0440\u043e\u0434
           <input name="city" value="${escapeHtml(row.city || "")}" maxlength="120" required />
         </label>
         <label>
-          \\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a
+          \u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a
           <input name="source" value="${escapeHtml(row.source || "")}" maxlength="200" required />
         </label>
         <label>
-          \\u0422\\u0438\\u043f \\u0442\\u043e\\u0447\\u043a\\u0438
+          \u0422\u0438\u043f \u0442\u043e\u0447\u043a\u0438
           <select name="shelter_type" required>
-            <option value="">\\u041d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e</option>
+            <option value="">\u041d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d\u043e</option>
             ${renderTypeOptions(row.shelter_type || "")}
           </select>
         </label>
         <label>
-          \\u0422\\u043e\\u0447\\u043d\\u043e\\u0441\\u0442\\u044c \\u043c\\u0435\\u0441\\u0442\\u043e\\u043f\\u043e\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u044f
+          \u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c \u043c\u0435\u0441\u0442\u043e\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f
           <select name="location_verification_status" required>
             ${renderLocationVerificationOptions(row.location_verification_status)}
           </select>
         </label>
         <label>
-          \\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435
+          \u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435
           <textarea name="description" rows="5" maxlength="500" required>${escapeHtml(row.description || "")}</textarea>
         </label>
         <div class="grid-two">
           <label>
-            \\u0428\\u0438\\u0440\\u043e\\u0442\\u0430
+            \u0428\u0438\u0440\u043e\u0442\u0430
             <input name="latitude" value="${escapeHtml(row.latitude)}" inputmode="decimal" required />
           </label>
           <label>
-            \\u0414\\u043e\\u043b\\u0433\\u043e\\u0442\\u0430
+            \u0414\u043e\u043b\u0433\u043e\u0442\u0430
             <input name="longitude" value="${escapeHtml(row.longitude)}" inputmode="decimal" required />
           </label>
         </div>
-        <p class="form-hint">\\u041f\\u0435\\u0440\\u0435\\u0442\\u0430\\u0449\\u0438 \\u0432\\u044b\\u0431\\u0440\\u0430\\u043d\\u043d\\u044b\\u0439 \\u043c\\u0430\\u0440\\u043a\\u0435\\u0440 \\u043d\\u0430 \\u0431\\u043e\\u043b\\u044c\\u0448\\u043e\\u0439 \\u043a\\u0430\\u0440\\u0442\\u0435 \\u0438\\u043b\\u0438 \\u043f\\u043e\\u043f\\u0440\\u0430\\u0432\\u044c \\u043a\\u043e\\u043e\\u0440\\u0434\\u0438\\u043d\\u0430\\u0442\\u044b \\u0432\\u0440\\u0443\\u0447\\u043d\\u0443\\u044e.</p>
+        <p class="form-hint">\u041f\u0435\u0440\u0435\u0442\u0430\u0449\u0438 \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0439 \u043c\u0430\u0440\u043a\u0435\u0440 \u043d\u0430 \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u043a\u0430\u0440\u0442\u0435 \u0438\u043b\u0438 \u043f\u043e\u043f\u0440\u0430\u0432\u044c \u043a\u043e\u043e\u0440\u0434\u0438\u043d\u0430\u0442\u044b \u0432\u0440\u0443\u0447\u043d\u0443\u044e.</p>
         <div class="grid-two">
           <label>
-            \\u0418\\u043c\\u044f
+            \u0418\u043c\u044f
             <input name="submitter_name" value="${escapeHtml(row.submitter_name || "")}" maxlength="80" />
           </label>
           <label>
-            \\u041a\\u043e\\u043d\\u0442\\u0430\\u043a\\u0442
+            \u041a\u043e\u043d\u0442\u0430\u043a\u0442
             <input name="submitter_contact" value="${escapeHtml(row.submitter_contact || "")}" maxlength="120" />
           </label>
         </div>
         <label>
-          \\u041d\\u043e\\u0432\\u043e\\u0435 \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435
+          \u041d\u043e\u0432\u043e\u0435 \u0432\u043b\u043e\u0436\u0435\u043d\u0438\u0435
           <input name="media" type="file" accept="image/*,video/*" />
         </label>
-        <p class="form-hint">\\u0415\\u0441\\u043b\\u0438 \\u0432\\u044b\\u0431\\u0440\\u0430\\u0442\\u044c \\u0444\\u0430\\u0439\\u043b, \\u043e\\u043d \\u0437\\u0430\\u043c\\u0435\\u043d\\u0438\\u0442 \\u0442\\u0435\\u043a\\u0443\\u0449\\u0435\\u0435 \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435 \\u0443 \\u044d\\u0442\\u043e\\u0439 \\u0442\\u043e\\u0447\\u043a\\u0438.</p>
+        <p class="form-hint">\u0415\u0441\u043b\u0438 \u0432\u044b\u0431\u0440\u0430\u0442\u044c \u0444\u0430\u0439\u043b, \u043e\u043d \u0437\u0430\u043c\u0435\u043d\u0438\u0442 \u0442\u0435\u043a\u0443\u0449\u0435\u0435 \u0432\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u0443 \u044d\u0442\u043e\u0439 \u0442\u043e\u0447\u043a\u0438.</p>
         <div class="card-actions">
-          <button class="card-button approve" type="submit">\\u0421\\u043e\\u0445\\u0440\\u0430\\u043d\\u0438\\u0442\\u044c</button>
-          ${row.status === "pending" ? `<button class="card-button approve" type="button" data-action="approve" data-id="${escapeHtml(row.id)}">\\u041e\\u043f\\u0443\\u0431\\u043b\\u0438\\u043a\\u043e\\u0432\\u0430\\u0442\\u044c</button>` : ""}
-          <button class="card-button delete" type="button" data-action="delete" data-id="${escapeHtml(row.id)}">\\u0423\\u0434\\u0430\\u043b\\u0438\\u0442\\u044c</button>
+          <button class="card-button approve" type="submit">\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c</button>
+          ${row.status === "pending" ? `<button class="card-button approve" type="button" data-action="approve" data-id="${escapeHtml(row.id)}">\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u0442\u044c</button>` : ""}
+          <button class="card-button delete" type="button" data-action="delete" data-id="${escapeHtml(row.id)}">\u0423\u0434\u0430\u043b\u0438\u0442\u044c</button>
         </div>
       </form>
     </article>
@@ -631,22 +631,22 @@ function renderCards(target, rows, options) {
     return `
       <article class="location-card${isSelected ? " is-selected" : ""}">
         <h3>${escapeHtml(row.title)}</h3>
-        <p>${escapeHtml(row.description || "\\u041e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435 \\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e")}</p>
+        <p>${escapeHtml(row.description || "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d\u043e")}</p>
         <div class="badge-row">
           <span class="type-badge">${escapeHtml(getShelterTypeLabel(row.shelter_type))}</span>
           <span class="verification-badge ${escapeHtml(verificationStatus)}">${escapeHtml(getVerificationLabel(verificationStatus))}</span>
           <span class="status-badge ${escapeHtml(row.status)}">${escapeHtml(row.status)}</span>
         </div>
-        <div class="meta-line">\\u0410\\u0434\\u0440\\u0435\\u0441: ${escapeHtml(formatAddress(row.address, row.city) || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d")}</div>
-        <div class="meta-line">\\u0418\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a: ${escapeHtml(row.source || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d")}</div>
-        <div class="meta-line">\\u041a\\u043e\\u043e\\u0440\\u0434\\u0438\\u043d\\u0430\\u0442\\u044b: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
-        <div class="meta-line">\\u0414\\u043e\\u0431\\u0430\\u0432\\u0438\\u043b: ${escapeHtml(row.submitter_name || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u043e")}</div>
-        <div class="meta-line">\\u041a\\u043e\\u043d\\u0442\\u0430\\u043a\\u0442: ${escapeHtml(row.submitter_contact || "\\u043d\\u0435 \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d")}</div>
+        <div class="meta-line">\u0410\u0434\u0440\u0435\u0441: ${escapeHtml(formatAddress(row.address, row.city) || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d")}</div>
+        <div class="meta-line">\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a: ${escapeHtml(row.source || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d")}</div>
+        <div class="meta-line">\u041a\u043e\u043e\u0440\u0434\u0438\u043d\u0430\u0442\u044b: ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}</div>
+        <div class="meta-line">\u0414\u043e\u0431\u0430\u0432\u0438\u043b: ${escapeHtml(row.submitter_name || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d\u043e")}</div>
+        <div class="meta-line">\u041a\u043e\u043d\u0442\u0430\u043a\u0442: ${escapeHtml(row.submitter_contact || "\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d")}</div>
         <div class="card-actions">
           <a class="card-link" href="${mapsUrl}" target="_blank" rel="noreferrer">Google Maps</a>
-          <button class="card-button" data-action="edit" data-id="${escapeHtml(row.id)}" type="button">\\u0412\\u044b\\u0431\\u0440\\u0430\\u0442\\u044c \\u043d\\u0430 \\u043a\\u0430\\u0440\\u0442\\u0435</button>
-          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${escapeHtml(row.id)}" type="button">\\u041e\\u043f\\u0443\\u0431\\u043b\\u0438\\u043a\\u043e\\u0432\\u0430\\u0442\\u044c</button>` : ""}
-          <button class="card-button delete" data-action="delete" data-id="${escapeHtml(row.id)}" type="button">\\u0423\\u0434\\u0430\\u043b\\u0438\\u0442\\u044c</button>
+          <button class="card-button" data-action="edit" data-id="${escapeHtml(row.id)}" type="button">\u0412\u044b\u0431\u0440\u0430\u0442\u044c \u043d\u0430 \u043a\u0430\u0440\u0442\u0435</button>
+          ${options.includeApprove ? `<button class="card-button approve" data-action="approve" data-id="${escapeHtml(row.id)}" type="button">\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u0442\u044c</button>` : ""}
+          <button class="card-button delete" data-action="delete" data-id="${escapeHtml(row.id)}" type="button">\u0423\u0434\u0430\u043b\u0438\u0442\u044c</button>
         </div>
       </article>
     `;
@@ -660,8 +660,8 @@ function renderLists() {
   pendingCount.textContent = String(pending.length);
   approvedCount.textContent = String(approved.length);
 
-  renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "\\u041d\\u0435\\u0442 pending-\\u0442\\u043e\\u0447\\u0435\\u043a." });
-  renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "\\u041f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0451\\u043d\\u043d\\u044b\\u0445 \\u0442\\u043e\\u0447\\u0435\\u043a \\u043f\\u043e\\u043a\\u0430 \\u043d\\u0435\\u0442." });
+  renderCards(pendingList, pending, { includeApprove: true, emptyMessage: "\u041d\u0435\u0442 pending-\u0442\u043e\u0447\u0435\u043a." });
+  renderCards(approvedList, approved, { includeApprove: false, emptyMessage: "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0451\u043d\u043d\u044b\u0445 \u0442\u043e\u0447\u0435\u043a \u043f\u043e\u043a\u0430 \u043d\u0435\u0442." });
 }
 
 function updateActiveCoordsInputs(lat, lng) {
@@ -730,7 +730,7 @@ function selectShelter(id, options = {}) {
 
 async function loadShelters() {
   if (!supabase) {
-    setAuthMessage("\\u0417\\u0430\\u043f\\u043e\\u043b\\u043d\\u0438 ./supabase-config.js, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0430\\u0434\\u043c\\u0438\\u043d\\u043a\\u0430 \\u0437\\u0430\\u0440\\u0430\\u0431\\u043e\\u0442\\u0430\\u043b\\u0430.", true);
+    setAuthMessage("\u0417\u0430\u043f\u043e\u043b\u043d\u0438 ./supabase-config.js, \u0447\u0442\u043e\u0431\u044b \u0430\u0434\u043c\u0438\u043d\u043a\u0430 \u0437\u0430\u0440\u0430\u0431\u043e\u0442\u0430\u043b\u0430.", true);
     return;
   }
 
@@ -746,7 +746,7 @@ async function loadShelters() {
       .range(from, to);
 
     if (error) {
-      setAuthMessage(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0437\\u0430\\u0433\\u0440\\u0443\\u0437\\u0438\\u0442\\u044c \\u0442\\u043e\\u0447\\u043a\\u0438: ${error.message}`, true);
+      setAuthMessage(`\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0442\u043e\u0447\u043a\u0438: ${error.message}`, true);
       return;
     }
 
@@ -787,9 +787,9 @@ function resetAdminViewForGuest() {
   allShelters = [];
   hasFitMapToData = false;
   setCreateButtonState();
-  selectedShelterPanel.innerHTML = '<p class="empty-state">\\u0412\\u043e\\u0439\\u0434\\u0438 \\u043a\\u0430\\u043a \\u0430\\u0434\\u043c\\u0438\\u043d\\u0438\\u0441\\u0442\\u0440\\u0430\\u0442\\u043e\\u0440, \\u0447\\u0442\\u043e\\u0431\\u044b \\u043e\\u0442\\u043a\\u0440\\u044b\\u0442\\u044c \\u043a\\u0430\\u0440\\u0442\\u0443 \\u043c\\u043e\\u0434\\u0435\\u0440\\u0430\\u0446\\u0438\\u0438 \\u0438 \\u0440\\u0435\\u0434\\u0430\\u043a\\u0442\\u0438\\u0440\\u043e\\u0432\\u0430\\u043d\\u0438\\u0435 \\u0442\\u043e\\u0447\\u0435\\u043a.</p>';
-  pendingList.innerHTML = '<p class="empty-state">\\u0412\\u043e\\u0439\\u0434\\u0438 \\u043a\\u0430\\u043a \\u0430\\u0434\\u043c\\u0438\\u043d\\u0438\\u0441\\u0442\\u0440\\u0430\\u0442\\u043e\\u0440, \\u0447\\u0442\\u043e\\u0431\\u044b \\u0443\\u0432\\u0438\\u0434\\u0435\\u0442\\u044c \\u043c\\u043e\\u0434\\u0435\\u0440\\u0430\\u0446\\u0438\\u044e.</p>';
-  approvedList.innerHTML = '<p class="empty-state">\\u041f\\u043e\\u0441\\u043b\\u0435 \\u0432\\u0445\\u043e\\u0434\\u0430 \\u0437\\u0434\\u0435\\u0441\\u044c \\u043f\\u043e\\u044f\\u0432\\u0438\\u0442\\u0441\\u044f \\u0441\\u043f\\u0438\\u0441\\u043e\\u043a \\u043f\\u043e\\u0434\\u0442\\u0432\\u0435\\u0440\\u0436\\u0434\\u0451\\u043d\\u043d\\u044b\\u0445 \\u0442\\u043e\\u0447\\u0435\\u043a.</p>';
+  selectedShelterPanel.innerHTML = '<p class="empty-state">\u0412\u043e\u0439\u0434\u0438 \u043a\u0430\u043a \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440, \u0447\u0442\u043e\u0431\u044b \u043e\u0442\u043a\u0440\u044b\u0442\u044c \u043a\u0430\u0440\u0442\u0443 \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u0438 \u0438 \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0442\u043e\u0447\u0435\u043a.</p>';
+  pendingList.innerHTML = '<p class="empty-state">\u0412\u043e\u0439\u0434\u0438 \u043a\u0430\u043a \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440, \u0447\u0442\u043e\u0431\u044b \u0443\u0432\u0438\u0434\u0435\u0442\u044c \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u044e.</p>';
+  approvedList.innerHTML = '<p class="empty-state">\u041f\u043e\u0441\u043b\u0435 \u0432\u0445\u043e\u0434\u0430 \u0437\u0434\u0435\u0441\u044c \u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u0441\u043f\u0438\u0441\u043e\u043a \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0451\u043d\u043d\u044b\u0445 \u0442\u043e\u0447\u0435\u043a.</p>';
   pendingCount.textContent = "0";
   approvedCount.textContent = "0";
 }
@@ -820,23 +820,23 @@ async function handleLogin(event) {
   event.preventDefault();
 
   if (!supabase) {
-    setAuthMessage("\\u0421\\u043d\\u0430\\u0447\\u0430\\u043b\\u0430 \\u043d\\u0430\\u0441\\u0442\\u0440\\u043e\\u0439 Supabase \\u0432 ./supabase-config.js.", true);
+    setAuthMessage("\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043d\u0430\u0441\u0442\u0440\u043e\u0439 Supabase \u0432 ./supabase-config.js.", true);
     return;
   }
 
-  setAuthMessage("\\u0412\\u0445\\u043e\\u0434\\u0438\\u043c...");
+  setAuthMessage("\u0412\u0445\u043e\u0434\u0438\u043c...");
   const { error } = await supabase.auth.signInWithPassword({
     email: emailInput.value.trim(),
     password: passwordInput.value
   });
 
   if (error) {
-    setAuthMessage(`\\u041e\\u0448\\u0438\\u0431\\u043a\\u0430 \\u0432\\u0445\\u043e\\u0434\\u0430: ${error.message}`, true);
+    setAuthMessage(`\u041e\u0448\u0438\u0431\u043a\u0430 \u0432\u0445\u043e\u0434\u0430: ${error.message}`, true);
     return;
   }
 
   passwordInput.value = "";
-  setAuthMessage("\\u0412\\u0445\\u043e\\u0434 \\u0432\\u044b\\u043f\\u043e\\u043b\\u043d\\u0435\\u043d.");
+  setAuthMessage("\u0412\u0445\u043e\u0434 \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d.");
   await refreshSession();
 }
 
@@ -846,7 +846,7 @@ async function handleLogout() {
   }
 
   await supabase.auth.signOut();
-  setAuthMessage("\\u0421\\u0435\\u0441\\u0441\\u0438\\u044f \\u0437\\u0430\\u0432\\u0435\\u0440\\u0448\\u0435\\u043d\\u0430.");
+  setAuthMessage("\u0421\u0435\u0441\u0441\u0438\u044f \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u0430.");
   await refreshSession();
 }
 
@@ -855,14 +855,14 @@ async function moderateShelter(id, action) {
     return;
   }
 
-  setAuthMessage(action === "approve" ? "\\u041f\\u0443\\u0431\\u043b\\u0438\\u043a\\u0443\\u0435\\u043c \\u0442\\u043e\\u0447\\u043a\\u0443..." : "\\u0423\\u0434\\u0430\\u043b\\u044f\\u0435\\u043c \\u0442\\u043e\\u0447\\u043a\\u0443...");
+  setAuthMessage(action === "approve" ? "\u041f\u0443\u0431\u043b\u0438\u043a\u0443\u0435\u043c \u0442\u043e\u0447\u043a\u0443..." : "\u0423\u0434\u0430\u043b\u044f\u0435\u043c \u0442\u043e\u0447\u043a\u0443...");
 
   const response = action === "approve"
     ? await supabase.from("shelters").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", id)
     : await supabase.from("shelters").delete().eq("id", id);
 
   if (response.error) {
-    setAuthMessage(`\\u041e\\u043f\\u0435\\u0440\\u0430\\u0446\\u0438\\u044f \\u043d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u0430\\u0441\\u044c: ${response.error.message}`, true);
+    setAuthMessage(`\u041e\u043f\u0435\u0440\u0430\u0446\u0438\u044f \u043d\u0435 \u0443\u0434\u0430\u043b\u0430\u0441\u044c: ${response.error.message}`, true);
     return;
   }
 
@@ -870,7 +870,7 @@ async function moderateShelter(id, action) {
     selectedShelterId = null;
   }
 
-  setAuthMessage(action === "approve" ? "\\u0422\\u043e\\u0447\\u043a\\u0430 \\u043e\\u043f\\u0443\\u0431\\u043b\\u0438\\u043a\\u043e\\u0432\\u0430\\u043d\\u0430." : "\\u0422\\u043e\\u0447\\u043a\\u0430 \\u0443\\u0434\\u0430\\u043b\\u0435\\u043d\\u0430.");
+  setAuthMessage(action === "approve" ? "\u0422\u043e\u0447\u043a\u0430 \u043e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u0430." : "\u0422\u043e\u0447\u043a\u0430 \u0443\u0434\u0430\u043b\u0435\u043d\u0430.");
   await loadShelters();
 }
 
@@ -900,23 +900,23 @@ async function saveShelterEdits(form) {
   const file = form.querySelector('input[name="media"]')?.files?.[0] || null;
 
   if (!payload.title || !payload.address || !payload.city || !payload.source || !payload.description || !payload.shelter_type || !payload.location_verification_status) {
-    setAuthMessage("\\u0414\\u043b\\u044f \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0435\\u043d\\u0438\\u044f \\u043d\\u0443\\u0436\\u043d\\u044b \\u043d\\u0430\\u0437\\u0432\\u0430\\u043d\\u0438\\u0435, \\u0430\\u0434\\u0440\\u0435\\u0441, \\u0438\\u0441\\u0442\\u043e\\u0447\\u043d\\u0438\\u043a, \\u0442\\u0438\\u043f, \\u0442\\u043e\\u0447\\u043d\\u043e\\u0441\\u0442\\u044c \\u043c\\u0435\\u0441\\u0442\\u043e\\u043f\\u043e\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u044f \\u0438 \\u043e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435.", true);
+    setAuthMessage("\u0414\u043b\u044f \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f \u043d\u0443\u0436\u043d\u044b \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435, \u0430\u0434\u0440\u0435\u0441, \u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a, \u0442\u0438\u043f, \u0442\u043e\u0447\u043d\u043e\u0441\u0442\u044c \u043c\u0435\u0441\u0442\u043e\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f \u0438 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435.", true);
     return;
   }
 
   if (!Number.isFinite(payload.latitude) || !Number.isFinite(payload.longitude)) {
-    setAuthMessage("\\u0414\\u043b\\u044f \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0435\\u043d\\u0438\\u044f \\u043d\\u0443\\u0436\\u043d\\u044b \\u043a\\u043e\\u0440\\u0440\\u0435\\u043a\\u0442\\u043d\\u044b\\u0435 \\u043a\\u043e\\u043e\\u0440\\u0434\\u0438\\u043d\\u0430\\u0442\\u044b \\u0448\\u0438\\u0440\\u043e\\u0442\\u044b \\u0438 \\u0434\\u043e\\u043b\\u0433\\u043e\\u0442\\u044b.", true);
+    setAuthMessage("\u0414\u043b\u044f \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f \u043d\u0443\u0436\u043d\u044b \u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u044b\u0435 \u043a\u043e\u043e\u0440\u0434\u0438\u043d\u0430\u0442\u044b \u0448\u0438\u0440\u043e\u0442\u044b \u0438 \u0434\u043e\u043b\u0433\u043e\u0442\u044b.", true);
     return;
   }
 
   try {
     setAuthMessage(file
       ? isCreateForm
-        ? "\\u0417\\u0430\\u0433\\u0440\\u0443\\u0436\\u0430\\u0435\\u043c \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435 \\u0438 \\u0441\\u043e\\u0437\\u0434\\u0430\\u0451\\u043c \\u0442\\u043e\\u0447\\u043a\\u0443..."
-        : "\\u0417\\u0430\\u0433\\u0440\\u0443\\u0436\\u0430\\u0435\\u043c \\u0432\\u043b\\u043e\\u0436\\u0435\\u043d\\u0438\\u0435 \\u0438 \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u044f\\u0435\\u043c \\u0438\\u0437\\u043c\\u0435\\u043d\\u0435\\u043d\\u0438\\u044f..."
+        ? "\u0417\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u043c \u0432\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u0438 \u0441\u043e\u0437\u0434\u0430\u0451\u043c \u0442\u043e\u0447\u043a\u0443..."
+        : "\u0417\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u043c \u0432\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0435\u043c \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f..."
       : isCreateForm
-        ? "\\u0421\\u043e\\u0437\\u0434\\u0430\\u0451\\u043c \\u043d\\u043e\\u0432\\u0443\\u044e \\u0442\\u043e\\u0447\\u043a\\u0443..."
-        : "\\u0421\\u043e\\u0445\\u0440\\u0430\\u043d\\u044f\\u0435\\u043c \\u0438\\u0437\\u043c\\u0435\\u043d\\u0435\\u043d\\u0438\\u044f...");
+        ? "\u0421\u043e\u0437\u0434\u0430\u0451\u043c \u043d\u043e\u0432\u0443\u044e \u0442\u043e\u0447\u043a\u0443..."
+        : "\u0421\u043e\u0445\u0440\u0430\u043d\u044f\u0435\u043c \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f...");
     if (file) {
       const mediaPayload = await uploadMediaFile(file);
       Object.assign(payload, mediaPayload);
@@ -949,11 +949,11 @@ async function saveShelterEdits(form) {
       selectedShelterId = shelterId;
     }
   } catch (error) {
-    setAuthMessage(`\\u041d\\u0435 \\u0443\\u0434\\u0430\\u043b\\u043e\\u0441\\u044c \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0438\\u0442\\u044c \\u043f\\u0440\\u0430\\u0432\\u043a\\u0438: ${error.message}`, true);
+    setAuthMessage(`\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043f\u0440\u0430\u0432\u043a\u0438: ${error.message}`, true);
     return;
   }
 
-  setAuthMessage(isCreateForm ? "\\u041d\\u043e\\u0432\\u0430\\u044f \\u0442\\u043e\\u0447\\u043a\\u0430 \\u0441\\u043e\\u0437\\u0434\\u0430\\u043d\\u0430." : "\\u0418\\u0437\\u043c\\u0435\\u043d\\u0435\\u043d\\u0438\\u044f \\u0441\\u043e\\u0445\\u0440\\u0430\\u043d\\u0435\\u043d\\u044b.");
+  setAuthMessage(isCreateForm ? "\u041d\u043e\u0432\u0430\u044f \u0442\u043e\u0447\u043a\u0430 \u0441\u043e\u0437\u0434\u0430\u043d\u0430." : "\u0418\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b.");
   await loadShelters();
 }
 
